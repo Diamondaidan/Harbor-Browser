@@ -5,7 +5,7 @@
 - Use monotonic elapsed time and UTC bounds for route evidence. Moving the system clock backward cannot prolong an old Protected claim.
 - Preserve the established profile format and pinned provider files. Add synthetic event/clock coverage and startup measurements to the owned-profile harness.
 
-Windows signing and public installer publication remain pending. These fixes are validated with synthetic callbacks and local fixtures; actual physical sleep/Wi-Fi and signed-in IPv6 tests remain open.
+The owner has chosen unsigned Windows packages after SignPath declined the application. Public installer publication still requires final release review and validation. These fixes are validated with synthetic callbacks and local fixtures; actual physical sleep/Wi-Fi and signed-in IPv6 tests remain open.
 
 ## Retained update and recovery features from 0.6.0
 
@@ -16,7 +16,7 @@ Windows signing and public installer publication remain pending. These fixes are
 - The update helper rechecks the signed record and installer, holds the package against modification, waits for Harbor to exit, then snapshots compatible profile data before opening setup. Windows approval and restart remain user choices.
 - A compatible previous version can be offered only when explicitly approved in the current signed record. Profile format remains 9, shared with 0.5.7. Bookmarks/settings and other Harbor data files are snapshotted; account databases remain in place and are not copied.
 - Update checks/downloads use the Windows connection and pause while Proton or Tor is enabled. Enabling a browser connection cancels pending update traffic.
-- Prepared GitHub Releases hosting for Diamondaidan/Harbor-Browser and Windows code-signing tools. Windows signing remains pending a certificate. Unsigned installers are identified clearly.
+- Prepared GitHub Releases hosting for Diamondaidan/Harbor-Browser and optional Windows code-signing tools. Current packages are intentionally unsigned and will be labeled accordingly. Harbor's own update signatures remain required.
 
 The application retains the established Harbor installation/profile and browser registration. Proton behavior and its limited supported-browser-request scope remain as in 0.5.7; this release does not add system-wide VPN, DNS or anonymity guarantees.
 

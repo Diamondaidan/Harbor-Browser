@@ -22,7 +22,7 @@ Layout coverage uses offscreen WPF windows with simulated available sizes and sc
 - Physical Wi-Fi transitions, suspend/resume and reboot, using a signed-in Proton account.
 - Live IPv6 behavior; the prior unavailable result is unresolved.
 - Real monitor/DPI transitions, mouse/trackpad tab dragging, taskbar access and fullscreen video on target hardware.
-- Provider signing approval, signed Windows chain/timestamp checks on a clean machine, and an actual public GitHub update/rollback cycle after approved publication.
+- An actual public GitHub update/rollback cycle after approved publication. The owner chose unsigned Windows packages after SignPath's rejection; provider approval and Windows signatures are no longer release gates. A future signing provider would need separate signature/clean-PC validation.
 
 Do not interpret older inherited 0.5.x/0.6.0 verification documents as results for this candidate. The regular application shares the established Harbor profile; automated runtime checks must continue to use injected owned stores rather than launching Harbor normally against a pretend profile.
 

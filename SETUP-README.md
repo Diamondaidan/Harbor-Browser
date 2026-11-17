@@ -2,7 +2,7 @@
 
 This is a development candidate, not an installed or signed public release. The automated checks use separate test profiles and do not upgrade the regular browser. A portable candidate still shares the regular profile when launched normally. Use the documented owned test hosts for automatic runtime checks.
 
-For an approved future installer, close regular Harbor before running setup. It requests Windows administrator approval, keeps the established Program Files installation and LocalAppData/HarborBrowser profile, and backs up Harbor data files. Beta profiles remain separate. Windows signing remains pending. Do not bypass a Windows security block; report it for diagnosis.
+For an approved future installer, close regular Harbor before running setup. It requests Windows administrator approval, keeps the established Program Files installation and LocalAppData/HarborBrowser profile, and backs up Harbor data files. Beta profiles remain separate. Windows packages are unsigned by the owner's choice; Windows may warn or block them. Do not bypass a Windows security block; report it for diagnosis.
 
 The full installer embeds the pinned Microsoft-signed .NET Framework 4.8 and WebView2 x64 offline packages. No developer tools are needed on another PC. Usable dependencies are skipped, and setup never forces a reboot. Save work and restart yourself if Windows/setup requests it.
 
