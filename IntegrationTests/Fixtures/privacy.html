@@ -1,0 +1,5 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Harbor privacy fixture</title></head><body><h1>Harbor privacy fixture</h1><p>Local test page. No external resources.</p><script>
+window.result='idle';
+window.requestMedia=function(kind){window.result='waiting';navigator.mediaDevices.getUserMedia(kind==='Camera'?{video:true}:{audio:true}).then(stream=>{stream.getTracks().forEach(t=>t.stop());window.result='allowed';},error=>window.result=error.name);return 'started';};
+window.requestNotifications=function(){window.result='waiting';Notification.requestPermission().then(value=>window.result=value);return 'started';};
+</script></body></html>

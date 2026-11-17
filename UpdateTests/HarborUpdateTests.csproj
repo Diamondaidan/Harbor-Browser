@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+ <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net48</TargetFramework><UseWPF>true</UseWPF><LangVersion>7.3</LangVersion><AssemblyName>HarborUpdateTests</AssemblyName></PropertyGroup>
+ <ItemGroup><ProjectReference Include="..\HarborBrowser\HarborBrowser.csproj"/><Reference Include="System.Web.Extensions"/></ItemGroup>
+ <ItemGroup><Compile Remove="Fixtures\*.cs"/></ItemGroup>
+ <Target Name="BuildNativeFixtures" AfterTargets="Build">
+  <MakeDir Directories="$(TargetDir)Fixtures"/>
+  <Exec Command="&quot;$(windir)\Microsoft.NET\Framework64\v4.0.30319\csc.exe&quot; /nologo /target:winexe /out:&quot;$(TargetDir)Fixtures\HarborBrowser.exe&quot; &quot;$(MSBuildProjectDirectory)\Fixtures\Parent.cs&quot;"/>
+  <Exec Command="&quot;$(windir)\Microsoft.NET\Framework64\v4.0.30319\csc.exe&quot; /nologo /target:winexe /out:&quot;$(TargetDir)Fixtures\Setup.exe&quot; &quot;$(MSBuildProjectDirectory)\Fixtures\Installer.cs&quot;"/>
+ </Target>
+</Project>

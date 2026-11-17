@@ -1,0 +1,24 @@
+{
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvwckEEGie5KjJHIrBCbztzMhrZWo0qMRWK+0ix6ZMIl2RQAhQ1kdVVLxDsCxstauYdjL+ErCqz0gyWFx+/+mIAdYaHkHpO7pkJSOhBP4tirIdZGIf2Tv9Ky6I7JD8OrVwp0dm/e83ElaH/U0WCN956H72YjL6M75vqVFE4/sLg+o5sJNRo3fZOta3CnCXOGW2jNgdF3uGo76qpicUrqFGlEfj9n+REJBrb0c+ZAJonIYyDITU6IZc/6b4dIlIVIQ9nydiQkRQcGSdQV5CaLIqa0Mf/54us9xFAjXY8gvVr7roxeBJIpNzAwgFILFwdnoTTHnuWdw0tg9okm5XliwXQIDAQAB",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://harbor-tor-control.invalid/*"
+      ],
+      "run_at": "document_idle",
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "manifest_version": 3,
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "permissions": [
+    "proxy",
+    "privacy"
+  ],
+  "version": "0.2.0",
+  "name": "Harbor Tor routing"
+}

@@ -1,0 +1,15 @@
+{
+  "Channel": "HarborStable",
+  "Version": "0.6.0",
+  "AppId": "{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}",
+  "AppUserModelId": "HarborBrowser.Desktop",
+  "InstanceSuffix": "",
+  "RegisteredName": "Harbor Browser",
+  "BrowserClient": "HarborBrowser",
+  "RegistryRoot": "HKLM64",
+  "ProfileRelativePath": "HarborBrowser",
+  "MinWindowsBuild": 19041,
+  "MinWebViewMajor": 157,
+  "RecognizedLegacyVersion": "0.5.3",
+  "RecognizedLegacySHA256": "BF36D03382CA42EF331F400768DE354DA88928EABDD5AD7073372E48E6121EF6"
+}

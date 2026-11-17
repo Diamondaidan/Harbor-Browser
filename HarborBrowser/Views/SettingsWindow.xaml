@@ -1,0 +1,162 @@
+<Window x:Class="HarborBrowser.Views.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:views="clr-namespace:HarborBrowser.Views" Title="Harbor Settings" Height="720" Width="650" MinHeight="470" MinWidth="520" MaxHeight="1000" WindowStartupLocation="CenterOwner" ResizeMode="CanResize" Background="{DynamicResource HarborWindow}" FontFamily="Segoe UI" FontSize="13">
+  <Grid Margin="18">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <!-- The settings content scrolls independently of the action buttons. -->
+    <views:SmoothScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False" PanningMode="VerticalOnly" Padding="0,0,9,12">
+      <StackPanel>
+        <StackPanel Margin="0,0,0,14">
+          <TextBlock Text="Harbor Settings" FontSize="21" FontWeight="SemiBold" Foreground="{DynamicResource HarborText}" />
+          <TextBlock Text="Choose your browsing defaults and tune Harbor's resource use." Foreground="{DynamicResource HarborMuted}" Margin="0,3,0,0" />
+        </StackPanel>
+        <GroupBox Header="Appearance" Padding="12" Margin="0,0,0,14">
+          <StackPanel>
+            <Grid Margin="0,0,0,12">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="145" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="Color mode" VerticalAlignment="Center" />
+              <ComboBox x:Name="AppearanceModeBox" Grid.Column="1" SelectedValuePath="Tag" SelectionChanged="AppearanceMode_Changed">
+                <ComboBoxItem Content="Light" Tag="Light" />
+                <ComboBoxItem Content="Dark" Tag="Dark" />
+              </ComboBox>
+            </Grid>
+            <TextBlock Text="Saved appearance presets" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="PresetBox" DisplayMemberPath="Name" AutomationProperties.Name="Appearance preset"/>
+            <WrapPanel Margin="0,5,0,8"><Button Content="Apply preset" Click="ApplyPreset_Click"/><Button Content="Remove preset" Click="RemovePreset_Click"/></WrapPanel>
+            <TextBlock Text="Preset name" Margin="0,0,0,4"/><TextBox x:Name="PresetNameBox" ToolTip="Preset name" AutomationProperties.Name="New appearance preset name"/>
+            <Button Content="Save current colors as preset" Click="SavePreset_Click" HorizontalAlignment="Left" Margin="0,5,0,12"/>
+            <TextBlock Text="Make Harbor your own" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5" />
+            <TextBlock Text="Choose a color target, then use the wheel, brightness slider or a hex color. Light and dark palettes are saved separately. Preview changes here; Save settings applies them throughout Harbor." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="0,0,0,12" />
+            <ComboBox x:Name="ColorTargetBox" SelectedValuePath="Tag" SelectionChanged="ColorTarget_Changed" Margin="0,0,0,12">
+              <ComboBoxItem Content="Accent — selection, highlights and buttons" Tag="Accent" />
+              <ComboBoxItem Content="Window background" Tag="Background" />
+              <ComboBoxItem Content="Panels — toolbars and menus" Tag="Panel" />
+              <ComboBoxItem Content="Input fields and content surfaces" Tag="Input" />
+              <ComboBoxItem Content="Text" Tag="Text" />
+            </ComboBox>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="190" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <views:ColorWheel x:Name="AppearanceWheel" Width="180" Height="180" HorizontalAlignment="Left" SelectedColorChanged="AppearanceWheel_Changed" AutomationProperties.Name="Color wheel. Arrow keys adjust hue and saturation." />
+              <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                <Border x:Name="AppearanceSwatch" Height="35" CornerRadius="5" BorderBrush="{DynamicResource HarborLine}" BorderThickness="1" Margin="0,0,0,10" />
+                <TextBlock Text="Hex color" Margin="0,0,0,4" />
+                <TextBox x:Name="AppearanceHexBox" MaxLength="7" LostFocus="AppearanceHex_Changed" KeyDown="AppearanceHex_KeyDown" ToolTip="Enter #RRGGBB or #RGB" />
+                <TextBlock Text="Brightness" Margin="0,9,0,3" />
+                <Slider x:Name="BrightnessSlider" Minimum="0" Maximum="100" ValueChanged="Brightness_Changed" AutomationProperties.Name="Color brightness" />
+                <Button x:Name="ResetColorButton" Content="Reset this color" Click="ResetColor_Click" Margin="0,10,0,0" />
+              </StackPanel>
+            </Grid>
+            <TextBlock x:Name="AppearanceWarning" Foreground="{DynamicResource HarborAccent}" TextWrapping="Wrap" Margin="0,10,0,0" />
+            <Button x:Name="ResetAppearanceButton" Content="Reset this mode to default colors" Click="ResetAppearance_Click" HorizontalAlignment="Left" Margin="0,10,0,0" />
+            <TextBlock Text="Applies to Harbor's interface and home page. Websites keep their own designs." FontSize="11" Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="0,10,0,0" />
+          </StackPanel>
+        </GroupBox>
+        <GroupBox x:Name="HomeCustomizationGroup" Header="Home page customization" Padding="12" Margin="0,0,0,14">
+          <StackPanel>
+            <TextBlock Text="Background scene" Margin="0,0,0,5"/>
+            <ComboBox x:Name="HomeSceneBox" SelectedValuePath="Tag">
+              <ComboBoxItem Content="Follow light / dark mode" Tag="Auto"/><ComboBoxItem Content="Morning coast" Tag="Morning"/><ComboBoxItem Content="Blue hour coast" Tag="BlueHour"/><ComboBoxItem Content="Custom image" Tag="Custom"/>
+            </ComboBox>
+            <WrapPanel Margin="0,6,0,3"><Button Content="Choose image…" Click="BrowseBackground_Click"/><Button Content="Reset background" Click="ResetBackground_Click"/></WrapPanel>
+            <TextBlock x:Name="BackgroundSummary" TextWrapping="Wrap" Foreground="{DynamicResource HarborMuted}" Margin="0,0,0,12"/>
+            <CheckBox x:Name="UseBookmarkShortcutsBox" Content="Use bookmarks automatically for home shortcuts" Checked="ShortcutMode_Changed" Unchecked="ShortcutMode_Changed"/>
+            <Button Content="Edit home shortcuts…" Click="EditShortcuts_Click" HorizontalAlignment="Left" Margin="0,6,0,3"/>
+            <TextBlock x:Name="ShortcutSummary" TextWrapping="Wrap" Foreground="{DynamicResource HarborMuted}"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Search suggestions" Padding="12" Margin="0,0,0,14">
+          <StackPanel><CheckBox x:Name="OnlineSuggestionsBox" Content="Show online search suggestions as I type"/><TextBlock Text="Sends search text to your selected search provider. Always off in private tabs. Web addresses and local addresses stay on this computer." TextWrapping="Wrap" Foreground="{DynamicResource HarborMuted}" Margin="18,5,0,0"/></StackPanel>
+        </GroupBox>
+        <Grid Margin="0,0,0,10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="145" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="Default search engine" VerticalAlignment="Center" />
+          <ComboBox x:Name="SearchEngineBox" Grid.Column="1" Height="30" SelectedValuePath="Id" />
+        </Grid>
+        <Grid Margin="0,0,0,12">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="145" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <TextBlock Text="Home page" VerticalAlignment="Center" />
+          <TextBox ToolTip="Use harbor://home for Harbor Home, or enter a website address." x:Name="HomePageBox" Grid.Column="1" Height="30" VerticalContentAlignment="Center" />
+        </Grid>
+        <GroupBox Header="Interface" Padding="12" BorderBrush="{DynamicResource HarborLine}" Margin="0,0,0,10">
+          <StackPanel>
+            <CheckBox x:Name="ShowBookmarksBarBox" Content="Show bookmarks toolbar" Margin="0,3,0,7" />
+            <CheckBox x:Name="ShowStatusBarBox" Content="Show status bar" Margin="0,3,0,7" />
+            <CheckBox x:Name="EnableDevToolsBox" Content="Enable developer tools (advanced)" Margin="0,3,0,2" />
+            <TextBlock Text="When enabled, press F12 or Ctrl+Shift+I to open WebView2 Developer Tools. Inspect page HTML and styles, view JavaScript errors in Console, examine Network requests, and troubleshoot page performance or storage. This is optional and is mainly useful for web development and diagnosing website problems." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="18,0,0,2" />
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Performance and memory" Padding="12" BorderBrush="{DynamicResource HarborLine}" Margin="0,0,0,10">
+          <StackPanel>
+            <CheckBox x:Name="SuspendInactiveTabsBox" Content="Put inactive tabs to sleep automatically" FontWeight="SemiBold" Margin="0,3,0,10" />
+            <Grid Margin="20,0,0,8">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="190" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="Sleep a tab after" VerticalAlignment="Center" />
+              <ComboBox x:Name="SuspendDelayBox" Grid.Column="1" Height="29" SelectedValuePath="Tag">
+                <ComboBoxItem Content="30 seconds" Tag="30" />
+                <ComboBoxItem Content="1 minute" Tag="60" />
+                <ComboBoxItem Content="2 minutes" Tag="120" />
+                <ComboBoxItem Content="5 minutes" Tag="300" />
+                <ComboBoxItem Content="10 minutes" Tag="600" />
+              </ComboBox>
+            </Grid>
+            <TextBlock Text="Sleeping tabs pause page scripts and animations and wake when selected. Playing media, picture in picture and active or paused downloads stay awake. Use the Resource Monitor or a tab's menu to keep a tab awake for this session. Some pages may decline sleep." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,8" />
+            <TextBlock Text="New tabs are already lazy-loaded: the browser engine starts only when you first open a tab." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,2" />
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Privacy and session" Padding="12" BorderBrush="{DynamicResource HarborLine}" Margin="0,0,0,10">
+          <StackPanel>
+            <CheckBox x:Name="RestorePreviousSessionBox" Content="Restore my previous tabs when Harbor starts" Margin="0,3,0,7" />
+            <CheckBox x:Name="EnableTrackerBlockingBox" Content="Block requests to Harbor's known advertising and analytics tracker list" FontWeight="SemiBold" Margin="0,3,0,7" />
+            <Grid Margin="18,0,0,8">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="190" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <TextBlock Text="WebView2 tracking prevention" VerticalAlignment="Center" />
+              <ComboBox x:Name="TrackingPreventionLevelBox" Grid.Column="1" Height="28" SelectedValuePath="Tag">
+                <ComboBoxItem Content="Off" Tag="None" />
+                <ComboBoxItem Content="Basic" Tag="Basic" />
+                <ComboBoxItem Content="Balanced (recommended)" Tag="Balanced" />
+                <ComboBoxItem Content="Strict" Tag="Strict" />
+              </ComboBox>
+            </Grid>
+            <TextBlock Text="WebView2 tracking prevention applies at the browser-profile level. Strict mode blocks more cross-site tracking but may affect some websites. Changes apply on the next navigation; reload open pages to apply immediately." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="18,0,0,8" />
+            <CheckBox x:Name="ClearCookiesOnExitBox" Content="Clear cookies and site storage when Harbor closes" Margin="0,3,0,7" />
+            <CheckBox x:Name="ClearCacheOnExitBox" Content="Clear cached website files when Harbor closes" Margin="0,3,0,7" />
+            <TextBlock Text="Private tabs share a temporary session. Closing its last tab clears site data and the private download list; downloaded files and saved bookmarks remain on this computer. Use Cog > Tools for site permissions and Clear browsing data." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="18,0,0,2" />
+          </StackPanel>
+        </GroupBox>
+      </StackPanel>
+    </views:SmoothScrollViewer>
+    <!-- This footer stays visible even when the content above needs scrolling. -->
+    <Border Grid.Row="1" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,1,0,0" Padding="0,12,0,0" Background="{DynamicResource HarborPanel}">
+      <Grid xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*" />
+          <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <TextBlock Text="Changes are saved when you select Save settings." Foreground="{DynamicResource HarborMuted}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Grid.Column="1" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+          <Button x:Name="CancelSettingsButton" Content="Cancel" Width="90" Margin="0,0,8,0" IsCancel="True" Click="Cancel_Click" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
+          <Button x:Name="SaveSettingsButton" Content="Save settings" Width="115" Background="{DynamicResource HarborSelected}" IsDefault="True" Click="Save_Click" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</Window>

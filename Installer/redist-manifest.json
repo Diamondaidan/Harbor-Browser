@@ -1,0 +1,16 @@
+[
+  {
+    "Name": "MicrosoftEdgeWebView2RuntimeInstallerX64.exe",
+    "Bytes": 214990032,
+    "SHA256": "1BE9D2926954D99DD62653A22EFE813160FE0C40F1E422B44E6AAF5473F68EEC",
+    "Signature": "Valid",
+    "Publisher": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+  },
+  {
+    "Name": "ndp48-x86-x64-allos-enu.exe",
+    "Bytes": 121346568,
+    "SHA256": "0A3A390C47E639D0F7FC65B21195FEE6B7F65B066F80F70C60FAB191D14B7E40",
+    "Signature": "Valid",
+    "Publisher": "CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
+  }
+]

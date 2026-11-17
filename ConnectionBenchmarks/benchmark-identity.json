@@ -1,0 +1,9 @@
+{
+  "Cases": 9,
+  "Samples": 90,
+  "OwnedTorPresentInAll30TorSamples": true,
+  "NoTorProcessIn60OtherSamples": true,
+  "AllCleanupAndProxyChecks": true,
+  "AppSHA256": "961750F138F0AC7845FAA6B61661EBDAAB8942DD3545A382686606F62DABFE47",
+  "FixturesSHA256": "E8C69B16A1863A64620BC85BA57511E34F9D0ADD2B8528CAF20527262199887F"
+}

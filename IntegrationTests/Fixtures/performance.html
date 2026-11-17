@@ -1,0 +1,5 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Harbor performance fixture</title></head><body><h1>Local performance fixture</h1><div id="rows"></div><script>
+window.memory=new Uint8Array(8*1024*1024);for(let i=0;i<memory.length;i+=4096)memory[i]=i%251;
+window.token=Math.random().toString(36);window.ticks=0;window.timer=setInterval(()=>{const end=performance.now()+8;let value=0;while(performance.now()<end)value+=Math.sqrt(value+1);window.ticks++;memory[(ticks*4096)%memory.length]=ticks%251;},100);
+for(let i=0;i<300;i++){let row=document.createElement('p');row.textContent='Local test row '+i;document.getElementById('rows').append(row);}
+</script></body></html>

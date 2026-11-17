@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>HarborBrowser</AssemblyName>
+    <HarborVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\VERSION.txt').Trim())</HarborVersion>
+    <Version>$(HarborVersion)</Version>
+    <AssemblyVersion>$(HarborVersion).0</AssemblyVersion>
+    <FileVersion>$(HarborVersion).0</FileVersion>
+    <InformationalVersion>$(HarborVersion)</InformationalVersion>
+    <ApplicationIcon>HarborBrowser.ico</ApplicationIcon>
+    <RootNamespace>HarborBrowser</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
+    <!-- WPF markup compilation with the .NET SDK-style project may not resolve
+         System.Web transitively from System.Web.Extensions. Reference it explicitly
+         to avoid MC1000: Could not find assembly System.Web. -->
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Home\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Assets\BrowserVpn\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup><Resource Include="HarborBrowser.ico"/><Resource Include="Assets\Home\beacon.png"/></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets\Media\media.js"/><Content Include="Branding\*.ico" CopyToOutputDirectory="PreserveNewest"/></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UpdateLauncher\HarborUpdateLauncher.csproj" ReferenceOutputAssembly="false" />
+    <Content Include="..\UpdateLauncher\bin\$(Configuration)\net48\HarborUpdateLauncher.exe" Link="HarborUpdateLauncher.exe" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
+
+
+

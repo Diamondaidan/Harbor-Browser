@@ -1,0 +1,5 @@
+namespace HarborBrowser.Updates {
+ internal static class UpdateTrustRoot {
+  internal static UpdateTrust Create(){return new UpdateTrust("Diamondaidan","Harbor-Browser","harbor-updates-v1","<RSAKeyValue><Modulus>v2I/kbyB4OBwM33thwxEj+zVpDkuV/VG8pDtBEfD7YVkp8X1FjB2aYlETSk3oBvMpi2lFV65uKw7EgO2vriGvPD1eFQ+P+14uTYwcQRZ7ZZV+aBzPBO3xDISUTBmMqpD8NjI2RedZgJB6g87HOs8f+OlST0f5oFFOTvDYub+YKcBHDXPGqgRHEn9zu9vRwA1LhrsumtoVgpgdjaFunuozsrQEx+6Q0Ig0Ea7paAgBZkwfODJr/+Oxswv9h3uJ6faHM1Vf3aMv0jaC2BbeipPwd3nkztWbF2h8I9RXBGweiHK+a9rq0vH3S8ZymH3DAlUXRucVaXXLJ6k0Hl+hw8MaNiX1xfSLqVfmIQJpjlGZCHzuUBiP3ud8EoHKfZd5bQYPtzINz43Y48rvyNkTOjljrHHEIc6bXwo+O/9p0Hufs3SyVhoI9tfkDrn2HQg3xrLSCvYNRIB8A/63QDOi1lpB2I1slQaXajUZ3Z3aCq2JUiLhQFXkdoP0YOIKS/jXF51</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>");}
+ }
+}

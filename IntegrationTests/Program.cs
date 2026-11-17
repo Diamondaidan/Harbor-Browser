@@ -1,0 +1,265 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using System.Web.Script.Serialization;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Interop;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Threading;
+using HarborBrowser;
+using HarborBrowser.Services;
+using HarborBrowser.Models;
+using HarborBrowser.Views;
+using Microsoft.Web.WebView2.Core;
+
+internal static partial class Program
+{
+    private static int checks;
+    private static readonly JavaScriptSerializer Json=new JavaScriptSerializer();
+    private static void Check(string name,bool value){if(!value)throw new Exception(name);Console.WriteLine("PASS "+name);Console.Out.Flush();checks++;}
+    private static async Task Wait(Func<bool> predicate){for(int i=0;i<250;i++){if(predicate())return;await Task.Delay(100);}throw new TimeoutException("Timed out waiting for app state.");}
+    private static string Label(MenuItem item){var text=item.Header as TextBlock;return text==null?Convert.ToString(item.Header):text.Text;}
+    private static MenuItem Find(MenuItem parent,string name){return parent.Items.OfType<MenuItem>().First(i=>Label(i)==name);}
+    private static MenuItem Groups(MainWindow main){return (MenuItem)typeof(MainWindow).GetMethod("CreateTabGroupsMenu",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(main,null);}
+    [STAThread]
+    private static int Main(string[] args)
+    {
+        if(args.Length>2&&args[2]=="--startup-host")return StartupHost(args);
+        if(args.Length>2&&args[2]=="--proton-hotfix2-host")return ProtonHotfix2Host(args);
+        if(args.Length>2&&args[2]=="--proton-beta-host")return ProtonBetaHost(args);
+        if(args.Length>3&&args[2]=="--tor-lifecycle-host")return TorLifecycleHost(args);
+        int exit=1;Directory.CreateDirectory(args[0]);
+        var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
+        app.Resources.MergedDictionaries.Add(new ResourceDictionary{Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml")});
+        var store=new BrowserDataStore(Path.Combine(args[0],"Profile"),Path.Combine(args[0],"Downloads"));
+        store.SaveSettings(new BrowserSettings{RestorePreviousSession=false,HarborHomeIntroduced=true,ThemeMode="Dark",OnlineSuggestionsEnabled=false});
+        store.SaveHistory(Enumerable.Range(1,30).Select(i=>new HistoryEntry{Title="History sample "+i,Url="https://history.test.invalid/page-"+i,VisitedAt=new DateTime(2026,11,12,12,0,0).AddMinutes(-i)}).ToList());
+        var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
+        bool organization=args.Length>2&&args[2]=="--interactive-organization";
+        bool interactive=organization||(args.Length>2&&args[2]=="--interactive-clicks");
+        Func<IntPtr,MonitorLayout> monitors=interactive?null:new Func<IntPtr,MonitorLayout>(h=>layout);
+        var main=new MainWindow(store,monitors){WindowStartupLocation=WindowStartupLocation.Manual,Left=interactive?80:-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=interactive,ShowActivated=interactive};
+        main.TestBrowserArguments="--use-fake-device-for-media-stream";
+        BetaGuardFixtureServer r4Proxy=null;
+        if(args.Length>2&&(args[2]=="--proton-r4"||args[2]=="--proton-r4-benchmark"))
+        {
+            r4Proxy=new BetaGuardFixtureServer(true,true);
+            main.TestBrowserArguments+=" --host-resolver-rules=\"MAP harbor-owned-proxy.invalid 127.0.0.1\" --ignore-certificate-errors-spki-list="+r4Proxy.CertificateSpkiHash;
+        }
+        var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(600)};
+        timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL integration timed out");app.Shutdown(1);};
+        main.Loaded+=async(s,e)=>{
+            try
+            {
+                await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
+                var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
+                var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--updates060")
+                {await Updates060Checks(main,store);Console.WriteLine("ALL PASSED: "+checks+" native update-menu and routing-gate checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release057")
+                {await Release057Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" isolated 0.5.7 identity and native engine recovery checks.");exit=0;return;}
+                if(args.Length>3&&args[2]=="--proton-r4-benchmark")
+                {try{await ProtonR4Checks(main,args[0],r4Proxy,args[3]);Console.WriteLine("ALL PASSED: "+checks+" owned route-lifecycle benchmark checks.");exit=0;}finally{r4Proxy.Dispose();}return;}
+                if(args.Length>2&&args[2]=="--proton-r4")
+                {try{await ProtonR4Checks(main,args[0],r4Proxy);Console.WriteLine("ALL PASSED: "+checks+" R4 proxy-error, status and resource checks.");exit=0;}finally{r4Proxy.Dispose();}return;}
+                if(args.Length>2&&args[2]=="--proton-unguarded-handoff")
+                {await ProtonGuardHandoffChecks(main,args[0],false);exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-guard-handoff")
+                {await ProtonGuardHandoffChecks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" guarded extension handoff checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-fallback")
+                {await ProtonFallbackChecks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" native proxy fallback checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--socket-block")
+                {await BetaSocketBlockCheck(core);exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-beta")
+                {await ProtonBetaChecks(main,store,args[0]);await ProtonProxyProofChecks(main,args[0]);FinishBetaCounterChecks(args[0]);Console.WriteLine("ALL PASSED: "+checks+" beta startup/request protection checks. Synthetic owned profiles only; no account login performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-proxy-proof")
+                {await ProtonProxyProofChecks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" isolated native proxy-proof shape checks. No account login or external requests performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-hotfix2")
+                {await ProtonHotfix2Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Proton cold-restart and loading-recovery checks. No account login performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--auth-handoff")
+                {await AuthHandoffChecks(main,store,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" synthetic popup-context and sign-in sleep-protection checks. No account login performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-pending")
+                {await ProtonPendingStateChecks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" synthetic Proton pending-state storage checks. No real authorization state read.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton055")
+                {await Proton055Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" signed-out Proton compatibility and reversal checks. Live login/connection are not included.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--theme054")
+                {await Theme054Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" native title bar and toolbar checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--tor054")
+                {await Tor054Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Tor monitoring and recovery checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--privacy054")
+                {await Privacy054Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" bounded SOCKS hostname and WebRTC/STUN checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release053")
+                {await Release053Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" startup recovery and version checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--browser-vpn")
+                {await BrowserVpnChecks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Tor connection, isolation, failure and rollback checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release052")
+                {await ModuleRestore052(args[0]);await TorLifecycle052(args[0]);Console.WriteLine("ALL PASSED: "+checks+" extension integrity and real Tor lifecycle checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--module052")
+                {await ModuleRestore052(args[0]);Console.WriteLine("ALL PASSED: "+checks+" module restoration and integrity checks.");exit=0;return;}
+                if(organization)
+                {
+                    var entries=(System.Collections.Generic.List<Bookmark>)Field(main,"_bookmarks");entries.Clear();
+                    for(int i=0;i<5;i++)entries.Add(new Bookmark{Title="Bookmark "+(char)('A'+i),Url="https://click.test.invalid/performance.html?bookmark="+i});
+                    typeof(MainWindow).GetMethod("RefreshBookmarksBar",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(main,null);
+                    core.SetVirtualHostNameToFolderMapping("click.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
+                    for(int i=0;i<3;i++)AddTab(main,HomePageService.Url);
+                    var journal=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(300)};
+                    journal.Tick+=(ss,ee)=>{main.Title="Harbor 0.4.3 isolated organization check";File.WriteAllText(Path.Combine(args[0],"interactive-state.json"),Json.Serialize(new{bookmarks=main.BookmarksBarPanel.Children.OfType<Button>().Select(b=>Convert.ToString(b.Content)).ToArray(),tabs=main.BrowserTabs.Items.Cast<TabItem>().Select(i=>((BrowserTab)i.Tag).ResourceId.ToString()).ToArray()}));};journal.Start();
+                    main.Activate();var done=new TaskCompletionSource<bool>();main.Closed+=(ss,ee)=>{journal.Stop();done.TrySetResult(true);};await done.Task;exit=0;return;
+                }
+                if(interactive)
+                {
+                    core.SetVirtualHostNameToFolderMapping("click.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
+                    ((System.Collections.Generic.List<Bookmark>)Field(main,"_bookmarks")).Add(new Bookmark{Title="clicksentinel bookmark",Url="https://click.test.invalid/performance.html?bookmark=1"});
+                    ((System.Collections.Generic.List<HistoryEntry>)Field(main,"_history")).Insert(0,new HistoryEntry{Title="clicksentinel history",Url="https://click.test.invalid/performance.html?history=1",VisitedAt=DateTime.Now});
+                    core.NavigationStarting+=(ss,ee)=>{File.AppendAllText(Path.Combine(args[0],"interactive-navigations.log"),ee.Uri+Environment.NewLine);if(!HomePageService.IsHomeUrl(ee.Uri)&&!ee.Uri.StartsWith("https://click.test.invalid/"))ee.Cancel=true;};
+                    core.DocumentTitleChanged+=(ss,ee)=>main.Title="Isolated Harbor suggestion click test";main.Title="Isolated Harbor suggestion click test";
+                    main.Activate();main.AddressBox.Focus();main.AddressBox.Text="clicksentinel";
+                    var done=new TaskCompletionSource<bool>();main.Closed+=(ss,ee)=>done.TrySetResult(true);await done.Task;exit=0;return;
+                }
+                if(args.Length>2&&args[2]=="--suggestion-clicks")
+                {await SuggestionClickChecks(main);Console.WriteLine("ALL PASSED: "+checks+" focused suggestion-click checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release042")
+                {await Release042Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.4.2 checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release043")
+                {await Release043Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.4.3 checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--startup-only")
+                {await StartupChecks(args[0]);Console.WriteLine("ALL PASSED: "+checks+" startup checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release050")
+                {await Release050Checks(main,args[0]);await StartupChecks(args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.5.0 checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--live-sites")
+                {await LiveSiteChecks(main,args[0]);Console.WriteLine("FINISHED: "+checks+" live-site assertions; see any UNVERIFIED results.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--privacy-edge")
+                {await PrivacyEdgeChecks(main,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" focused privacy edge checks.");exit=0;return;}
+                core.SetVirtualHostNameToFolderMapping("media.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
+                core.SetVirtualHostNameToFolderMapping("media-frame.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
+                var loaded=new TaskCompletionSource<bool>();
+                core.NavigationCompleted+=(ss,ee)=>{if(core.Source.StartsWith("https://media.test.invalid/")){if(ee.IsSuccess)loaded.TrySetResult(true);else loaded.TrySetException(new Exception("Media fixture load: "+ee.WebErrorStatus));}};
+                core.Navigate("https://media.test.invalid/video.html");await loaded.Task;
+                await Wait(()=>tab.MediaFrames.Count>0);
+                var frame=tab.MediaFrames[0];
+                for(int i=0;i<60;i++){if(VideoScriptService.Score(await frame.ExecuteScriptAsync(VideoScriptService.Command("probe")))>0)break;await Task.Delay(100);}
+                Check("cross-origin iframe video discovered",VideoScriptService.Score(await frame.ExecuteScriptAsync(VideoScriptService.Command("probe")))>0);
+                Check("group bar absent",main.FindName("TabGroupFilterBox")==null);
+                Check("caption and tabs share same row",Math.Abs(main.BrowserTabs.TransformToAncestor(main.WindowFrame).Transform(new Point()).Y-main.CloseWindowButton.TransformToAncestor(main.WindowFrame).Transform(new Point()).Y)<5);
+                Check("Beacon window icon loaded",main.Icon!=null&&main.HeaderBrandLogo.Source!=null);
+                await ResponsiveChecks(main,tab,core,args[0]);
+                main.Presentation.SetBrowserFullScreen(true);
+                await Task.Delay(200);
+                NativeWindowGeometry.Rect bounds;NativeWindowGeometry.GetWindowRect(new WindowInteropHelper(main).Handle,out bounds);
+                Check("browser fullscreen uses monitor work area",bounds.Pixels.Height==680&&bounds.Pixels.Width==1280);
+                Check("browser fullscreen hides toolbars",main.BrowserChrome.Visibility==Visibility.Collapsed);
+                main.Presentation.SetBrowserFullScreen(false);await Task.Delay(200);
+                Check("browser fullscreen restores chrome",main.BrowserChrome.Visibility==Visibility.Visible);
+                main.Activate();tab.View.Focus();await Task.Delay(200);
+                await core.CallDevToolsProtocolMethodAsync("Emulation.setFocusEmulationEnabled","{\"enabled\":true}");
+                var tree=Json.Deserialize<System.Collections.Generic.Dictionary<string,object>>(await core.CallDevToolsProtocolMethodAsync("Page.getFrameTree","{}"));
+                var treeRoot=(System.Collections.Generic.Dictionary<string,object>)tree["frameTree"];
+                var child=(System.Collections.Generic.Dictionary<string,object>)((System.Collections.IList)treeRoot["childFrames"])[0];
+                var childInfo=(System.Collections.Generic.Dictionary<string,object>)child["frame"];
+                var world=Json.Deserialize<System.Collections.Generic.Dictionary<string,object>>(await core.CallDevToolsProtocolMethodAsync("Page.createIsolatedWorld",Json.Serialize(new{frameId=(string)childInfo["id"],worldName="HarborIntegration"})));
+                int contextId=Convert.ToInt32(world["executionContextId"]);
+                string request="document.querySelector('video').requestFullscreen()";
+                string result=await core.CallDevToolsProtocolMethodAsync("Runtime.evaluate",Json.Serialize(new {expression=request,contextId=contextId,userGesture=true,awaitPromise=true,returnByValue=true}));
+
+                Check("fullscreen request succeeded",!result.Contains("exceptionDetails"));
+                await Wait(()=>core.ContainsFullScreenElement&&main.Presentation.VideoFullScreen);
+                await Task.Delay(250);
+                NativeWindowGeometry.GetWindowRect(new WindowInteropHelper(main).Handle,out bounds);
+                Check("HTML fullscreen fills complete monitor",bounds.Pixels.Width==1280&&bounds.Pixels.Height==720);
+                Check("video fullscreen removes header/status/frame",main.BrowserChrome.Visibility==Visibility.Collapsed&&main.BottomStatus.Visibility==Visibility.Collapsed&&main.WindowFrame.BorderThickness.Top==0);
+                using(var file=File.Create(Path.Combine(args[0],"video-fullscreen.png")))await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,file);
+                var create=typeof(MainWindow).GetMethod("CreateNewTab",BindingFlags.Instance|BindingFlags.NonPublic,null,new[]{typeof(string),typeof(bool)},null);
+                var second=(BrowserTab)create.Invoke(main,new object[]{HomePageService.Url,false});
+                main.BrowserTabs.SelectedItem=second.Item;await Task.Delay(150);
+                Check("switching away from video restores browser chrome",!main.Presentation.VideoFullScreen&&main.BrowserChrome.Visibility==Visibility.Visible);
+                main.BrowserTabs.SelectedItem=tab.Item;main.Activate();tab.View.Focus();
+                await core.ExecuteScriptAsync("document.fullscreenElement ? document.exitFullscreen() : null");
+                await Wait(()=>!core.ContainsFullScreenElement);
+                await core.CallDevToolsProtocolMethodAsync("Runtime.evaluate",Json.Serialize(new {expression=request,contextId=contextId,userGesture=true,awaitPromise=true,returnByValue=true}));
+                await Wait(()=>core.ContainsFullScreenElement&&main.Presentation.VideoFullScreen);
+                main.Presentation.SetBrowserFullScreen(true);
+                await core.ExecuteScriptAsync("document.exitFullscreen()");
+                await Wait(()=>!core.ContainsFullScreenElement&&!main.Presentation.VideoFullScreen);
+                await Task.Delay(150);
+                NativeWindowGeometry.GetWindowRect(new WindowInteropHelper(main).Handle,out bounds);
+                Check("exiting video retains prior browser fullscreen",main.Presentation.BrowserFullScreen&&bounds.Pixels.Height==680);
+                main.Presentation.SetBrowserFullScreen(false);
+                Check("fullscreen restores normal resize minimums",main.MinWidth==480&&main.MinHeight==280);
+                await core.CallDevToolsProtocolMethodAsync("Runtime.evaluate",Json.Serialize(new {expression=request,contextId=contextId,userGesture=true,awaitPromise=true,returnByValue=true}));
+                await Wait(()=>core.ContainsFullScreenElement&&main.Presentation.VideoFullScreen);
+                var originalView=tab.View;
+                double before=Json.Deserialize<double>(await frame.ExecuteScriptAsync("document.querySelector('video').currentTime"));
+                await main.TogglePictureInPictureAsync(tab);await Task.Delay(400);
+                Check("picture in picture window opened",tab.VideoPopout!=null&&tab.VideoPopout.IsVisible);
+                Check("PiP window stays on top",tab.VideoPopout.Topmost);
+                Check("PiP keeps original browser/player",ReferenceEquals(tab.VideoPopout.PlayerHost.Content,originalView)&&ReferenceEquals(tab.View,originalView));
+                Check("PiP exits video fullscreen cleanly",!main.Presentation.VideoFullScreen&&!core.ContainsFullScreenElement);
+                Check("iframe focus expanded in popout",await core.ExecuteScriptAsync("document.querySelector('iframe').classList.contains('harbor-pip-focus')")=="true");
+                Check("video controls available in popout",await frame.ExecuteScriptAsync("document.querySelector('video').controls")=="true");
+                Check("PiP page has no scrollbar",await core.ExecuteScriptAsync("document.documentElement.scrollHeight <= innerHeight && document.documentElement.scrollWidth <= innerWidth")=="true");
+                Check("PiP iframe has no scrollbar",await frame.ExecuteScriptAsync("document.documentElement.scrollHeight <= innerHeight && document.documentElement.scrollWidth <= innerWidth")=="true");
+                var controls=(StackPanel)((DockPanel)tab.VideoPopout.Content).Children[0];
+                var play=controls.Children.OfType<Button>().First(b=>Convert.ToString(b.Content)=="Play / pause");
+                var mute=controls.Children.OfType<Button>().First(b=>Convert.ToString(b.Content)=="Mute / unmute");
+                play.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(150);
+                Check("PiP play/pause button pauses video",await frame.ExecuteScriptAsync("document.querySelector('video').paused")=="true");
+                play.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(150);
+                Check("PiP play/pause button resumes video",await frame.ExecuteScriptAsync("document.querySelector('video').paused")=="false");
+                mute.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(100);
+                Check("PiP mute button unmutes video",await frame.ExecuteScriptAsync("document.querySelector('video').muted")=="false");
+                mute.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));await Task.Delay(100);
+                Check("PiP mute button restores mute",await frame.ExecuteScriptAsync("document.querySelector('video').muted")=="true");
+                double after=Json.Deserialize<double>(await frame.ExecuteScriptAsync("document.querySelector('video').currentTime"));
+                Check("video playback position retained",after>=before);
+                Check("PiP tab not suspended",!tab.IsSuspended);
+                using(var file=File.Create(Path.Combine(args[0],"picture-in-picture.png")))await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,file);
+                tab.VideoPopout.Close();await Task.Delay(400);
+                Check("PiP close returns original browser to tab",tab.VideoPopout==null&&ReferenceEquals(main.BrowserContentHost.Content,originalView));
+                Check("iframe layout restored",await core.ExecuteScriptAsync("!document.querySelector('iframe').classList.contains('harbor-pip-focus')")=="true");
+                Check("original video controls restored",await frame.ExecuteScriptAsync("document.querySelector('video').controls")=="false");
+                var groups=Groups(main);var move=Find(groups,"Move current tab to");
+                Find(move,"Work").RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+                Check("cog assigns current tab to group",tab.GroupName=="Work");
+                Find(Groups(main),"Show Personal").RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+                Check("cog filters tab group",tab.Item.Visibility==Visibility.Collapsed);
+                Find(Groups(main),"Show all tabs").RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+                Check("cog restores all tabs",tab.Item.Visibility==Visibility.Visible);
+
+                Check("new actual app tab appended right",ReferenceEquals(main.BrowserTabs.Items[1],second.Item));
+                typeof(MainWindow).GetMethod("MoveTabRelative",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(main,new object[]{second,-1});
+                Check("actual app reorder changes tab order",ReferenceEquals(main.BrowserTabs.Items[0],second.Item));
+                var session=store.LoadSession();Check("reordered session persisted",session.Tabs.Count==2&&session.Tabs[0].Url==HomePageService.Url);
+                var bitmap=new RenderTargetBitmap((int)main.WindowFrame.ActualWidth,83,96,96,PixelFormats.Pbgra32);bitmap.Render(main.WindowFrame);
+                var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                using(var file=File.Create(Path.Combine(args[0],"compact-header.png")))encoder.Save(file);
+                await EverydayChecks(main,tab,store,core,args[0],args[1]);
+                await CustomizationChecks(main,store,args[0]);
+                await Release042Checks(main,store,args[0]);
+                await Release043Checks(main,store,args[0]);
+                await Release050Checks(main,args[0]);
+                await StartupChecks(args[0]);
+                await PerformanceChecks(main,args[0],args[1]);
+                await PrivacyChecks(main,store,args[0],args[1]);
+                await PrivacyEdgeChecks(main,args[0],args[1]);
+                Console.WriteLine("ALL PASSED: "+checks+" isolated app/media integration checks.");
+                exit=0;
+            }
+            catch(Exception ex){Console.WriteLine("FAIL "+ex);}
+            finally
+            {
+                timeout.Stop();
+                typeof(MainWindow).GetField("_confirmedCloseWithActiveDownloads",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(main,true);
+                // Close only the isolated test app and its test browser controls.
+                try{await (Task)typeof(MainWindow).GetMethod("FinishPrivacyBeforeClose",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(main,null);typeof(MainWindow).GetField("_closingAfterPrivacyCleanup",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(main,true);}catch(Exception ex){Console.WriteLine("FAIL test cleanup "+ex);exit=1;}
+                try{main.Close();}catch{}
+                app.Shutdown(exit);
+            }
+        };
+        timeout.Start();main.Show();app.Run();return exit;
+    }
+}

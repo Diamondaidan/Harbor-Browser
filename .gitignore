@@ -1,0 +1,26 @@
+.vs/
+**/bin/
+**/obj/
+**/TestResults/
+*.user
+*.suo
+dist/
+T/
+Installer/Inspection/
+Installer/redist/*.exe
+ThirdParty/DependencyInputs/
+
+# Never commit private release keys.
+*.dpapi
+*.private.xml
+SigningKeys/
+
+
+# Local verification and publisher state.
+*.log
+Evidence/
+PublishingPrivate/
+*.pfx
+*.p12
+*.pem
+
