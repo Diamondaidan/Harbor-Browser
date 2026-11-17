@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Provider-review template. No signing policy is active yet. -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+    <parameter name="file-version" required="true" />
+  </parameters>
+  <zip-file>
+    <pe-file path="HarborBrowser.exe" product-name="Harbor Browser" product-version="${version}" file-version="${file-version}">
+      <authenticode-sign />
+    </pe-file>
+    <pe-file path="HarborUpdateLauncher.exe" product-name="Harbor Browser" product-version="${version}" file-version="${file-version}">
+      <authenticode-sign />
+    </pe-file>
+  </zip-file>
+</artifact-configuration>
