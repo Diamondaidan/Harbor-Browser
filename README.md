@@ -1,5 +1,7 @@
 # Harbor Browser
 
+This branch develops **0.6.1**. It closes the Proton request gate immediately on network/wake events and prevents clock changes from extending old route evidence. It is a development candidate, separate from the frozen 0.6.0 draft. See [DEVELOPMENT-0.6.1.md](DEVELOPMENT-0.6.1.md) for verification scope and remaining work.
+
 Harbor is a Windows browser built with WPF, .NET Framework 4.8 and Microsoft WebView2. It is developed with ChatGPT under the maintainer's guidance.
 
 Features include movable tabs, bookmarks, history, downloads, appearance controls, private tabs, video tools and optional Proton browser protection. Version 0.6.0 adds verified update downloads and backup recovery.

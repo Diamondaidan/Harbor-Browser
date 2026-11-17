@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui')][string[]]$Suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui'))
+param([ValidateSet('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061')][string[]]$Suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061'))
 $ErrorActionPreference='Stop'
 $releaseRoot=$PSScriptRoot
 $output=Join-Path $releaseRoot ('T\'+(Get-Date -Format 'MMddHHmmss'))
@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 function Run-Check([string]$name,[string]$exe,[string[]]$arguments){
     if($Suites -notcontains $name){return}
     Write-Output ('Running '+$name)
-    $log=Join-Path $releaseRoot ($name+'-release060.log')
+    $log=Join-Path $releaseRoot ($name+'-release061.log')
     & $exe @arguments *> $log
     if($LASTEXITCODE -ne 0){Get-Content -LiteralPath $log -Tail 25;throw ($name+' failed: '+$LASTEXITCODE)}
     Get-Content -LiteralPath $log -Tail 2
@@ -34,7 +34,8 @@ Run-Check 'proton-beta' $integration @((Join-Path $output 'proton-beta'),$fixtur
 Run-Check 'proton-fallback' $integration @((Join-Path $output 'proton-fallback'),$fixtures,'--proton-fallback')
 Run-Check 'proton-guard-handoff' $integration @((Join-Path $output 'proton-guard-handoff'),$fixtures,'--proton-guard-handoff')
 Run-Check 'proton-r4' $integration @((Join-Path $output 'proton-r4'),$fixtures,'--proton-r4')
-Run-Check 'release057' $integration @((Join-Path $output 'release057','updates','updates-ui'),$fixtures,'--release057')
+Run-Check 'release057' $integration @((Join-Path $output 'release057'),$fixtures,'--release057')
+Run-Check 'environment061' $integration @((Join-Path $output 'environment061'),$fixtures,'--environment061')
 Write-Output ('Browser trial results: '+$output)
 
 Run-Check 'updates' (Join-Path $releaseRoot 'UpdateTests\bin\Release\net48\HarborUpdateTests.exe') @((Join-Path $output 'updates'))

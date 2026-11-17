@@ -1,8 +1,9 @@
-# Harbor Browser 0.6.0 application verification
+# Harbor Browser 0.6.1 application verification
 
-Passed 1217 assertions across 15 suites.
-App SHA-256: 5CAC10A130A1E026DC593E86E8FA96998124BFED9FE7A1B2E8F0CC804122146B
-Update launcher SHA-256: 03C09A9EA33414079DC952F854C4351E8CABE1DF802C6DE6C3A370CE283DBB2D
+Passed **1284 assertions across 16 suites** against matching app/helper copies.
+
+App SHA-256: 87155D68CFD41C49B927518A2635D11AA4BB06299763612CFF5E1285BE31E136
+Update launcher SHA-256: BD0A5F9C0266534600A6893E3C386146E755C84B16184035E7F5035F583456AD
 
 | Suite | Assertions | Passed |
 | --- | ---: | --- |
@@ -21,9 +22,12 @@ Update launcher SHA-256: 03C09A9EA33414079DC952F854C4351E8CABE1DF802C6DE6C3A370C
 | release057 | 9 | True |
 | updates | 120 | True |
 | updates-ui | 8 | True |
+| environment061 | 67 | True |
 
-The updater suite covers signature/expiry/sequence checks, package bounds and hashes, interrupted and changed downloads, strong-ETag resume, real loopback HTTP redirects/range headers, synthetic snapshots, native process identity/exit handoff, installer read locks, backup failure and record expiry during shutdown. Light/dark compact layouts were rendered offline. Native menu integration confirms enabling Proton cancels update traffic and prevents a paused updater from issuing a request.
+The new 67-check suite covers injected UTC/elapsed clocks and synthetic network lost/returned, address change, suspend and resume callbacks. It holds the interface queue busy, verifies immediate request denial and stale-proof rejection, checks obsolete-work cancellation and cooldown reset, counts blocked requests at a local server, then requires explicit Reload after fresh evidence. No Windows network, power or clock setting was changed.
 
-Full run: T/1116204532. Windows 10 build 19045, WebView2 157.0.4341.46. Matching app/helper copies were checked across all three runners. No real account credentials were used.
+The prior 15 suites were run against this candidate or reused only from the same matching executable after successful builds. They include real WebView2 local browsing, downloads, media, private profiles, account-handoff fixtures, request gates and updater/native helper fixtures. No account sign-in or live protected-route claim is included.
 
-See INSTALLER-VERIFICATION.md and LIVE-VERIFICATION.md for separate native installation scope and outstanding manual/live checks. Public update hosting and Windows installer signing have not been performed.
+The full suite passed 10 simulated size/scaling cases, including 1366 x 768 at 100/125/150/175/200 percent, plus light/dark menu/dialog checks. Header renders at 100 and 200 percent were visually inspected. These are offscreen WPF layout checks, not physical-monitor certification.
+
+Installer fixtures and performance measurements are reported separately. See DEVELOPMENT-0.6.1.md and LIVE-VERIFICATION.md for remaining physical, provider and public update checks.

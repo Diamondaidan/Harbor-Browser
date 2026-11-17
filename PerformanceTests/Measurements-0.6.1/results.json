@@ -1,0 +1,37 @@
+{
+  "Version": "0.6.1",
+  "AppSHA256": "87155D68CFD41C49B927518A2635D11AA4BB06299763612CFF5E1285BE31E136",
+  "Cases": 12,
+  "Samples": 120,
+  "StartupReadyMedianMilliseconds": 1478.5,
+  "StartupReadyMinMilliseconds": 1390,
+  "StartupReadyMaxMilliseconds": 1674,
+  "AllProtectedMediaAndDownloadSamplesAwake": true,
+  "AllWokenSamplesHaveZeroSleepingTabs": true,
+  "LogicalProcessors": 8,
+  "Runtime": "157.0.4341.46",
+  "Steady20Tabs": [
+    {
+      "Phase": "Awake",
+      "Samples": 10,
+      "SleepingTabs": 0.0,
+      "CPUPercent": 4.28,
+      "CombinedPrivateCommitMiB": 1084.35
+    },
+    {
+      "Phase": "Sleeping",
+      "Samples": 10,
+      "SleepingTabs": 19.0,
+      "CPUPercent": 2.67,
+      "CombinedPrivateCommitMiB": 1056.62
+    },
+    {
+      "Phase": "Woken",
+      "Samples": 10,
+      "SleepingTabs": 0.0,
+      "CPUPercent": 4.16,
+      "CombinedPrivateCommitMiB": 1073.0
+    }
+  ],
+  "Scope": "Synthetic local pages with owned profiles on one computer; normalized CPU and aggregate private commit; no comparison with an older application build."
+}

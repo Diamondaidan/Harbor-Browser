@@ -1,4 +1,6 @@
-# Building Harbor 0.6.0
+# Building Harbor 0.6.1 development
+
+This checkout is separate from the frozen 0.6.0 draft. Do not replace its signed update metadata or existing installers. The 0.6.1 candidate must receive its own current verification records before packaging and must remain unsigned/unpublished until the signing process is approved.
 
 Use Windows desktop MSBuild, .NET Framework 4.8 targeting tools, the pinned WebView2 NuGet package and Inno Setup 7.
 

@@ -1,5 +1,7 @@
 # Repeatable local performance measurements
 
+The 0.6.1 harness also records `StartupReadyMilliseconds` and exports `startup.csv`. This measures owned-window creation to first-tab initialization on the current running Windows system with a fresh fixture profile. It does not control Windows/runtime caches and is not a cold-boot or installed-user-profile startup measurement.
+
 Run Run-Measurements.ps1 on x64 Windows with the same build tools used for Harbor. Close other test builds first. The harness runs offscreen, with unique profiles and local pages/downloads. It does not install Harbor or open the personal profile.
 
 The default run measures 5, 10 and 20 tabs twice each, an automatic-sleep scenario twice, one muted cross-origin video scenario, and one paused local download scenario. Every phase records three one-second CPU/memory samples: Awake, Sleeping and Woken. The fixture allocates/touches 8 MiB and creates 300 DOM rows per normal page, then performs about 8 ms of script work per timer tick. Browser background timer throttling still applies.

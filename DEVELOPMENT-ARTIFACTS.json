@@ -1,0 +1,18 @@
+{
+  "Version": "0.6.1",
+  "Candidate": "dev1",
+  "AppSHA256": "87155D68CFD41C49B927518A2635D11AA4BB06299763612CFF5E1285BE31E136",
+  "PortableSHA256": "899FB0B1A3E7A0E8C45D1DD1D5E0415EE9EACF3BA42CD0AE77F951FF93FDFFD0",
+  "PortableBytes": 16721543,
+  "PortableFilesVerified": 396,
+  "NoPrivateKeysOrProfiles": true,
+  "ApplicationAssertions": 1284,
+  "InstallerFixtureAssertions": 94,
+  "PerformanceCases": 12,
+  "PerformanceSamples": 120,
+  "InstalledVersion": "0.5.7.0",
+  "InstalledSHA256": "349A49B8B835C9F6BE206312EE19BDDF859EEDFB1360FDEAB7373C9ACB4A122B",
+  "Installed057Preserved": true,
+  "SignedWindowsRelease": false,
+  "PublicBinaryPublication": false
+}

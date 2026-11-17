@@ -1,4 +1,13 @@
-# Harbor Browser 0.6.0 release notes
+# Harbor Browser 0.6.1 development notes
+
+- Invalidate Proton route evidence as soon as a network/address/suspend/resume callback arrives, even while the interface is busy.
+- Cancel obsolete route checks and schedule a fresh check after a transition; keep paused pages and downloads from resuming automatically.
+- Use monotonic elapsed time and UTC bounds for route evidence. Moving the system clock backward cannot prolong an old Protected claim.
+- Preserve the established profile format and pinned provider files. Add synthetic event/clock coverage and startup measurements to the owned-profile harness.
+
+Windows signing and public installer publication remain pending. These fixes are validated with synthetic callbacks and local fixtures; actual physical sleep/Wi-Fi and signed-in IPv6 tests remain open.
+
+## Retained update and recovery features from 0.6.0
 
 - Check for updates from the Help menu; updates and backup recovery are also available under Tools.
 - Read release notes, download a verified update and explicitly choose when to close Harbor and open setup. There are no automatic startup checks or silent installations.
