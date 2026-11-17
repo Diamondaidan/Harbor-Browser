@@ -1,9 +1,15 @@
 [CmdletBinding()]
-param([string]$RollbackArchive='')
+param([string]$RollbackArchive='',[string]$SourceArchive='')
 $ErrorActionPreference='Stop'
 $root=$PSScriptRoot
 $artifact=Get-Content -LiteralPath (Join-Path $root 'INSTALLER-ARTIFACT.json') -Raw | ConvertFrom-Json
 if((Get-FileHash -LiteralPath $artifact.Installer -Algorithm SHA256).Hash -ne $artifact.InstallerSHA256){throw 'Installer artifact changed.'}
+$source=Join-Path $root 'TestTools\ConnectionCheck'
+$vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
+$builder=& $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
+if(!$builder){throw 'Desktop build tools are required to prepare the connection-check helper.'}
+& $builder (Join-Path $source 'HarborConnectedChecks.csproj') /restore /p:Configuration=Release /v:minimal /nologo *> (Join-Path $root 'connection-kit-build061.log')
+if($LASTEXITCODE -ne 0){throw 'Connection-check helper build failed.'}
 $kit=Join-Path $root ('dist\Harbor-0.6.1-'+$artifact.Candidate+'-Spare-PC-Kit')
 if(Test-Path -LiteralPath $kit){throw 'Preserve the existing kit; use a new candidate.'}
 New-Item -ItemType Directory -Path $kit,(Join-Path $kit 'ConnectionCheck') -Force | Out-Null
@@ -11,11 +17,18 @@ Get-ChildItem -LiteralPath (Join-Path $root 'Spare-PC-Tools') -File | Copy-Item 
 Copy-Item -LiteralPath $artifact.Installer -Destination $kit
 Copy-Item -LiteralPath (Join-Path $root ('dist\HarborBrowser-0.6.1-'+$artifact.Candidate+'-portable.zip')) -Destination $kit
 Copy-Item -LiteralPath (Join-Path $root 'SETUP-README.md'),(Join-Path $root 'RELEASE-VERIFICATION.md'),(Join-Path $root 'INSTALLER-VERIFICATION.md'),(Join-Path $root 'LIVE-VERIFICATION.md'),(Join-Path $root 'INSTALLER-ARTIFACT.json') -Destination $kit
-$reference=Join-Path $root 'TestTools\ConnectionCheck'
+foreach($report in @('LOCAL-PACKAGE-VERIFICATION.md','PACKAGED-PAYLOAD-VERIFICATION.json')){if(Test-Path -LiteralPath (Join-Path $root $report)){Copy-Item -LiteralPath (Join-Path $root $report) -Destination $kit}}
+if($SourceArchive){
+ $sourceZip=[IO.Path]::GetFullPath($SourceArchive)
+ if(!(Test-Path -LiteralPath $sourceZip -PathType Leaf)){throw 'Source archive was not found.'}
+ Copy-Item -LiteralPath $sourceZip -Destination $kit
+}
+$localRecord=Join-Path $root 'dist\Local-Release-061\harbor-update.json'
+if(Test-Path -LiteralPath $localRecord){Copy-Item -LiteralPath $localRecord -Destination $kit}
+$reference=Join-Path $source 'bin\Release\net48'
 foreach($name in @('HarborConnectedChecks.exe','HarborConnectedChecks.exe.config','index.html','app.js','worker.js','sw.js')){
  Copy-Item -LiteralPath (Join-Path $reference $name) -Destination (Join-Path $kit 'ConnectionCheck')
 }
-$source=$reference
 Copy-Item -LiteralPath (Join-Path $source 'Program.cs'),(Join-Path $source 'HarborConnectedChecks.csproj') -Destination (Join-Path $kit 'ConnectionCheck')
 if($RollbackArchive){
  $rollback=[IO.Path]::GetFullPath($RollbackArchive)
