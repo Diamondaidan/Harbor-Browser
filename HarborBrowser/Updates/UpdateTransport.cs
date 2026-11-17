@@ -30,7 +30,7 @@ namespace HarborBrowser.Updates
                 if(!_allowed(url))throw new InvalidDataException("An unexpected update download address was refused.");
                 var request=(HttpWebRequest)WebRequest.Create(url);
                 request.AllowAutoRedirect=false;request.UseDefaultCredentials=false;request.Credentials=null;request.CookieContainer=null;
-                request.UserAgent="Harbor-Updater/0.6.0";request.Timeout=20000;request.ReadWriteTimeout=20000;
+                request.UserAgent="Harbor-Updater/"+typeof(UpdateTrust).Assembly.GetName().Version.ToString(3);request.Timeout=20000;request.ReadWriteTimeout=20000;
                 request.Headers[HttpRequestHeader.AcceptEncoding]="identity";request.CachePolicy=new System.Net.Cache.RequestCachePolicy(System.Net.Cache.RequestCacheLevel.NoCacheNoStore);
                 if(offset>0){request.AddRange(offset);request.Headers[HttpRequestHeader.IfRange]=etag;}
                 var abort=cancel.Register(()=>request.Abort());HttpWebResponse response=null;

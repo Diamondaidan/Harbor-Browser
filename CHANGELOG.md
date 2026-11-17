@@ -1,4 +1,12 @@
-# Harbor 0.5.6 Proton Beta R4 (automated checks pass; live verification pending)
+# Harbor 0.6.1 development
+
+- Close the thread-safe Proton request gate directly when a network/address/suspend/resume notification arrives, before interface work is queued.
+- Cancel obsolete verification and clear its cooldown after the transition; reject route results from before the change and keep paused-page retry explicit.
+- Bound route evidence by elapsed time as well as UTC; clock rollback cannot extend a Protected claim.
+- Add synthetic callback and clock-change coverage, preserve the pinned provider package, and record startup readiness in the existing owned-profile performance harness.
+- Carry forward the separately prepared signing metadata and licensing files. Signing, public installer release and physical spare-PC checks remain separate work.
+
+# Harbor 0.5.6 Proton Beta R4 (historical)
 
 - Keep an aborted request from unloading unrelated pages; retain immediate pauses for proxy/privacy changes and unsafe errors, existing lease/ownership checks and the native rejecting fallback.
 - Correct stale Protected descriptions and keep hidden/background startup status out of the active tab.
