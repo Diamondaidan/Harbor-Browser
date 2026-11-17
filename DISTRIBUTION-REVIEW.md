@@ -2,7 +2,9 @@
 
 ## Current publication decision
 
-On November 16, 2026, the owner authorized public source publication under GPLv3, with installer releases kept as drafts until signed. Harbor-authored work is GPL-3.0-only. Third-party licenses and notices remain in place. No SignPath approval or provider endorsement is claimed. See `CODE-SIGNING-POLICY.md` for remaining signing work.
+On November 17, 2026, after reporting SignPath's rejection, the owner chose unsigned Windows distribution. This replaces the earlier condition that installers stay draft until Windows signing is available. Final release validation and review still apply; no release is published by this documentation change. Harbor-authored work remains GPL-3.0-only, and third-party licenses/notices remain in place. See `CODE-SIGNING-POLICY.md` and `WINDOWS-SIGNING-OPTIONS.md`.
+
+The November 16 source-publication decision and the original unsigned packages remain part of the release history. No provider approval or endorsement is claimed.
 
 ## Historical 0.5.7 local release record
 

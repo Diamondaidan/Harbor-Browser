@@ -1,6 +1,6 @@
 # SignPath preparation
 
-Nothing here signs or publishes a release automatically. The owner has selected free options only. Provider acceptance, account setup and policy configuration are pending; see the root `SIGNPATH-APPLICATION.md` and `CODE-SIGNING-POLICY.md`.
+Nothing here signs or publishes a release automatically. The owner has selected unsigned Windows distribution after SignPath declined the application. These tools are retained for a possible future approved signing service; they are not an active task or a release prerequisite. See the root `WINDOWS-SIGNING-OPTIONS.md` and `CODE-SIGNING-POLICY.md`.
 
 `Build-Signing-Candidate.ps1` builds the app, launcher and test projects, checks the common product/version metadata and all pinned Proton files, runs regression/update checks with synthetic local fixtures, and stages exactly two Harbor-owned EXEs. It does not install Harbor, change Windows defaults, use account profiles, or authorize release packaging.
 
@@ -16,7 +16,7 @@ Run on Windows with Visual Studio desktop build tools and the .NET Framework 4.8
 
 The example covers **executable signing only**. SignPath must approve the second installer stage: validate the signed EXEs, run the full browser suites and native installer fixtures against that exact build, stage the signed files with all required notices, compile the installer and submit that installer under a separately restricted provider policy. Validate every returned signature and timestamp. Never sign upstream EXEs under Harbor's policy.
 
-The final signed build needs new verification receipts, package manifests, checksums and higher-sequence update metadata. The private metadata key stays on the owner's Windows account; it is not uploaded to GitHub. Existing 0.6.0 draft assets remain untouched until a separately validated signed candidate replaces them. Publication remains manual and requires owner review.
+Any future signed build needs new verification receipts, package manifests, checksums and higher-sequence update metadata. The private metadata key stays on the owner's Windows account; it is not uploaded to GitHub. Existing 0.6.0 draft assets remain preserved; the current policy permits unsigned releases after validation and owner review. Publication remains manual.
 
 Before production approval, also review SignPath's installer privacy-display/opt-out requirements and verify the final certificate chain, timestamp and Harbor's Windows trust checks on a clean PC. The current updater uses cache-only revocation lookup; successful validation on the maintainer's PC does not establish behavior on a new system.
 
