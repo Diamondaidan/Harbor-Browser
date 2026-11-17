@@ -1,6 +1,6 @@
-# SignPath application preparation
+# SignPath application record — archived
 
-Prepared for owner review. **Not submitted; no approval or sponsorship claimed.**
+The owner reported on November 17, 2026 that the application was declined. Harbor is proceeding with unsigned Windows packages. These former application notes are kept for reference; they are not an active application task or a claim of approval or sponsorship. See CODE-SIGNING-POLICY.md for the current policy.
 
 Project: Harbor Browser
 
@@ -27,8 +27,8 @@ Privacy information: https://github.com/Diamondaidan/Harbor-Browser/blob/main/PR
 3. Can the approved configuration sign Harbor EXEs before packaging and then sign an Inno Setup installer containing those signed EXEs, without signing upstream files?
 4. What exact product/version metadata restrictions, trusted-build policies, signing roles and manual approvals should be configured?
 
-## Owner-only completion
+## Any future reapplication
 
-Apply at https://signpath.org/apply after reviewing https://signpath.org/terms. Enter personal contact information and accept any agreement yourself. Do not put identity documents, passwords, API tokens or private keys in this file or GitHub issues.
+A future reapplication is the owner's decision, not a release requirement. If revisited, review https://signpath.org/terms and handle personal information and agreements directly with the provider. Do not put identity documents, passwords, API tokens or private keys in this file or GitHub issues.
 
 Confirm GitHub/signing-service MFA. If accepted, configure the provider's GitHub integration and credentials with the minimum required access, update the public policy with the approved attribution, and validate signed builds on a clean Windows system before publication.
