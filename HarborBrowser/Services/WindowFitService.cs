@@ -29,6 +29,7 @@ namespace HarborBrowser.Services
         }
         public static void Attach(Window window,Func<IntPtr,MonitorLayout> monitor=null,Func<bool> canFit=null)
         {
+            WindowTitleBarService.Prepare(window);
             if(window.GetValue(StateProperty)!=null)return;
             var state=new Attachment(window,monitor??NativeWindowGeometry.ReadMonitor,canFit??(()=>true));
             window.SetValue(StateProperty,state);
@@ -46,7 +47,9 @@ namespace HarborBrowser.Services
             {
                 _window=window;_monitor=monitor;_canFit=canFit;_minimumWidth=window.MinWidth;_minimumHeight=window.MinHeight;
                 window.SourceInitialized+=(s,e)=>{
-                    _handle=new WindowInteropHelper(window).Handle;_source=HwndSource.FromHwnd(_handle);_source.AddHook(Hook);Queue();
+                    _handle=new WindowInteropHelper(window).Handle;
+                    if(_closed||_handle==IntPtr.Zero)return;
+                    _source=HwndSource.FromHwnd(_handle);_source?.AddHook(Hook);Queue();
                 };
                 window.Loaded+=(s,e)=>Queue();
                 window.Closed+=(s,e)=>{_closed=true;if(_source!=null)_source.RemoveHook(Hook);};

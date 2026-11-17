@@ -355,7 +355,7 @@ namespace HarborBrowser
                 BrowserTabs.SelectedItem = tab.Item;
                 Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    if (SelectedTab == tab && !tab.IsClosing && tab.Item.Visibility == Visibility.Visible) tab.Item.BringIntoView();
+                    BringTitleTabIntoView(tab);
                 }), DispatcherPriority.Loaded);
             }
             SaveSession();
@@ -952,7 +952,7 @@ namespace HarborBrowser
 
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                if (SelectedTab == tab && !tab.IsClosing && tab.Item.Visibility == Visibility.Visible) tab.Item.BringIntoView();
+                BringTitleTabIntoView(tab);
             }), DispatcherPriority.Loaded);
 
             UpdateTabActivity();

@@ -240,7 +240,11 @@ internal static partial class Program
     }
 
     private static Button ProtonButton(ProtonPreviewWindow window, string content)
-    { return Visuals<Button>(window).Single(button => Convert.ToString(button.Content) == content); }
+    {
+        foreach(var options in Visuals<Expander>(window))options.IsExpanded=true;
+        window.UpdateLayout();
+        return Visuals<Button>(window).Single(button => Convert.ToString(button.Content) == content);
+    }
 
     private static async Task<bool> Hotfix2StorageCanary(CoreWebView2 core, string key, bool write)
     {

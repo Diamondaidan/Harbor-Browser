@@ -12,7 +12,7 @@ The new integration suite exercises network lost/returned, address changes, susp
 
 ## Automatic verification
 
-The matching candidate passed **1,284 application assertions across 16 suites**, **94 isolated native installer assertions**, and **12 performance cases with 120 samples**. See RELEASE-VERIFICATION.md, INSTALLER-VERIFICATION.md and PERFORMANCE-0.6.1.md for hashes, results and limits. Startup measurements cover creation of the owned test window until its first browser tab is initialized; they are not a cold Windows boot or the installed production profile.
+The UI candidate passed **1,330 application assertions across 17 suites** and **94 isolated native installer assertions**. The **12 performance cases with 120 samples** in the retained baseline describe the preceding executable; they were not rerun for the UI changes. See RELEASE-VERIFICATION.md, INSTALLER-VERIFICATION.md and PERFORMANCE-0.6.1.md for hashes, results and limits. Startup measurements cover creation of the owned test window until its first browser tab is initialized; they are not a cold Windows boot or the installed production profile.
 
 Layout coverage uses offscreen WPF windows with simulated available sizes and scaling. Memory/CPU measurements use synthetic local workloads and separate profiles. They describe this computer and runtime, and do not establish performance improvements over a prior build without a matching comparison.
 

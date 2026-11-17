@@ -31,6 +31,8 @@ namespace HarborBrowser.Views
         private readonly Action<CoreWebView2, CoreWebView2NewWindowRequestedEventArgs, CancellationToken> _newWindow;
         private readonly Func<Task<string>> _verify;
         private readonly Grid _root;
+        private readonly Border _offPanel;
+        private readonly Expander _options;
         private readonly TextBlock _protectionStatus = new TextBlock { FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap };
         private readonly TextBlock _protectionDetail = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 3, 0, 0) };
         private readonly TextBlock _status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 8) };
@@ -44,6 +46,7 @@ namespace HarborBrowser.Views
         private string _operationError, _verification, _loadingStage;
         private bool _hostStateProvided;
         private long _protectionStatusRevision;
+        private double _providerHeight=640;
 
         public ProtonPreviewWindow(ProtonPreviewService service, Func<bool, Task> change,
             Func<Task<CoreWebView2Environment>> environment, Action<string> open, Func<Task<string>> verify = null,
@@ -54,36 +57,36 @@ namespace HarborBrowser.Views
             _environment = environment ?? throw new ArgumentNullException(nameof(environment));
             if (open == null) throw new ArgumentNullException(nameof(open));
             _verify = verify; _newWindow = newWindow;
-            Title = ProtonTrialIdentity.DisplayName+" · Proton"; Width = 520; Height = 720; MinWidth = 360; MinHeight = 420;
+            Title = ProtonTrialIdentity.DisplayName+" · Proton"; Width = 404; Height = 696; MinWidth = 320; MinHeight = 360;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             SetResourceReference(StyleProperty, typeof(Window)); WindowFitService.Attach(this);
-            var root = new Grid { Margin = new Thickness(12) }; _root = root; Content = root;
-            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            var root = new Grid { Margin = new Thickness(8) }; _root = root; Content = root;
+            root.LayoutUpdated += (s,e) => UpdateProviderScale();
             root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-            root.Children.Add(new TextBlock
-            {
-                Text = "Proton browser protection\nSign in and connect below. This optional connection applies to supported Harbor browser requests.",
-                TextWrapping = TextWrapping.Wrap
-            });
-            var commands = new StackPanel(); Grid.SetRow(commands, 1); root.Children.Add(commands);
-            var protection = new StackPanel(); protection.Children.Add(_protectionStatus); protection.Children.Add(_protectionDetail);
-            var protectionPanel = new Border { Child = protection, Padding = new Thickness(9, 7, 9, 7), Margin = new Thickness(0, 9, 0, 0), CornerRadius = new CornerRadius(4), BorderThickness = new Thickness(1) };
-            protectionPanel.SetResourceReference(Border.BackgroundProperty, "HarborPanel");
-            protectionPanel.SetResourceReference(Border.BorderBrushProperty, "HarborLine");
-            commands.Children.Add(protectionPanel); commands.Children.Add(_status);
+            root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            var heading = new StackPanel { Margin = new Thickness(0, 0, 0, 6) };
+            heading.Children.Add(_protectionStatus); heading.Children.Add(_status); root.Children.Add(heading);
+            _protectionStatus.TextWrapping = TextWrapping.NoWrap; _protectionStatus.TextTrimming = TextTrimming.CharacterEllipsis;
             AutomationProperties.SetName(_protectionStatus, "Harbor protection status");
-            var verificationNotice = new TextBlock { Text = "Automatic route checks contact ipify through the browser and separately without Proton for comparison. Addresses are compared in memory and aren't saved.", FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 5) };
+            AttachProviderLayout(); Grid.SetRow(ProviderView, 1); root.Children.Add(ProviderView);
+            var offContent = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(16) };
+            offContent.Children.Add(new TextBlock { Text = "Proton browser protection", FontSize = 18, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
+            offContent.Children.Add(new TextBlock { Text = "Enable Proton to sign in and connect. Other applications keep their connection.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 12) });
+            offContent.Children.Add(_enable);
+            _offPanel = new Border { Child = offContent }; _offPanel.SetResourceReference(Border.BackgroundProperty, "HarborPanel"); Grid.SetRow(_offPanel, 1); root.Children.Add(_offPanel);
+            var details = new StackPanel(); details.Children.Add(_protectionDetail);
+            var verificationNotice = new TextBlock { Text = "Route checks compare browser and direct ipify requests. Addresses are compared in memory and aren't saved. Protection covers supported browser requests, not other apps.", FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 5) };
             verificationNotice.SetResourceReference(TextBlock.ForegroundProperty, "HarborMuted");
-            AutomationProperties.SetName(verificationNotice, "Route verification privacy");
-            commands.Children.Add(verificationNotice);
-            var buttons = new WrapPanel(); commands.Children.Add(buttons);
-            buttons.Children.Add(_enable); buttons.Children.Add(_remove); buttons.Children.Add(_reload);
-            if (_verify != null) buttons.Children.Add(_check);
-            var coverage = new TextBlock { Text = "Coverage: supported browser page requests. Other applications keep their connection.", FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 5) };
-            coverage.SetResourceReference(TextBlock.ForegroundProperty, "HarborMuted");
-            commands.Children.Add(coverage);
-            Grid.SetRow(ProviderView, 2); root.Children.Add(ProviderView);
+            AutomationProperties.SetName(verificationNotice, "Route verification details"); details.Children.Add(verificationNotice);
+            var buttons = new WrapPanel(); details.Children.Add(buttons);
+            buttons.Children.Add(_remove); buttons.Children.Add(_reload); if (_verify != null) buttons.Children.Add(_check);
+            _options = new Expander { Header = "Options and connection details", Content = details, Margin = new Thickness(0, 5, 0, 0) };
+            var footer = new StackPanel(); footer.Children.Add(_options);
+            var privacy = new TextBlock { Text = "Route checks contact ipify; IP addresses aren't saved.", FontSize = 10, Margin = new Thickness(0, 3, 0, 0), TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = verificationNotice.Text };
+            privacy.SetResourceReference(TextBlock.ForegroundProperty, "HarborMuted");
+            AutomationProperties.SetName(privacy, "Route verification privacy"); footer.Children.Add(privacy);
+            Grid.SetRow(footer, 2); root.Children.Add(footer);
             _enable.Click += async (s, e) => await Change(true);
             _remove.Click += async (s, e) => await Change(false);
             _reload.Click += async (s, e) => await ShowProvider();
@@ -120,6 +123,11 @@ namespace HarborBrowser.Views
                 ? _loadingStage : ContainsAccountPage
                 ? "Complete Proton's account flow in this view. Reload Proton controls when you are ready to return."
                 : _service.Status);
+            _status.Visibility = _operationError != null || ControlsError != null || _showing || ContainsAccountPage ? Visibility.Visible : Visibility.Collapsed;
+            _protectionStatus.ToolTip = ProtectionDetail;
+            _offPanel.Visibility = !_service.Enabled && !_changing ? Visibility.Visible : Visibility.Collapsed;
+            ProviderView.Visibility = _service.Enabled ? Visibility.Visible : Visibility.Collapsed;
+            UpdateProviderScale();
             _enable.IsEnabled = !_changing && !_removing && !_service.Enabled;
             // Removal can cancel an in-progress enable or page load.
             _remove.IsEnabled = (_service.Enabled || ProtectionState != "Off") && !_removing;
@@ -279,7 +287,7 @@ namespace HarborBrowser.Views
                         if (loading || probedNavigation != navigationId) continue;
                         ControlsSummary = summary;
                         if (ProtonControlsReadiness.IsReady(summary))
-                        { ControlsReady = true; ControlsError = null; return; }
+                        { ControlsReady = true; ControlsError = null; await MeasureProvider(view,navigation); return; }
                     }
                     await Task.Delay(200, _closedToken.Token);
                 }
@@ -308,8 +316,41 @@ namespace HarborBrowser.Views
             _root.Children.Remove(previous);
             try { previous.Dispose(); } catch { }
             ProviderView = new WebView2();
-            Grid.SetRow(ProviderView, 2); _root.Children.Add(ProviderView);
+            AttachProviderLayout(); Grid.SetRow(ProviderView, 1); _root.Children.Add(ProviderView);
             _wired = false; _needsNewView = false;
+        }
+        private void AttachProviderLayout()
+        {
+            ProviderView.HorizontalAlignment=HorizontalAlignment.Center;
+            ProviderView.VerticalAlignment=VerticalAlignment.Top;
+        }
+        private async Task MeasureProvider(WebView2 view,int navigation)
+        {
+            try
+            {
+                await Task.Delay(80,_closedToken.Token);
+                if(!Current(view,navigation)||ContainsAccountPage||!ProtonPreviewService.IsProviderPage(view.CoreWebView2.Source))return;
+                string json=await Limit(view.CoreWebView2.ExecuteScriptAsync("(()=>{const c=document.querySelector('#sign-in-view .content'),r=c?.getBoundingClientRect();return Math.ceil(Math.max(640,document.body.scrollHeight,document.querySelector('.main-area')?.scrollHeight||0,r?.height>0?r.bottom+scrollY+24:0));})()"),TimeSpan.FromSeconds(2),_closedToken.Token);
+                double height;
+                if(Current(view,navigation)&&!ContainsAccountPage&&double.TryParse(json,System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out height)&&height>=560&&height<=1600)
+                {_providerHeight=height;UpdateProviderScale();}
+            }catch(OperationCanceledException){}catch(Exception){}
+        }
+        private void UpdateProviderScale()
+        {
+            // Its sign-in artwork and footer exceed the declared 560-pixel
+            // minimum after loading. Reserve 640 CSS pixels, then fit the
+            // unmodified provider page on smaller displays.
+            double width=_root.ActualWidth,height=_root.RowDefinitions[1].ActualHeight;
+            if(_closed)return;
+            if(width<=0||height<=0)return;
+            if(ContainsAccountPage)
+            {ProviderView.Width=double.NaN;ProviderView.Height=double.NaN;ProviderView.HorizontalAlignment=HorizontalAlignment.Stretch;ProviderView.VerticalAlignment=VerticalAlignment.Stretch;if(ProviderView.ZoomFactor!=1)ProviderView.ZoomFactor=1;return;}
+            ProviderView.HorizontalAlignment=HorizontalAlignment.Center;ProviderView.VerticalAlignment=VerticalAlignment.Top;
+            double scale=Math.Max(0.25,Math.Min(1,Math.Min(width/370.0,height/_providerHeight)));
+            if(double.IsNaN(ProviderView.Width)||Math.Abs(ProviderView.Width-370*scale)>0.5)ProviderView.Width=370*scale;
+            if(double.IsNaN(ProviderView.Height)||Math.Abs(ProviderView.Height-_providerHeight*scale)>0.5)ProviderView.Height=_providerHeight*scale;
+            if(Math.Abs(ProviderView.ZoomFactor-scale)>0.005)ProviderView.ZoomFactor=scale;
         }
 
         private void Wire(CoreWebView2 core)

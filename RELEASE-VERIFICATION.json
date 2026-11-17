@@ -1,139 +1,147 @@
 {
+  "ReadyToPackage": true,
+  "AppSHA256": "DB64E68769CF9DBBE48C3BBF3FBDB5A0A2152E1176AE7E7EEE0322668BB3EDD0",
+  "UpdateLauncherSHA256": "79EEB61EA18234A170085475C2011DFEF8AF542361B60031E43D303719E16ABC",
+  "RecordedUtc": "2026-11-17T18:43:53.2133133Z",
+  "AssertionsPassed": 1330.0,
   "Suites": [
     {
+      "Failures": [],
       "Suite": "regression",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "regression-release061.log",
-      "AssertionsPassed": 384
+      "AssertionsPassed": 384,
+      "Passed": true,
+      "Log": "regression-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "full",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "full-release061.log",
-      "AssertionsPassed": 360
+      "AssertionsPassed": 360,
+      "Passed": true,
+      "Log": "full-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "suggestions",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "suggestions-release061.log",
-      "AssertionsPassed": 17
+      "AssertionsPassed": 17,
+      "Passed": true,
+      "Log": "suggestions-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "recovery",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "recovery-release061.log",
-      "AssertionsPassed": 15
+      "AssertionsPassed": 15,
+      "Passed": true,
+      "Log": "recovery-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "proton",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "proton-release061.log",
-      "AssertionsPassed": 34
+      "AssertionsPassed": 34,
+      "Passed": true,
+      "Log": "proton-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "auth-handoff",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "auth-handoff-release061.log",
-      "AssertionsPassed": 27
+      "AssertionsPassed": 27,
+      "Passed": true,
+      "Log": "auth-handoff-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "proton-pending",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "proton-pending-release061.log",
-      "AssertionsPassed": 24
+      "AssertionsPassed": 24,
+      "Passed": true,
+      "Log": "proton-pending-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "proton-hotfix2",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "proton-hotfix2-release061.log",
-      "AssertionsPassed": 45
+      "AssertionsPassed": 45,
+      "Passed": true,
+      "Log": "proton-hotfix2-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "proton-beta",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "proton-beta-release061.log",
-      "AssertionsPassed": 109
+      "AssertionsPassed": 109,
+      "Passed": true,
+      "Log": "proton-beta-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "proton-fallback",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "proton-fallback-release061.log",
-      "AssertionsPassed": 19
+      "AssertionsPassed": 19,
+      "Passed": true,
+      "Log": "proton-fallback-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "proton-guard-handoff",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "proton-guard-handoff-release061.log",
-      "AssertionsPassed": 12
+      "AssertionsPassed": 12,
+      "Passed": true,
+      "Log": "proton-guard-handoff-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "proton-r4",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "proton-r4-release061.log",
-      "AssertionsPassed": 34
+      "AssertionsPassed": 34,
+      "Passed": true,
+      "Log": "proton-r4-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "release057",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "release057-release061.log",
-      "AssertionsPassed": 9
+      "AssertionsPassed": 9,
+      "Passed": true,
+      "Log": "release057-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "updates",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "updates-release061.log",
-      "AssertionsPassed": 120
+      "AssertionsPassed": 120,
+      "Passed": true,
+      "Log": "updates-release061.log"
     },
     {
+      "Failures": [],
       "Suite": "updates-ui",
-      "Failures": [],
-      "Passed": true,
       "CurrentExecutable": true,
-      "Log": "updates-ui-release061.log",
-      "AssertionsPassed": 8
+      "AssertionsPassed": 8,
+      "Passed": true,
+      "Log": "updates-ui-release061.log"
     },
     {
-      "Suite": "environment061",
       "Failures": [],
-      "Passed": true,
+      "Suite": "environment061",
       "CurrentExecutable": true,
-      "Log": "environment061-release061.log",
-      "AssertionsPassed": 67
+      "AssertionsPassed": 67,
+      "Passed": true,
+      "Log": "environment061-release061.log"
+    },
+    {
+      "Failures": [],
+      "Suite": "ui061",
+      "CurrentExecutable": true,
+      "AssertionsPassed": 46,
+      "Passed": true,
+      "Log": "ui061-release061.log"
     }
   ],
-  "UpdateLauncherSHA256": "BD0A5F9C0266534600A6893E3C386146E755C84B16184035E7F5035F583456AD",
-  "AppSHA256": "87155D68CFD41C49B927518A2635D11AA4BB06299763612CFF5E1285BE31E136",
-  "RecordedUtc": "2026-11-17T12:37:59.7295812Z",
-  "AssertionsPassed": 1284.0,
-  "TestCopiesMatch": true,
   "Version": "0.6.1",
-  "ReadyToPackage": true
+  "TestCopiesMatch": true
 }

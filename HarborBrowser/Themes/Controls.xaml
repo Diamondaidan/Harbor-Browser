@@ -1,10 +1,44 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework">
  <SolidColorBrush x:Key="HarborWindow" Color="#F6F5F1"/><SolidColorBrush x:Key="HarborPanel" Color="#EDF0F1"/>
  <SolidColorBrush x:Key="HarborInput" Color="#FFFFFF"/><SolidColorBrush x:Key="HarborText" Color="#193340"/>
  <SolidColorBrush x:Key="HarborMuted" Color="#52666A"/><SolidColorBrush x:Key="HarborLine" Color="#BCC7CC"/>
  <SolidColorBrush x:Key="HarborAccent" Color="#A95627"/><SolidColorBrush x:Key="HarborAccentText" Color="#FFFFFF"/>
  <SolidColorBrush x:Key="HarborHover" Color="#E4D8CE"/><SolidColorBrush x:Key="HarborSelected" Color="#DBC6B7"/>
- <Style TargetType="Window"><Setter Property="UseLayoutRounding" Value="True"/><Setter Property="SnapsToDevicePixels" Value="True"/><Setter Property="Background" Value="{DynamicResource HarborWindow}"/><Setter Property="Foreground" Value="{DynamicResource HarborText}"/><Setter Property="Icon" Value="pack://application:,,,/HarborBrowser;component/HarborBrowser.ico"/></Style>
+ <Style x:Key="HarborCaptionButton" TargetType="Button">
+  <Setter Property="Width" Value="36"/><Setter Property="Height" Value="32"/><Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0"/>
+  <Setter Property="Focusable" Value="False"/><Setter Property="FontFamily" Value="Segoe MDL2 Assets"/><Setter Property="FontSize" Value="10"/>
+  <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+  <Setter Property="Foreground" Value="{DynamicResource HarborText}"/><Setter Property="Background" Value="Transparent"/>
+  <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+   <Border x:Name="Surface" Background="{TemplateBinding Background}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+   <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="{DynamicResource HarborHover}"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter Property="Background" Value="{DynamicResource HarborSelected}"/></Trigger></ControlTemplate.Triggers>
+  </ControlTemplate></Setter.Value></Setter>
+ </Style>
+ <Style x:Key="HarborCaptionCloseButton" TargetType="Button" BasedOn="{StaticResource HarborCaptionButton}"><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#C42B1C"/><Setter Property="Foreground" Value="White"/></Trigger></Style.Triggers></Style>
+ <ControlTemplate x:Key="HarborWindowTemplate" TargetType="Window">
+  <Border Background="{TemplateBinding Background}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="1">
+   <Grid><Grid.RowDefinitions><RowDefinition Height="32"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+    <Grid x:Name="HarborCaptionBar" Background="{DynamicResource HarborPanel}">
+     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+     <DockPanel VerticalAlignment="Center" Margin="9,0,8,0" IsHitTestVisible="False" ClipToBounds="True"><Image DockPanel.Dock="Left" Source="{TemplateBinding Icon}" Width="16" Height="16" Margin="0,0,7,0"/><TextBlock x:Name="HarborCaptionText" Text="{TemplateBinding Title}" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource HarborText}" VerticalAlignment="Center" FontSize="12"/></DockPanel>
+     <StackPanel Grid.Column="1" Orientation="Horizontal" shell:WindowChrome.IsHitTestVisibleInChrome="True">
+      <Button x:Name="CaptionMinimize" Content="&#xE921;" Style="{StaticResource HarborCaptionButton}" Command="{x:Static SystemCommands.MinimizeWindowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}" ToolTip="Minimize" AutomationProperties.Name="Minimize"/>
+      <Button x:Name="CaptionMaximize" Content="&#xE922;" Style="{StaticResource HarborCaptionButton}" Command="{x:Static SystemCommands.MaximizeWindowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}" ToolTip="Maximize" AutomationProperties.Name="Maximize"/>
+      <Button x:Name="CaptionClose" Content="&#xE8BB;" Style="{StaticResource HarborCaptionCloseButton}" Command="{x:Static SystemCommands.CloseWindowCommand}" CommandParameter="{Binding RelativeSource={RelativeSource TemplatedParent}}" ToolTip="Close" AutomationProperties.Name="Close"/>
+     </StackPanel>
+    </Grid>
+    <AdornerDecorator Grid.Row="1"><ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"/></AdornerDecorator>
+   </Grid>
+  </Border>
+  <ControlTemplate.Triggers>
+   <Trigger Property="WindowState" Value="Maximized"><Setter TargetName="CaptionMaximize" Property="Content" Value="&#xE923;"/><Setter TargetName="CaptionMaximize" Property="Command" Value="{x:Static SystemCommands.RestoreWindowCommand}"/><Setter TargetName="CaptionMaximize" Property="ToolTip" Value="Restore"/></Trigger>
+   <Trigger Property="ResizeMode" Value="NoResize"><Setter TargetName="CaptionMinimize" Property="Visibility" Value="Collapsed"/><Setter TargetName="CaptionMaximize" Property="Visibility" Value="Collapsed"/></Trigger>
+   <Trigger Property="ResizeMode" Value="CanMinimize"><Setter TargetName="CaptionMaximize" Property="Visibility" Value="Collapsed"/></Trigger>
+  </ControlTemplate.Triggers>
+ </ControlTemplate>
+ <Style TargetType="Window"><Setter Property="UseLayoutRounding" Value="True"/><Setter Property="SnapsToDevicePixels" Value="True"/><Setter Property="Background" Value="{DynamicResource HarborWindow}"/><Setter Property="Foreground" Value="{DynamicResource HarborText}"/><Setter Property="Icon" Value="pack://application:,,,/HarborBrowser;component/HarborBrowser.ico"/>
+  <Style.Triggers><Trigger Property="WindowStyle" Value="SingleBorderWindow"><Setter Property="Template" Value="{StaticResource HarborWindowTemplate}"/><Setter Property="shell:WindowChrome.WindowChrome"><Setter.Value><shell:WindowChrome CaptionHeight="32" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/></Setter.Value></Setter></Trigger></Style.Triggers>
+ </Style>
  <Style TargetType="TextBlock"><Setter Property="Foreground" Value="{DynamicResource HarborText}"/></Style>
  <Style TargetType="Label"><Setter Property="Foreground" Value="{DynamicResource HarborText}"/></Style>
  <Style TargetType="Button">

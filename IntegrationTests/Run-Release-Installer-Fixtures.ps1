@@ -113,7 +113,7 @@ try{
  Check 'installed executable matches the compiled stable app' ((Get-FileHash -LiteralPath (Join-Path $install 'HarborBrowser.exe')).Hash -eq $appHash)
  Check 'installed update launcher matches the compiled helper' ((Get-FileHash -LiteralPath (Join-Path $install 'HarborUpdateLauncher.exe')).Hash -eq (Get-FileHash -LiteralPath (Join-Path $payload 'HarborUpdateLauncher.exe')).Hash)
  Check-FullPayload 'initial install'
- if($fullManifest){Run-PackagedSmoke '--environment061';Run-PackagedSmoke '--updates060'}
+ if($fullManifest){Run-PackagedSmoke '--environment061';Run-PackagedSmoke '--updates060';Run-PackagedSmoke '--ui061'}
  $cap='HKCU:\'+$regPrefix+'\Clients\StartMenuInternet\HarborBrowser\Capabilities'
  Check 'stable fixture advertises its own HTTP and HTML handlers' (((Get-ItemProperty ($cap+'\URLAssociations')).https -eq 'HarborBrowser.URL') -and ((Get-ItemProperty ($cap+'\FileAssociations')).'.html' -eq 'HarborBrowser.HTML'))
  Check 'fixture registration is outside active Windows browser keys' ($cap.StartsWith('HKCU:\Software\Harbor057Fixtures\'))

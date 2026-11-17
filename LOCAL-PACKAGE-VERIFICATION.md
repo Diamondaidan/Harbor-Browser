@@ -1,26 +1,27 @@
-# Harbor 0.6.1 local package verification
+# Harbor 0.6.1 UI package verification
 
-Prepared November 17, 2026. The full Windows installer and portable package were built locally and remain intentionally unsigned. No GitHub release was published, and production setup was not run against the regular installation.
+Prepared locally November 17, 2026. This new 0.6.1 candidate fixes Harbor-owned dialog captions, the compact Proton window and the trailing new-tab button. Earlier local builds remain preserved. Nothing was uploaded to GitHub, and the new production installer was not run against the regular installation.
 
-## Executed in this packaging pass
+## Executed against this build
 
-- Verified the app/helper hashes against the completed 1,284-assertion application record and the original 94-check native installer record. Runtime application code was not changed or rebuilt for this packaging pass.
-- Verified both bundled Microsoft prerequisites against pinned sizes, SHA-256 hashes and valid Microsoft publisher signatures; compiled the full Inno Setup installer with those offline packages.
-- Ran the production installer template in an isolated fixture with the complete staged payload, unique install/profile paths and test registration. All **98 fixture checks** passed, including install, upgrade, uninstall, data preservation/snapshots, busy-file and backup failures, older-version recognition and simulated dependency/restart outcomes. All **398 payload/manifest files** matched after initial installation and upgrade.
-- Ran the test host from the fixture-installed app folder using injected test profiles. Its **67 network/clock recovery checks and 8 updater UI/routing checks** passed against the packaged application and dependencies. It did not launch the regular Harbor entry point or sign in to an account.
-- Rebuilt the spare-PC connection helper from source. **Eight local HTTP checks** passed for asset delivery, empty status and unauthorized host/origin/capability rejection. No external connection-check services or account were contacted.
-- Prepared a local Harbor-signed update record with the existing protected metadata key, then passed **two production-trust roundtrip checks** against the actual 0.6.1 installer and approved 0.5.7 previous installer. This is separate from Windows publisher signing. The private key is not included in any deliverable.
+- **1,330 application assertions across 17 suites passed** with matching app/helper copies. This includes all 46 new UI checks, existing browsing/download/media/tab/bookmark/settings checks, synthetic account handoff and protection recovery, and update integrity/routing. See RELEASE-VERIFICATION.json and UI-0.6.1-VERIFICATION.md.
+- **94 core native installer fixture checks passed**, followed by **99 complete-payload installer fixture checks**. The latter verified all **399 payload/manifest files** after installation and upgrade, plus **121 application assertions** run from the fixture-installed folder: 67 environment/recovery, 8 updater UI and 46 new UI checks. Registration and install/profile paths were isolated. Actual HTTP/HTTPS defaults were unchanged.
+- Both embedded offline Microsoft prerequisites matched pinned sizes and SHA-256 hashes and had valid Microsoft publisher signatures. The full production Inno Setup installer compiled successfully and is intentionally unsigned for Windows.
+- A fresh local update record uses sequence 3 and the existing protected Harbor metadata key. **Two production-trust roundtrip checks passed** against this actual installer and the approved 0.5.7 previous installer. The record is for future hosting, expires and does not activate an update feed. Private signing material is excluded from deliverables.
+- Dark/light dialog renders, the full signed-out extension renderer and overflowing tab-strip renders were visually inspected. The provider's 336 pinned files remained unmodified.
 
-The earlier 12-case/120-sample performance baseline and 1,284-assertion functional results remain applicable to the unchanged executable. They were not rerun merely to rebuild archives. See RELEASE-VERIFICATION.md and PERFORMANCE-0.6.1.md for their scope.
+App SHA-256: DB64E68769CF9DBBE48C3BBF3FBDB5A0A2152E1176AE7E7EEE0322668BB3EDD0
 
-## Kit and final integrity checks
+Installer SHA-256: 6459F023DEF1A0536D41D4298299F98695AD63A4FA5AA3E8508305DDC9B26E47
 
-The spare-PC kit contains the current installer, portable archive, matching source, locally verified update record, source-built connection helper, instructions and verification reports. Its read-only preflight checks the host platform and every listed file. Packaging preserves that preflight outside the distributable kit; the kit is shipped without prefilled user Results. Archive/member hashes and exclusion of profiles/private keys are checked separately in the final local delivery receipt.
+The performance report belongs to the preceding executable. No performance improvement or current performance benchmark is claimed for these UI corrections.
 
-## Still requires another Windows system or manual actions
+## Distribution checks
 
-Actual clean/offline installation with genuinely missing Microsoft prerequisites; the production administrator prompt and reboot; physical Wi-Fi interruption and sleep/wake; signed-in Proton reconnect/IPv6 behavior; physical monitor/input/taskbar/video checks; and a real hosted update/rollback after approved publication.
+The local spare-PC kit accompanies the installer with the portable build, matching source, local update record, connection-check helper and test instructions. Its read-only preflight validates its listed files and platform requirements; this computer's generated Results are kept outside the distributed kit. The final delivery receipt records archive/member integrity and the packaged helper smoke checks.
 
-Fixture dependency installers were harmless stubs. Microsoft prerequisites were verified and embedded, not executed during fixture tests. Supported-request tests are not a complete leak audit or system-wide kill switch. No Windows security setting, default browser or real account/profile was changed by the fixture checks.
+## Still requires manual or another-system testing
 
-The local update record does not activate hosting and expires. Prepare a fresh higher-sequence record if it changes or expires before publication. Existing verified development archives are preserved separately; the release package includes the current unsigned-distribution policy.
+Actual clean/offline setup with genuinely missing Microsoft prerequisites; the production administrator prompt and reboot; physical mouse/trackpad caption movement, resizing, snapping, tab dragging and monitor/DPI transitions; signed-in Proton controls/reconnect and IPv6; physical network/sleep transitions; and a hosted update/rollback after approved publication.
+
+Fixture dependency installers were harmless stubs. Real Microsoft prerequisites were verified and embedded rather than executed. Synthetic supported-request tests are not a complete leak audit or a system-wide kill switch. No real account profile, Windows security setting or default-browser choice was changed by these fixture checks.

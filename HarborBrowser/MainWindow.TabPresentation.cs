@@ -14,6 +14,17 @@ namespace HarborBrowser
     public partial class MainWindow
     {
         private bool _updatingTabWidths;
+        private void BringTitleTabIntoView(BrowserTab tab)
+        {
+            if(SelectedTab!=tab||tab.IsClosing||tab.Item.Visibility!=Visibility.Visible)return;
+            tab.Item.BringIntoView();
+            var last=BrowserTabs.Items.Cast<TabItem>().LastOrDefault(i=>i.Visibility==Visibility.Visible);
+            if(ReferenceEquals(last,tab.Item))
+            {
+                var button=BrowserTabs.Template.FindName("NewTabButton",BrowserTabs) as FrameworkElement;
+                button?.BringIntoView();
+            }
+        }
         internal void UpdateTabWidths()
         {
             if(_updatingTabWidths||BrowserTabs==null||BrowserTabs.ActualWidth<=0)return;

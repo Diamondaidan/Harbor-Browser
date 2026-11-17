@@ -1,5 +1,7 @@
 # Harbor 0.6.1 local performance baseline
 
+This baseline measures the preceding 0.6.1 executable identified below. It was not rerun for the later title-bar, Proton-window and new-tab-button corrections. Functional results for that UI candidate are in RELEASE-VERIFICATION.md and UI-0.6.1-VERIFICATION.md.
+
 Measured November 17, 2026 on this Windows 10 computer with 8 logical processors and WebView2 157.0.4341.46. App SHA-256: 87155D68CFD41C49B927518A2635D11AA4BB06299763612CFF5E1285BE31E136.
 
 All **12 cases and 120 samples** completed: 5/10/20 idle tabs twice, automatic suspension twice, video and paused-download cases, then two longer 20-tab runs. Video/download tabs stayed awake in every recorded sample; all woken samples had zero sleeping tabs.
