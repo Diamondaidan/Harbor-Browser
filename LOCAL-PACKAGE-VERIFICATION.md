@@ -1,27 +1,27 @@
-# Harbor 0.6.1 UI package verification
+# Harbor 0.6.1 Proton off/on package verification
 
-Prepared locally November 17, 2026. This new 0.6.1 candidate fixes Harbor-owned dialog captions, the compact Proton window and the trailing new-tab button. Earlier local builds remain preserved. Nothing was uploaded to GitHub, and the new production installer was not run against the regular installation.
+Prepared locally November 17, 2026. This candidate adds a normal “Turn off protection — keep sign-in” action, with a separate “Remove Proton and reset sign-in” action under Options. Earlier local installers are preserved. Nothing was published and this production installer was not run over the regular browser.
 
 ## Executed against this build
 
-- **1,330 application assertions across 17 suites passed** with matching app/helper copies. This includes all 46 new UI checks, existing browsing/download/media/tab/bookmark/settings checks, synthetic account handoff and protection recovery, and update integrity/routing. See RELEASE-VERIFICATION.json and UI-0.6.1-VERIFICATION.md.
-- **94 core native installer fixture checks passed**, followed by **99 complete-payload installer fixture checks**. The latter verified all **399 payload/manifest files** after installation and upgrade, plus **121 application assertions** run from the fixture-installed folder: 67 environment/recovery, 8 updater UI and 46 new UI checks. Registration and install/profile paths were isolated. Actual HTTP/HTTPS defaults were unchanged.
-- Both embedded offline Microsoft prerequisites matched pinned sizes and SHA-256 hashes and had valid Microsoft publisher signatures. The full production Inno Setup installer compiled successfully and is intentionally unsigned for Windows.
-- A fresh local update record uses sequence 3 and the existing protected Harbor metadata key. **Two production-trust roundtrip checks passed** against this actual installer and the approved 0.5.7 previous installer. The record is for future hosting, expires and does not activate an update feed. Private signing material is excluded from deliverables.
-- Dark/light dialog renders, the full signed-out extension renderer and overflowing tab-strip renders were visually inspected. The provider's 336 pinned files remained unmodified.
+- **1,389 application assertions across 18 suites passed** against matching app/helper copies. This includes 59 new data-retention/off/reset checks, the existing 46 UI checks and all prior browsing, downloads/filename, media, tab, bookmark, settings, privacy, account-handoff, request-protection, recovery and updater suites.
+- **94 core installer fixture checks** and **100 full-payload installer fixture checks passed**. All **400 payload/manifest files** matched after initial installation and upgrade. The fixture-installed app passed **180 assertions**: 67 environment/recovery, 8 updater UI, 46 UI and 59 off/on tests, including a full browser/engine restart while off. Test registration and install/profile paths were isolated; actual HTTP/HTTPS defaults were unchanged.
+- Both embedded Microsoft prerequisites matched pinned sizes/hashes and valid Microsoft publisher signatures. The full production installer compiled successfully and remains intentionally unsigned for Windows. Microsoft prerequisite installers were embedded rather than executed; fixture prerequisites were harmless stubs.
+- The provider's 336 pinned files remain unmodified. A fresh local update record uses sequence 4 and the existing protected Harbor metadata key. **Two production-trust roundtrip checks passed** against this installer and the approved 0.5.7 previous installer. This is separate from Windows publisher signing. The record expires and is not an active hosted feed; the private key is excluded from deliverables.
+- The off window, normal off action and provider renderer were visually inspected. The new suite retains a synthetic extension-local marker across off/on cycles, failures and a complete process restart, and confirms that only explicit reset clears it while retaining a separate website cookie.
 
-App SHA-256: DB64E68769CF9DBBE48C3BBF3FBDB5A0A2152E1176AE7E7EEE0322668BB3EDD0
+App SHA-256: 324C32D3CD1366AE49220FEC3A8E7397FAA2E96E02292D4868781C405FEF3827
 
-Installer SHA-256: 6459F023DEF1A0536D41D4298299F98695AD63A4FA5AA3E8508305DDC9B26E47
+Installer SHA-256: 60B9D5AC8C6DAE1D86615670FD69B4540FE21EBF9AC99CBED37EE8ADB8D13222
 
-The performance report belongs to the preceding executable. No performance improvement or current performance benchmark is claimed for these UI corrections.
+## Verification qualifications
 
-## Distribution checks
+An initial R4 local route comparison timed out; a fresh complete 34-check run passed without application changes or relaxed timeouts. The initial packaged retention test could not write its canary under a longer generated profile path. Repeating that suite with a shorter owned test profile passed, with unchanged application bytes. Both initial logs are retained under Evidence/ProtonOff. The fixture points to its short off/on evidence path and verifies ownership boundaries.
 
-The local spare-PC kit accompanies the installer with the portable build, matching source, local update record, connection-check helper and test instructions. Its read-only preflight validates its listed files and platform requirements; this computer's generated Results are kept outside the distributed kit. The final delivery receipt records archive/member integrity and the packaged helper smoke checks.
+The performance baseline identifies its preceding executable and was not rerun for this fix. No performance improvement is claimed. The matching source and a local spare-PC kit accompany the installer; final archive/member and packaged-helper results are in LOCAL-DELIVERY-CHECKS.json. Generated PC-check Results are retained outside the distributed kit.
 
-## Still requires manual or another-system testing
+## Still requires manual testing
 
-Actual clean/offline setup with genuinely missing Microsoft prerequisites; the production administrator prompt and reboot; physical mouse/trackpad caption movement, resizing, snapping, tab dragging and monitor/DPI transitions; signed-in Proton controls/reconnect and IPv6; physical network/sleep transitions; and a hosted update/rollback after approved publication.
+No real account credentials, tokens or authentication databases were read or copied. Artificial data retention does not prove that Proton will consider a live saved session valid. After installation, turn protection off, explicitly Reload, enable/connect again and check retained sign-in; repeat after restarting Harbor while off. Proton can still require sign-in for an expired or revoked session.
 
-Fixture dependency installers were harmless stubs. Real Microsoft prerequisites were verified and embedded rather than executed. Synthetic supported-request tests are not a complete leak audit or a system-wide kill switch. No real account profile, Windows security setting or default-browser choice was changed by these fixture checks.
+Actual clean/offline setup with genuinely missing prerequisites, production UAC/reboot, physical monitor/DPI/input and Wi-Fi/sleep transitions, signed-in IPv6 behavior and a hosted update/rollback remain separate manual checks. Synthetic supported-request tests do not establish a complete leak audit or a system-wide kill switch. No Windows security setting, real account profile or default-browser choice was changed by fixture checks.

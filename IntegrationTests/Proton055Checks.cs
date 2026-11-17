@@ -54,7 +54,7 @@ internal static partial class Program
                 Check("provider controls reopen reliably "+trial,window.ControlsReady);
             }
             window.Close();window=null;
-            await main.ChangeProtonPreview(false);
+            await main.RemoveProtonPreview();
             Check("remove restores off and clears only provider registration",!service.Enabled&&!(await core.Profile.GetBrowserExtensionsAsync()).Any(e=>e.Id==ProtonPreviewService.ExtensionId));
             Check("engine PDF/clipboard registrations are preserved",(await core.Profile.GetBrowserExtensionsAsync()).All(e=>before.ContainsKey(e.Id)&&before[e.Id]==e.IsEnabled));
             Check("online-suggestion preference resumes",(bool)typeof(MainWindow).GetProperty("AllowOnlineSuggestions",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance).GetValue(main)&&settings.OnlineSuggestionsEnabled);

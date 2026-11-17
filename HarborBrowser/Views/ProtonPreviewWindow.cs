@@ -27,6 +27,7 @@ namespace HarborBrowser.Views
 
         private readonly ProtonPreviewService _service;
         private readonly Func<bool, Task> _change;
+        private readonly Func<Task> _removeProvider;
         private readonly Func<Task<CoreWebView2Environment>> _environment;
         private readonly Action<CoreWebView2, CoreWebView2NewWindowRequestedEventArgs, CancellationToken> _newWindow;
         private readonly Func<Task<string>> _verify;
@@ -36,8 +37,10 @@ namespace HarborBrowser.Views
         private readonly TextBlock _protectionStatus = new TextBlock { FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap };
         private readonly TextBlock _protectionDetail = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 3, 0, 0) };
         private readonly TextBlock _status = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 8) };
+        private readonly TextBlock _offDescription = new TextBlock { TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 12) };
         private readonly Button _enable = new Button { Content = "Enable Proton browser protection" };
-        private readonly Button _remove = new Button { Content = "Turn off and remove" };
+        private readonly Button _turnOff = new Button { Content = "Turn off protection — keep sign-in", ToolTip = "Use your regular connection after Reload. Proton stays installed but disabled." };
+        private readonly Button _remove = new Button { Content = "Remove Proton and reset sign-in", ToolTip = "Uninstall Harbor's Proton extension and clear its saved sign-in. Your Proton account and website login are kept." };
         private readonly Button _reload = new Button { Content = "Reload Proton controls" };
         private readonly Button _check = new Button { Content = "Check browser route" };
         private readonly CancellationTokenSource _closedToken = new CancellationTokenSource();
@@ -50,10 +53,11 @@ namespace HarborBrowser.Views
 
         public ProtonPreviewWindow(ProtonPreviewService service, Func<bool, Task> change,
             Func<Task<CoreWebView2Environment>> environment, Action<string> open, Func<Task<string>> verify = null,
-            Action<CoreWebView2, CoreWebView2NewWindowRequestedEventArgs, CancellationToken> newWindow = null)
+            Action<CoreWebView2, CoreWebView2NewWindowRequestedEventArgs, CancellationToken> newWindow = null, Func<Task> remove = null)
         {
             _service = service ?? throw new ArgumentNullException(nameof(service));
             _change = change ?? throw new ArgumentNullException(nameof(change));
+            _removeProvider = remove;
             _environment = environment ?? throw new ArgumentNullException(nameof(environment));
             if (open == null) throw new ArgumentNullException(nameof(open));
             _verify = verify; _newWindow = newWindow;
@@ -72,7 +76,7 @@ namespace HarborBrowser.Views
             AttachProviderLayout(); Grid.SetRow(ProviderView, 1); root.Children.Add(ProviderView);
             var offContent = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(16) };
             offContent.Children.Add(new TextBlock { Text = "Proton browser protection", FontSize = 18, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap });
-            offContent.Children.Add(new TextBlock { Text = "Enable Proton to sign in and connect. Other applications keep their connection.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 12) });
+            offContent.Children.Add(_offDescription);
             offContent.Children.Add(_enable);
             _offPanel = new Border { Child = offContent }; _offPanel.SetResourceReference(Border.BackgroundProperty, "HarborPanel"); Grid.SetRow(_offPanel, 1); root.Children.Add(_offPanel);
             var details = new StackPanel(); details.Children.Add(_protectionDetail);
@@ -82,13 +86,14 @@ namespace HarborBrowser.Views
             var buttons = new WrapPanel(); details.Children.Add(buttons);
             buttons.Children.Add(_remove); buttons.Children.Add(_reload); if (_verify != null) buttons.Children.Add(_check);
             _options = new Expander { Header = "Options and connection details", Content = details, Margin = new Thickness(0, 5, 0, 0) };
-            var footer = new StackPanel(); footer.Children.Add(_options);
+            var footer = new StackPanel(); footer.Children.Add(_turnOff); footer.Children.Add(_options);
             var privacy = new TextBlock { Text = "Route checks contact ipify; IP addresses aren't saved.", FontSize = 10, Margin = new Thickness(0, 3, 0, 0), TextTrimming = TextTrimming.CharacterEllipsis, ToolTip = verificationNotice.Text };
             privacy.SetResourceReference(TextBlock.ForegroundProperty, "HarborMuted");
             AutomationProperties.SetName(privacy, "Route verification privacy"); footer.Children.Add(privacy);
             Grid.SetRow(footer, 2); root.Children.Add(footer);
             _enable.Click += async (s, e) => await Change(true);
-            _remove.Click += async (s, e) => await Change(false);
+            _turnOff.Click += async (s, e) => await Change(false);
+            _remove.Click += async (s, e) => await Change(false, true);
             _reload.Click += async (s, e) => await ShowProvider();
             _check.Click += async (s, e) => await Verify();
             _service.StatusChanged += StatusChanged;
@@ -126,11 +131,15 @@ namespace HarborBrowser.Views
             _status.Visibility = _operationError != null || ControlsError != null || _showing || ContainsAccountPage ? Visibility.Visible : Visibility.Collapsed;
             _protectionStatus.ToolTip = ProtectionDetail;
             _offPanel.Visibility = !_service.Enabled && !_changing ? Visibility.Visible : Visibility.Collapsed;
+            _offDescription.Text = _service.HasSavedRegistration ? "Protection is off. Enable it to reconnect using Proton's saved sign-in. Other applications keep their connection." : "Enable Proton to sign in and connect. Other applications keep their connection.";
             ProviderView.Visibility = _service.Enabled ? Visibility.Visible : Visibility.Collapsed;
             UpdateProviderScale();
             _enable.IsEnabled = !_changing && !_removing && !_service.Enabled;
+            _turnOff.Visibility = _service.Enabled || ProtectionState != "Off" ? Visibility.Visible : Visibility.Collapsed;
+            _turnOff.IsEnabled = !_removing && (_service.Enabled || ProtectionState != "Off");
             // Removal can cancel an in-progress enable or page load.
-            _remove.IsEnabled = (_service.Enabled || ProtectionState != "Off") && !_removing;
+            _remove.Visibility = _removeProvider == null ? Visibility.Collapsed : Visibility.Visible;
+            _remove.IsEnabled = (_service.Enabled || _service.HasSavedRegistration || ProtectionState != "Off") && !_removing;
             _reload.IsEnabled = _service.Enabled && !_changing && !_removing && !_showing;
             _check.IsEnabled = _service.Enabled && ControlsReady && !ContainsAccountPage && !_showing && !_changing && !_removing && _verify != null;
         }
@@ -167,18 +176,19 @@ namespace HarborBrowser.Views
                 case "Off": return "Regular browsing is enabled. Turn on Proton when you want to check a protected browser route.";
                 case "Connecting": return "Ordinary pages are paused while Harbor checks the browser route.";
                 case "Protected": return "The browser route was checked. Supported page requests are allowed.";
-                default: return "Ordinary pages are paused. Connect in Proton's controls, then check the browser route.";
+                default: return "Ordinary pages are paused. Reconnect in Proton, or turn off protection to use your regular connection while keeping sign-in.";
             }
         }
 
-        private async Task Change(bool enabled)
+        private async Task Change(bool enabled, bool remove = false)
         {
             if (enabled && (_changing || _removing) || !enabled && _removing) return;
             if (enabled) _changing = true; else { _removing = true; _navigation++; }
             _operationError = null; _verification = null; ControlsError = null; Update();
             try
             {
-                await _change(enabled); if (_closed) return;
+                if (remove) await _removeProvider(); else await _change(enabled);
+                if (_closed) return;
                 if (enabled) await ShowProvider();
                 else
                 {
@@ -245,7 +255,7 @@ namespace HarborBrowser.Views
             catch (Exception ex)
             {
                 if (Current(view, navigation))
-                    ControlsError = "Proton controls are not ready. " + Friendly(ex) + " Reload Proton controls or turn off and remove Proton.";
+                    ControlsError = "Proton controls are not ready. " + Friendly(ex) + " Reload Proton controls, turn off protection, or remove/reset Proton.";
             }
             finally { _showing = false; Update(); }
         }
@@ -408,7 +418,7 @@ namespace HarborBrowser.Views
             core.NavigationCompleted += (s, e) =>
             {
                 if (current() && e.NavigationId == latestNavigation && _service.Enabled && !e.IsSuccess && core.Source != "about:blank")
-                { ControlsReady = false; ControlsError = (ContainsAccountPage ? "Proton's account page" : "The Proton controls page") + " could not load (" + e.WebErrorStatus + "). Reload Proton controls or turn off and remove Proton."; Update(); }
+                { ControlsReady = false; ControlsError = (ContainsAccountPage ? "Proton's account page" : "The Proton controls page") + " could not load (" + e.WebErrorStatus + "). Reload Proton controls, turn off protection, or remove/reset Proton."; Update(); }
             };
         }
 

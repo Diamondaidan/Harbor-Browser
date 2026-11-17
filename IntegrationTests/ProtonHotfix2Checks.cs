@@ -25,14 +25,14 @@ internal static partial class Program
     {
         string root = Path.GetFullPath(args[0]), mode = args[1];
         if (!File.Exists(Path.Combine(root, Hotfix2OwnershipFile)) ||
-            (mode != "enable" && mode != "restore"))
+            (mode != "enable" && mode != "restore" && mode != "seed-off" && mode != "resume-off"))
             throw new InvalidOperationException("Only an explicitly owned synthetic restart profile is permitted.");
         int exit = 1;
         var results = new Dictionary<string, bool>();
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml") });
         var store = new BrowserDataStore(Path.Combine(root, "Profile"), Path.Combine(root, "Downloads"));
-        if (mode == "enable") store.SaveSettings(new BrowserSettings { RestorePreviousSession = false, HarborHomeIntroduced = true, ThemeMode = "Dark", OnlineSuggestionsEnabled = false });
+        if (mode == "enable" || mode == "seed-off") store.SaveSettings(new BrowserSettings { RestorePreviousSession = false, HarborHomeIntroduced = true, ThemeMode = "Dark", OnlineSuggestionsEnabled = false });
         var main = Offscreen(new MainWindow(store));
         ProtonPreviewWindow popup = null;
         var watchdog = new DispatcherTimer { Interval = TimeSpan.FromSeconds(150) };
@@ -51,7 +51,12 @@ internal static partial class Program
                 await WaitJs(core, "document.readyState==='complete'&&location.href==='https://harbor.invalid/index.html'");
                 results["Harbor Home renders after process startup"] = await core.ExecuteScriptAsync("document.getElementById('app-version')!==null") == "true";
                 var service = (ProtonPreviewService)Field(main, "_protonPreview");
-                if (mode == "enable") await main.ChangeProtonPreview(true);
+                if (mode == "resume-off")
+                {
+                    results["off intent survives the full process restart"] = !service.Enabled && !main.ProtonProtection.Enabled && !((ProtonFallbackGuard)Field(main,"_protonFallback")).Armed;
+                    results["retained provider remains installed and disabled after restart"] = service.HasSavedRegistration && (await core.Profile.GetBrowserExtensionsAsync()).Any(x=>x.Id==ProtonPreviewService.ExtensionId&&!x.IsEnabled);
+                }
+                if (mode == "enable" || mode == "seed-off" || mode == "resume-off") await main.ChangeProtonPreview(true);
                 results["Proton enabled intent and registration survive"] = service.Enabled &&
                     (await core.Profile.GetBrowserExtensionsAsync()).Any(x => x.Id == ProtonPreviewService.ExtensionId && x.IsEnabled);
                 var permissions = await core.Profile.GetNonDefaultPermissionSettingsAsync();
@@ -79,7 +84,7 @@ internal static partial class Program
                 if (!results["Proton controls report ready after startup"] || !results["actual signed-out button is visible and spinner is absent"])
                     throw new Exception("Synthetic provider controls did not reach usable sign-in; see " + mode + "-controls.json.");
                 string key = "harbor-hotfix2-local-" + File.ReadAllText(Path.Combine(root, Hotfix2OwnershipFile)).Trim();
-                if (mode == "enable")
+                if (mode == "enable" || mode == "seed-off")
                 {
                     results["own storage canary is written before shutdown"] = await Hotfix2StorageCanary(provider, key, true);
                     await core.Profile.SetPermissionStateAsync(CoreWebView2PermissionKind.Geolocation, Hotfix2PermissionSite, CoreWebView2PermissionState.Allow);
@@ -90,6 +95,12 @@ internal static partial class Program
                 else
                 {
                     results["own extension-local canary survives the full restart"] = await Hotfix2StorageCanary(provider, key, false);
+                }
+                if (mode == "seed-off" || mode == "resume-off")
+                {
+                    await main.ChangeProtonPreview(false);
+                    results["ordinary off disables without uninstalling the provider"] = !service.Enabled && service.HasSavedRegistration && (await core.Profile.GetBrowserExtensionsAsync()).Any(x=>x.Id==ProtonPreviewService.ExtensionId&&!x.IsEnabled);
+                    results["ordinary off closes both protection gates"] = !main.ProtonProtection.Enabled && !((ProtonFallbackGuard)Field(main,"_protonFallback")).Armed;
                 }
                 exit = results.Values.All(v => v) ? 0 : 1;
             }

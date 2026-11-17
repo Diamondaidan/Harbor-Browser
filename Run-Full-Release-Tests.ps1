@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061')][string[]]$Suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061'))
+param([ValidateSet('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061')][string[]]$Suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061'))
 $ErrorActionPreference='Stop'
 $releaseRoot=$PSScriptRoot
 $output=Join-Path $releaseRoot ('T\'+(Get-Date -Format 'MMddHHmmss'))
@@ -41,3 +41,4 @@ Write-Output ('Browser trial results: '+$output)
 Run-Check 'updates' (Join-Path $releaseRoot 'UpdateTests\bin\Release\net48\HarborUpdateTests.exe') @((Join-Path $output 'updates'))
 Run-Check 'updates-ui' $integration @((Join-Path $output 'updates-ui'),$fixtures,'--updates060')
 Run-Check 'ui061' $integration @((Join-Path $output 'ui061'),$fixtures,'--ui061')
+Run-Check 'proton-off061' $integration @((Join-Path $output 'proton-off061'),$fixtures,'--proton-off061')

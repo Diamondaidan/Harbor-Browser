@@ -67,7 +67,10 @@ namespace HarborBrowser
             _protonPreviewWindow?.SetProtectionStatus(phase.ToString(),detail);
         }
 
-        internal async Task ChangeProtonPreview(bool enabled)
+        internal Task ChangeProtonPreview(bool enabled) { return ChangeProtonPreviewCore(enabled, false); }
+        internal Task RemoveProtonPreview() { return ChangeProtonPreviewCore(false, true); }
+
+        private async Task ChangeProtonPreviewCore(bool enabled, bool remove)
         {
             if(enabled)CancelUpdateTraffic();
             if (enabled && _protonChanges > 0) throw new InvalidOperationException("Wait for the current Proton change to finish.");
@@ -100,8 +103,8 @@ namespace HarborBrowser
                 }
                 else
                 {
-                    InvalidateProtonProtection("Removing Proton. Browsing remains paused until removal succeeds.");
-                    await WithProfile(null,profile=>_protonPreview.Remove(profile));
+                    InvalidateProtonProtection(remove ? "Removing Proton. Browsing remains paused until removal succeeds." : "Turning off protection. Browsing remains paused until the regular connection is restored.");
+                    await WithProfile(null,profile=>remove ? _protonPreview.Remove(profile) : _protonPreview.Disable(profile));
                     RequireCurrentProtonOperation(operation);
                     await WithProfile(null,profile=>_protonFallback.SetArmed(_environment,profile,new WindowInteropHelper(this).Handle,false));
                     RequireCurrentProtonOperation(operation);
@@ -120,7 +123,7 @@ namespace HarborBrowser
             catch
             {
                 if(_protonFallback.Armed&&!ProtonProtection.Enabled)BeginProtonProtection(true);
-                if (ProtonProtection.Enabled) InvalidateProtonProtection("The Proton change did not finish. Browsing remains paused; retry or turn off and remove.");
+                if (ProtonProtection.Enabled) InvalidateProtonProtection("The Proton change did not finish. Browsing remains paused; retry turning off protection or remove/reset Proton.");
                 throw;
             }
             finally
@@ -149,7 +152,7 @@ namespace HarborBrowser
             if (_protonPreviewWindow != null) { _protonPreviewWindow.Activate(); return _protonPreviewWindow; }
             _protonPreviewWindow = new ProtonPreviewWindow(_protonPreview,ChangeProtonPreview,
                 async()=>{await EnsureEnvironmentAsync();return _environment;},OpenProtonTarget,CheckProtonPreviewRoute,
-                (source,args,cancellation)=>HandleNewWindowRequested(source,args,null,cancellation,true)) { Owner=this };
+                (source,args,cancellation)=>HandleNewWindowRequested(source,args,null,cancellation,true),RemoveProtonPreview) { Owner=this };
             _protonPreviewWindow.ProviderPreparer=async profile=>{await _protonPreview.Prepare(profile);await WarmProtonPopupAsync(profile.ProfileName);};
             _protonPreviewWindow.Closed += (s,e)=>_protonPreviewWindow=null;
             UpdateProtonIndicator(); _protonPreviewWindow.Show(); return _protonPreviewWindow;

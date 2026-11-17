@@ -1,5 +1,7 @@
 # Harbor Browser 0.6.1 development notes
 
+- Add “Turn off protection — keep sign-in” in Proton controls and paused pages. This restores the regular connection after explicit Reload while preserving the installed extension and its saved data.
+- Keep “Remove Proton and reset sign-in” as a separate action under Options. Disconnect still pauses browsing; unfinished or failed off operations cannot silently open the request gate.
 - Match Harbor-owned dialog title bars to the browser's light/dark palette, including live theme changes on Windows 10.
 - Use a compact Proton window with the extension given most of the space; place secondary actions in a collapsed options panel and scale the provider controls on small windows.
 - Keep the new-tab button directly after the last tab, with the button still accessible when the tab strip overflows.

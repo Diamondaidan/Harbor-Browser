@@ -64,8 +64,14 @@ function Check-FullPayload([string]$label){
 function Run-PackagedSmoke([string]$mode){
  $runner=Join-Path $install 'HarborIntegrationTests.exe'
  foreach($name in @('HarborIntegrationTests.exe','HarborIntegrationTests.exe.config')){Copy-Item -LiteralPath (Join-Path $root ('IntegrationTests\bin\Release\net48\'+$name)) -Destination $install}
- $output=Join-Path $owned ('smoke-'+$mode.TrimStart('-'))
+ # Extension storage needs a short owned profile path on this runtime.
+ # Keep the data-retention suite compact even when the runner is installed
+ # under the longer disposable installer folder.
+ $output=if($mode -eq '--proton-off061'){Join-Path $root ('T\o'+[guid]::NewGuid().ToString('N').Substring(0,8))}else{Join-Path $owned ('smoke-'+$mode.TrimStart('-'))}
+ if(![IO.Path]::GetFullPath($output).StartsWith((Join-Path $root 'T')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'Smoke output escaped the owned test root.'}
  New-Item -ItemType Directory -Path $output | Out-Null
+ [IO.File]::WriteAllText((Join-Path $output '.owned-smoke-fixture'),$nonce)
+ [IO.File]::WriteAllText((Join-Path $owned ($mode.TrimStart('-')+'-output-path.txt')),$output)
  $stdout=Join-Path $output 'output.txt';$stderr=Join-Path $output 'error.txt'
  $process=Start-Process -FilePath $runner -ArgumentList @(('"'+$output+'"'),('"'+(Join-Path $root 'IntegrationTests\Fixtures')+'"'),$mode) -WorkingDirectory $install -WindowStyle Hidden -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
  try{
@@ -113,7 +119,7 @@ try{
  Check 'installed executable matches the compiled stable app' ((Get-FileHash -LiteralPath (Join-Path $install 'HarborBrowser.exe')).Hash -eq $appHash)
  Check 'installed update launcher matches the compiled helper' ((Get-FileHash -LiteralPath (Join-Path $install 'HarborUpdateLauncher.exe')).Hash -eq (Get-FileHash -LiteralPath (Join-Path $payload 'HarborUpdateLauncher.exe')).Hash)
  Check-FullPayload 'initial install'
- if($fullManifest){Run-PackagedSmoke '--environment061';Run-PackagedSmoke '--updates060';Run-PackagedSmoke '--ui061'}
+ if($fullManifest){Run-PackagedSmoke '--environment061';Run-PackagedSmoke '--updates060';Run-PackagedSmoke '--ui061';Run-PackagedSmoke '--proton-off061'}
  $cap='HKCU:\'+$regPrefix+'\Clients\StartMenuInternet\HarborBrowser\Capabilities'
  Check 'stable fixture advertises its own HTTP and HTML handlers' (((Get-ItemProperty ($cap+'\URLAssociations')).https -eq 'HarborBrowser.URL') -and ((Get-ItemProperty ($cap+'\FileAssociations')).'.html' -eq 'HarborBrowser.HTML'))
  Check 'fixture registration is outside active Windows browser keys' ($cap.StartsWith('HKCU:\Software\Harbor057Fixtures\'))

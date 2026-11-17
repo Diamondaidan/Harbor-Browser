@@ -97,11 +97,22 @@ namespace HarborBrowser
         private FrameworkElement BuildProtonPausedView(BrowserTab tab)
         {
             var panel = new StackPanel { MaxWidth = 540, Margin = new Thickness(24), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-            panel.Children.Add(new TextBlock { Text = "Browsing paused", FontSize = 24, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12) });
+            panel.Children.Add(new TextBlock { Text = ProtonProtection.Enabled ? "Browsing paused" : "Ready to resume", FontSize = 24, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12) });
             panel.Children.Add(new TextBlock { Text = ProtonProtection.Reason, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) });
-            panel.Children.Add(new TextBlock { Text = (ProtonProtection.Enabled ? "Connect in Proton and verify the browser route. " : "Proton protection is off. ") + "Retry opens this address again; forms and downloads are never resumed automatically.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 16) });
+            panel.Children.Add(new TextBlock { Text = (ProtonProtection.Enabled ? "Reconnect in Proton, or turn off protection to use your regular connection while keeping sign-in. " : "Proton protection is off. Your regular connection is ready. ") + "Retry opens this address again; forms and downloads are never resumed automatically.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 16) });
             var controls = new Button { Content = "Open Proton controls", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(14, 7, 14, 7), Margin = new Thickness(0, 0, 0, 8) };
             controls.Click += (s, e) => OpenProtonPreview(); panel.Children.Add(controls);
+            if (ProtonProtection.Enabled)
+            {
+                var turnOff = new Button { Content = "Turn off protection — keep sign-in", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(14, 7, 14, 7), Margin = new Thickness(0, 0, 0, 8) };
+                turnOff.Click += async (s, e) =>
+                {
+                    turnOff.IsEnabled = false;
+                    try { await ChangeProtonPreview(false); }
+                    catch (Exception ex) { SetStatus("Turning off protection did not finish. " + ex.Message); turnOff.IsEnabled = true; }
+                };
+                panel.Children.Add(turnOff);
+            }
             var retry = new Button { Content = "Retry address", HorizontalAlignment = HorizontalAlignment.Left, Padding = new Thickness(14, 7, 14, 7), IsEnabled = !(tab.IsPrivate && ProtonProtection.Enabled) && !ProtonProtection.ShouldBlock(tab.ProtonBlockedUrl, tab.AllowProtonAuthentication) };
             retry.Click += (s, e) => { BrowserTabs.SelectedItem = tab.Item; Reload_Click(s, e); }; panel.Children.Add(retry);
             return panel;

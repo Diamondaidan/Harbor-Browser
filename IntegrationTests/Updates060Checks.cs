@@ -36,7 +36,7 @@ internal static partial class Program
                 bool refused=false;try{await service.Check(CancellationToken.None);}catch(InvalidOperationException){refused=true;}
                 Check("paused updater sends no native network request",refused&&transport.Calls==0);
                 var window=new UpdatesWindow(service,AppVersion.Number,CancellationToken.None);Check("native protection disables update check button",!window.CheckButton.IsEnabled);window.Close();
-                await main.ChangeProtonPreview(false);Check("explicit Proton removal restores update availability",main.UpdateNetworkAllowed);
+                await main.ChangeProtonPreview(false);Check("explicit Proton off restores update availability",main.UpdateNetworkAllowed);
             }
             finally{field.SetValue(main,null);}
         }
