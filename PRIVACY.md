@@ -4,6 +4,14 @@ Harbor stores browser data locally in the Windows user's Harbor profile. Dependi
 
 Private tabs use a separate temporary browser profile. They do not hide traffic from websites, the network operator or a protection provider, and downloaded files remain on disk.
 
+Private tabs are unavailable while browser-only Proton or Tor is enabled. The tested WebView2 private views do not inherit Proton's normal-profile extension route. Harbor keeps this restriction to avoid silently sending private traffic directly. Proton's "Turn off protection — keep sign-in" allows private browsing on the regular connection without removing its saved registration. Disconnect alone keeps protection enabled and browsing paused.
+
+## Page loading details
+
+Harbor observes a bounded number of first-party GET page-file responses in regular, non-Proton-account tabs to distinguish verification challenges, website refusals and missing/server-error files. Observations are local and temporary. Harbor reads status and the Content-Type/cf-mitigated response headers; it does not read response bodies, cookies or authorization headers for this feature. Pending request addresses stay in bounded tab memory, not diagnostic files. Resource inspection is omitted in private and Proton account tabs, and third-party/native-tracking failures are not fully counted.
+
+Help > Page loading details produces version numbers, error categories, protection state and counts. It excludes URLs, hosts, public addresses, page titles, account data and profile paths. Copy report writes this text to the Windows clipboard only when you choose it. Nothing is uploaded. A verification helper opens only after your click, as a normal tab on the same HTTPS origin and profile; its address omits query/fragment tokens. Complete checks yourself and explicitly reload the original page. Protections are kept enabled.
+
 ## Network connections
 
 - Visiting pages, searching, downloading files and requesting site icons contact the relevant sites and selected search provider. Sites can make their own requests and collect data under their own policies.

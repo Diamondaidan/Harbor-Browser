@@ -1,6 +1,6 @@
 # Harbor Browser
 
-This branch develops **0.6.1**. It closes the Proton request gate immediately on network/wake events and prevents clock changes from extending old route evidence. It is a development candidate, separate from the frozen 0.6.0 draft. See [DEVELOPMENT-0.6.1.md](DEVELOPMENT-0.6.1.md) for verification scope and remaining work.
+This branch develops **0.6.2**: site-verification notices, clearer loading errors, a local report without URLs or account data, and a visible explanation of the private-tab limit with browser-only VPNs. See [SITE-0.6.2-VERIFICATION.md](SITE-0.6.2-VERIFICATION.md) for behavior, verification scope and remaining work.
 
 Harbor is a Windows browser built with WPF, .NET Framework 4.8 and Microsoft WebView2. It is developed with ChatGPT under the maintainer's guidance.
 
@@ -14,7 +14,7 @@ The installer targets Windows 10 build 19041 or later on x64, including compatib
 
 ## Build and verification
 
-See [BUILDING.md](BUILDING.md), [SETUP-README.md](SETUP-README.md), [UPDATING.md](UPDATING.md) and [RELEASE-VERIFICATION.md](RELEASE-VERIFICATION.md). Historical verification reports describe the original local 0.6.0 executable; a new build needs fresh verification before packaging.
+See [BUILDING.md](BUILDING.md), [SETUP-README.md](SETUP-README.md), [UPDATING.md](UPDATING.md) and [RELEASE-VERIFICATION.md](RELEASE-VERIFICATION.md). Reports with older version numbers are historical; a new build needs fresh verification before packaging.
 
 The source retains upstream provider assets, matching source archives, notices and a small number of historical test executables needed by regression tests. It excludes signed-in profiles, private release keys, dependency installers and development caches. Do not run historical fixture executables as a browser.
 

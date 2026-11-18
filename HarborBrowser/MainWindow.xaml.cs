@@ -258,7 +258,12 @@ namespace HarborBrowser
         private BrowserTab CreateNewTab(string initialUrl, bool select, bool isPrivate, BrowserSessionTab restoredTab,
             bool suppressInitialNavigation, string profileName, bool providerAuthentication)
         {
-            if(isPrivate&&((_browserVpn?.Enabled??false)||(_protonPreview?.Enabled??false)||(ProtonProtection?.Enabled??false)||_protonChanges>0)){SetStatus("Private tabs are paused while a browser connection is enabled. Remove it in the connection controls to use private tabs.");return null;}
+            if(isPrivate&&((_browserVpn?.Enabled??false)||(_protonPreview?.Enabled??false)||(ProtonProtection?.Enabled??false)||_protonChanges>0))
+            {
+                SetStatus("Private tabs cannot use browser-only Proton/Tor in this engine. In Proton controls, choose ‘Turn off protection — keep sign-in’ to use private tabs on your regular connection. Wait for any connection change to finish.");
+                ShowPrivateTabLimit();
+                return null;
+            }
             var tab = new BrowserTab
             {
                 View = new WebView2(),
@@ -274,6 +279,7 @@ namespace HarborBrowser
                 IsPinned = restoredTab != null && restoredTab.IsPinned,
                 GroupName = restoredTab == null ? (isPrivate ? null : GetSelectedGroupForNewTab()) : restoredTab.GroupName
             };
+            tab.PageDiagnostics.Begin(0, null, tab.IsPrivate, tab.IsProviderAuthentication);
             if (tab.IsPrivate)
             {
                 if (!string.IsNullOrEmpty(profileName)) tab.PrivateSessionId = profileName;
@@ -476,6 +482,7 @@ namespace HarborBrowser
                 await StartupStep(BrowserViewInitializer==null?view.EnsureCoreWebView2Async(_environment):BrowserViewInitializer(view,_environment),startup.Token,BrowserStartupTimeout,"tab creation");
                 if (!current()) return;
                 CoreWebView2 core = view.CoreWebView2;
+                ConfigurePageDiagnostics(tab, core, current);
                 // Install the document guard before any asynchronous setup or
                 // ordinary navigation. New-window contents are wired after bind.
                 if (!tab.IsPopupPending) ConfigureProtonRequestGuard(tab, core);
@@ -545,12 +552,16 @@ namespace HarborBrowser
                     if (wasProtonPaused && SelectedTab == tab) ShowTabContent();
                     if(!tab.IsPrivate&&TorBlocksRequest(args.Uri))
                     {
+                        tab.PageDiagnostics.Blocked(null, false);
                         args.Cancel=true;tab.TorBlockedUrl=args.Uri;
                         SetStatus("Browsing is paused. Check or reconnect Tor, or disconnect to use your regular connection.");
                         return;
                     }
                     tab.TorBlockedUrl=null;
                     tab.NavigationGeneration++;
+                    if (args.IsRedirected) tab.PageDiagnostics.Redirect(args.NavigationId, args.Uri, tab.IsProviderAuthentication);
+                    else tab.PageDiagnostics.Begin(args.NavigationId, args.Uri, tab.IsPrivate, tab.IsProviderAuthentication);
+                    QueuePageIssueUpdate();
                     ResetTabFavicon(tab, args.Uri);
                     ResetTabSleepOnNavigation(tab);
                     bool wasFailed = tab.FailureMessage != null;
@@ -594,6 +605,8 @@ namespace HarborBrowser
                 {
                     if (!current()) return;
                     if (tab.ProtonPaused && core.Source == "about:blank") return;
+                    tab.PageDiagnostics.Complete(args.NavigationId, args.IsSuccess, args.WebErrorStatus);
+                    QueuePageIssueUpdate();
                     if (SelectedTab == tab)
                     {
                         SetStatus(args.IsSuccess ? "Done" : "Page load finished with an error");
@@ -1727,6 +1740,7 @@ namespace HarborBrowser
                 if (core != null)
                 {
                     e.Response = core.Environment.CreateWebResourceResponse(null, 204, "Blocked by Harbor", "Content-Type: text/plain");
+                    RecordPageRequestBlock(core, e.Request.Uri, true);
                     System.Threading.Interlocked.Increment(ref _blockedTrackerRequests);
                 }
             }
@@ -1841,6 +1855,7 @@ namespace HarborBrowser
             menu.Items.Add(tools);
 
             MenuItem help = CreateGearSubmenu("Help");
+            AddGearCommand(help, "Page loading details…", PageLoadingDetails_Click);
             AddGearCommand(help, "Check for updates…", Updates_Click);
             AddGearCommand(help, "About Harbor Browser", About_Click);
             menu.Items.Add(help);

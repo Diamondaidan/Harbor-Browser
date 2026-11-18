@@ -111,6 +111,12 @@ internal static partial class Program
                 var result=await session.Compare(control,CancellationToken.None);
                 Check("owned native route comparison succeeds "+i,result.Verified);
                 var controller=R4SessionController(session);
+                if(i==0)
+                {
+                    controller.CoreWebView2.NavigationStarting+=(s,e)=>Console.WriteLine("INFO owned verifier starts "+e.NavigationId);
+                    controller.CoreWebView2.NavigationCompleted+=(s,e)=>Console.WriteLine("INFO owned verifier completes "+e.NavigationId+" success="+e.IsSuccess+" error="+e.WebErrorStatus);
+                    controller.CoreWebView2.WebResourceResponseReceived+=(s,e)=>Console.WriteLine("INFO owned verifier response "+e.Response.StatusCode);
+                }
                 if(firstController==null)firstController=controller;
                 Check("route comparison stays in the same browser and profile "+i,controller.CoreWebView2.BrowserProcessId==control.BrowserProcessId&&controller.CoreWebView2.Profile.ProfilePath==control.Profile.ProfilePath);
             }

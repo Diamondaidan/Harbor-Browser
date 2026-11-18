@@ -1,7 +1,7 @@
-; Stable Harbor 0.6.1. Preserve the established installation and profile.
+; Stable Harbor 0.6.2. Preserve the established installation and profile.
 #define AppExeName "HarborBrowser.exe"
 #ifndef AppVersion
-#define AppVersion "0.6.1"
+#define AppVersion "0.6.2"
 #endif
 #ifndef Candidate
 #define Candidate "release"
@@ -10,7 +10,7 @@
 #define BuildRevision 0
 #endif
 #ifndef PayloadDir
-#define PayloadDir "..\dist\Harbor-0.6.1-release"
+#define PayloadDir "..\dist\Harbor-0.6.2-release"
 #endif
 #ifndef RedistDir
 #define RedistDir "redist"
@@ -50,7 +50,7 @@ DefaultDirName={autopf}\Harbor Browser
 UsePreviousAppDir=yes
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
-UninstallDisplayIcon={app}\Branding\HarborBeacon-0.6.1.ico
+UninstallDisplayIcon={app}\Branding\HarborBeacon-0.6.2.ico
 SetupIconFile=assets\HarborBrowser.ico
 OutputDir={#OutputFolder}
 OutputBaseFilename=HarborBrowserSetup-{#AppVersion}-{#Candidate}
@@ -77,14 +77,14 @@ VersionInfoProductName={#AppName}
 Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: unchecked
 [Files]
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#PayloadDir}\Branding\HarborBeacon.ico"; DestDir: "{app}\Branding"; DestName: "HarborBeacon-0.6.1.ico"; Flags: ignoreversion
+Source: "{#PayloadDir}\Branding\HarborBeacon.ico"; DestDir: "{app}\Branding"; DestName: "HarborBeacon-0.6.2.ico"; Flags: ignoreversion
 Source: "{#RedistDir}\ndp48-x86-x64-allos-enu.exe"; Flags: dontcopy
 Source: "{#RedistDir}\MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; Flags: dontcopy
 
 #ifndef FixtureBuild
 [Icons]
-Name: "{group}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-0.6.1.ico"; AppUserModelID: "HarborBrowser.Desktop"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-0.6.1.ico"; AppUserModelID: "HarborBrowser.Desktop"; Tasks: desktopicon
+Name: "{group}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-0.6.2.ico"; AppUserModelID: "HarborBrowser.Desktop"
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-0.6.2.ico"; AppUserModelID: "HarborBrowser.Desktop"; Tasks: desktopicon
 [Run]
 Filename: "{app}\HarborBrowser.exe"; Description: "Open Harbor Browser"; Flags: postinstall nowait skipifsilent unchecked; Check: CanLaunch
 #endif

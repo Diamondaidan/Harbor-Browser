@@ -70,6 +70,7 @@ namespace HarborBrowser
         {
             if (tab.IsClosing || tab.NativeContent != null || !ProtonProtectionState.IsOrdinaryRequest(target, !tab.IsPrivate && tab.AllowProtonAuthentication)) return;
             if (tab.ProtonPaused) return;
+            tab.PageDiagnostics.Blocked(null, false);
             tab.ProtonBlockedUrl = target; tab.ProtonPaused = true;
             try
             {
@@ -171,13 +172,14 @@ namespace HarborBrowser
                     if (!allowed || tab.IsClosing || generation != _browserGeneration || !ReferenceEquals(view, tab.View))
                     {
                         DenyProtonRequest(environment, args);
+                        tab.PageDiagnostics.Blocked(args.Request.Uri, false);
                         // Document includes child frames. Deny that resource
                         // without replacing its parent or remembering the
                         // frame URL as the tab's address. Top-level navigation
                         // and protection-state changes pause the tab itself.
                     }
                 }
-                catch { try { DenyProtonRequest(environment, args); } catch { } }
+                catch { try { DenyProtonRequest(environment, args); tab.PageDiagnostics.Blocked(args.Request.Uri, false); } catch { } }
                 finally { try { deferral.Complete(); } catch { } }
             };
         }

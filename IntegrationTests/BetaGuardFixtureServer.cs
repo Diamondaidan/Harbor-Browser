@@ -24,6 +24,9 @@ internal sealed class BetaGuardFixtureServer : IDisposable
     private readonly bool proxyMode;
     internal string AddressReply = "198.51.100.2";
     internal bool AddressAtRoot;
+    internal bool RequireProxyAuthentication;
+    internal string ProxyPassword = "canary";
+    internal bool DiagnosticsVerified;
     internal string BaseUrl { get; private set; }
     internal string CertificateSpkiHash
     {
@@ -83,6 +86,12 @@ internal sealed class BetaGuardFixtureServer : IDisposable
             {
                 string destination=first[1];
                 counts.AddOrUpdate("/CONNECT/"+destination,1,(key,count)=>count+1);
+                if(RequireProxyAuthentication && header.ToString().IndexOf("Proxy-Authorization: Basic "+Convert.ToBase64String(Encoding.ASCII.GetBytes("owned:"+ProxyPassword)),StringComparison.OrdinalIgnoreCase)<0)
+                {
+                    counts.AddOrUpdate("/proxy-auth-challenge",1,(key,count)=>count+1);
+                    byte[] challenge=Encoding.ASCII.GetBytes("HTTP/1.1 407 Proxy Authentication Required\r\nProxy-Authenticate: Basic realm=\"Harbor owned fixture\"\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
+                    stream.Write(challenge,0,challenge.Length);return;
+                }
                 if(destination=="unavailable-ipv6.owned.invalid:443")
                 {
                     byte[] failure=Encoding.ASCII.GetBytes("HTTP/1.1 502 Owned target unavailable\r\nContent-Length: 0\r\nConnection: close\r\n\r\n");
@@ -118,8 +127,17 @@ internal sealed class BetaGuardFixtureServer : IDisposable
             else if (path == "/sw.js") { type = "application/javascript"; body = ServiceWorker; extra = "Service-Worker-Allowed: /\r\n"; }
             else if (path.EndsWith("/download", StringComparison.Ordinal))
                 extra = "Content-Disposition: attachment; filename=harbor-beta-guard-proof.txt\r\n";
+            string status = "200 OK";
+            if (path == "/diagnostics/page") { type = "text/html"; body = "<!doctype html><title>Owned diagnostics page</title><link rel='stylesheet' href='/diagnostics/style.css?private-token=canary#fragment'><h1 id='owned'>Original page stays visible</h1>"; }
+            if (path == "/diagnostics/refused") { type = "text/html"; body = "<!doctype html><title>Owned refusal</title><link rel='stylesheet' href='/diagnostics/refused.css'><h1>Refused resource</h1>"; }
+            if (path == "/diagnostics/refused.css") { type = "text/html"; body = "Refused by fixture"; status = "403 Forbidden"; }
+            if (path == "/diagnostics/style.css")
+            {
+                if (DiagnosticsVerified) { type = "text/css"; body = "h1 {color:rgb(20, 80, 140)}"; }
+                else { type = "text/html"; status = "403 Forbidden"; extra = "cf-mitigated: challenge\r\n"; body = "<!doctype html><title>Owned verification fixture</title><p>Synthetic site check; no real CAPTCHA.</p>"; }
+            }
             byte[] bytes = Encoding.UTF8.GetBytes(body);
-            string response = "HTTP/1.1 200 OK\r\nContent-Type: " + type + "\r\nContent-Length: " + bytes.Length + "\r\nConnection: close\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: *\r\n" + extra + "\r\n";
+            string response = "HTTP/1.1 " + status + "\r\nContent-Type: " + type + "\r\nContent-Length: " + bytes.Length + "\r\nConnection: close\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: *\r\n" + extra + "\r\n";
             byte[] head = Encoding.ASCII.GetBytes(response); stream.Write(head, 0, head.Length); stream.Write(bytes, 0, bytes.Length);
         }
         catch (IOException) { } catch (SocketException) { } catch (ObjectDisposedException) { } catch(AuthenticationException){}

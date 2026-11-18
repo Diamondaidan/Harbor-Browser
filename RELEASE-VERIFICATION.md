@@ -1,9 +1,9 @@
-# Harbor Browser 0.6.1 Proton off/on verification
+# Harbor Browser 0.6.2 release verification
 
-Passed **1389 assertions across 18 suites** against matching app/helper copies.
+Passed **1461 assertions across 19 suites** against matching app/helper copies.
 
-App SHA-256: 324C32D3CD1366AE49220FEC3A8E7397FAA2E96E02292D4868781C405FEF3827
-Update launcher SHA-256: 3828316155D7116A3CB22BE54A3036FC4FC4A235817A2715E88C6A0FB6E0E7D2
+App SHA-256: EFE5565D4A6F13E260E5AF953D2EE18F2A53912C3EEE771B857EC5815A5F87BC
+Update launcher SHA-256: 5064FA58D5BB6CED7EBDA204679C1E0D276D6470B8A81A2DD121F84E1387386D
 
 | Suite | Assertions | Passed |
 | --- | ---: | --- |
@@ -25,11 +25,12 @@ Update launcher SHA-256: 3828316155D7116A3CB22BE54A3036FC4FC4A235817A2715E88C6A0
 | environment061 | 67 | True |
 | ui061 | 46 | True |
 | proton-off061 | 59 | True |
+| site062 | 72 | True |
 
-The new 59-check off/on suite verifies that both ordinary off actions disable the native provider without uninstalling it, restore actual local HTTP browsing only after explicit Reload, and preserve a synthetic extension-local marker through off/on cycles and full browser/engine restart. It covers persistence failures, superseded operations, delayed native registration, explicit reset and retained website cookies. See PROTON-OFF-0.6.1-VERIFICATION.md.
+The new 72-check site suite covers challenge/refusal classification, stale responses, report redaction, bounded observation, native HTTPS helper/return/reload behavior, retained document content, responsive notices, themed details windows, native Tor-block classification, protected private-tab refusal and an accurate private label before first navigation. Private tabs remain unavailable with browser-only Proton/Tor enabled; Off permits native InPrivate on the regular connection. See SITE-0.6.2-VERIFICATION.md for implementation scope, the private-route probe, initial failures/corrections and limits.
 
-All listed results are current for this executable. Existing coverage includes browsing, downloads/filenames, tabs, media, bookmarks, settings, light/dark captions, simulated size/scaling, private profiles, account-handoff fixtures, request protection, network/clock recovery and updater integrity/routing. The 46-check UI suite still passes with the new normal off button. Off, enabled and provider renderer captures were visually inspected.
+Other coverage includes actual local browsing/downloads/filename handling, tabs, media, bookmarks, settings, title bars, simulated sizes/scaling, private cleanup, synthetic account handoff, request guards, clock/network recovery, off/on retention and updater integrity. Native tests use owned profiles and synthetic canaries, not the installed user profile or account tokens. Generated light/dark report and notice renders were visually inspected.
 
-One initial R4 local route-comparison request timed out after three successful comparisons. Its log is retained under Evidence/ProtonOff/initial-route-timeout.log. A fresh complete 34-check R4 run passed without application changes or a relaxed timeout. An older pending-state test was updated to use the explicit Remove action for cleanup rather than ordinary Off.
+Initial R4 fixture runs intermittently timed out; fresh full checks passed without relaxing timeouts or changing the production verifier. The startup privacy-label race was corrected before this final receipt. Earlier logs remain in Evidence/062-initial. NuGet vulnerability metadata was unavailable (NU1900); a fresh online dependency-vulnerability scan is not established. All 336 pinned provider hashes passed.
 
-No real account was signed in during these tests. Synthetic extension data retention does not guarantee validity of a live Proton session; an owner-run off/on and restart check remains. Physical monitor/DPI/input, Wi-Fi/sleep, actual clean/offline prerequisites/UAC/reboot and hosted update/rollback are separate manual checks. The retained performance baseline identifies its preceding executable and was not rerun for these corrections.
+Still manual: real website verification through signed-in Proton, live account/session off/on/restart validity, actual clean/offline spare-PC setup with missing Microsoft prerequisites/UAC/reboot, physical network/sleep/DPI/input and hosted GitHub update/rollback. The retained older performance baseline is historical; no new speed/memory gain or complete privacy audit is claimed. Windows packages remain intentionally unsigned. No publication or production installation was performed.

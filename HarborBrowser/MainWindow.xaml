@@ -170,6 +170,19 @@
             <StackPanel Grid.Column="1"><CheckBox x:Name="RememberPermissionBox" Content="Remember for this site"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="Block" Click="PermissionBlock_Click"/><Button Content="Allow" Click="PermissionAllow_Click"/></StackPanel></StackPanel>
           </Grid>
         </Border>
+        <Border x:Name="PageIssueBar" Visibility="Collapsed" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborAccent}" BorderThickness="0,0,0,1" Padding="10,6">
+          <StackPanel>
+            <TextBlock x:Name="PageIssueText" TextWrapping="Wrap" Margin="0,0,0,4" AutomationProperties.LiveSetting="Polite"/>
+            <WrapPanel>
+              <Button x:Name="PrivateTabConnectionButton" Content="Open connection controls" Click="BrowserVpn_Click" Visibility="Collapsed"/>
+              <Button x:Name="CompleteSiteCheckButton" Content="Complete site check" Click="CompleteSiteCheck_Click" Visibility="Collapsed"/>
+              <Button x:Name="ReturnFromSiteCheckButton" Content="Return to original page" Click="ReturnFromSiteCheck_Click" Visibility="Collapsed"/>
+              <Button x:Name="PageIssueReloadButton" Content="Reload page" Click="Reload_Click"/>
+              <Button Content="Details" Click="PageLoadingDetails_Click"/>
+              <Button Content="Dismiss" Click="DismissPageIssue_Click"/>
+            </WrapPanel>
+          </StackPanel>
+        </Border>
       </StackPanel>
       <ContentControl x:Name="BrowserContentHost" Background="{DynamicResource HarborInput}" />
     </DockPanel>
