@@ -50,7 +50,7 @@ internal static partial class Program
             r4Proxy=new BetaGuardFixtureServer(true);
             main.TestBrowserArguments+=" --ignore-certificate-errors-spki-list="+r4Proxy.CertificateSpkiHash;
         }
-        if(args.Length>2&&(args[2]=="--proton-r4"||args[2]=="--proton-r4-benchmark"||args[2]=="--private-vpn-probe062"))
+        if(args.Length>2&&(args[2]=="--proton-r4"||args[2]=="--proton-r4-benchmark"||args[2]=="--private-vpn-probe062"||args[2]=="--route063"))
         {
             r4Proxy=new BetaGuardFixtureServer(true,true);
             main.TestBrowserArguments+=" --host-resolver-rules=\"MAP harbor-owned-proxy.invalid 127.0.0.1\" --ignore-certificate-errors-spki-list="+r4Proxy.CertificateSpkiHash;
@@ -63,6 +63,10 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--downloads063")
+                {await Downloads063Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" download recovery and private-session resume checks. Owned files and profiles only.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--route063")
+                {try{await Route063Checks(main,args[0],r4Proxy);Console.WriteLine("ALL PASSED: "+checks+" route-verification reliability checks. Owned proxy and profiles only.");exit=0;}finally{r4Proxy.Dispose();}return;}
                 if(args.Length>2&&args[2]=="--site062")
                 {try{await Site062Checks(main,args[0],r4Proxy);Console.WriteLine("ALL PASSED: "+checks+" site verification, loading diagnostics and private-tab limit checks. Owned HTTPS fixture only.");exit=0;}finally{r4Proxy.Dispose();}return;}
                 if(args.Length>2&&args[2]=="--private-vpn-probe062")

@@ -68,6 +68,12 @@ internal static partial class Program
                     core.Navigate(server.Url(prefix+"/blocked"));
                     await Task.Delay(200);
                     Check(change+" blocked destination never reaches the local server",server.Count(prefix+"/blocked")==0);
+                    if(change=="network-lost"||change=="suspend")
+                    {
+                        Check(change+" cannot accept a proof while the adapter is unavailable",!main.MarkProtonRouteVerified(main.ProtonProtection.Epoch));
+                        typeof(MainWindow).GetMethod("QueueTorEnvironmentChange",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(main,new object[]{true,"Owned network returned before fresh proof"});
+                        await Dispatcher.Yield(DispatcherPriority.ApplicationIdle);
+                    }
                     Check(change+" fresh route evidence can restore protection",main.MarkProtonRouteVerified(main.ProtonProtection.Epoch));
                     await Task.Delay(100);
                     Check(change+" recovery does not replay the paused destination",tab.ProtonPaused&&server.Count(prefix+"/page")==1&&server.Count(prefix+"/blocked")==0);

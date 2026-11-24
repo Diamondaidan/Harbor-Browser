@@ -84,6 +84,7 @@ namespace HarborBrowser
         private void QueueTorEnvironmentChange(bool available,string reason)
         {
             if(_torWindowClosed||Dispatcher.HasShutdownStarted)return;
+            _protonNetworkAvailable=available;
             // Windows can deliver these callbacks on another thread. Close the
             // thread-safe request gate now, before waiting for a busy UI queue.
             var protection=ProtonProtection;

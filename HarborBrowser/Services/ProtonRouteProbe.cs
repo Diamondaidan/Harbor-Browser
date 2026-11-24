@@ -11,6 +11,7 @@ using Microsoft.Web.WebView2.Core;
 
 namespace HarborBrowser.Services
 {
+    internal enum ProtonRouteStage { Navigating, ResponseHeaders, ContentRequested, ContentReceived, AddressParsed, NavigationCompleted }
     internal sealed class ProtonProxyProof
     {
         internal bool Owned { get; set; }
@@ -41,7 +42,7 @@ namespace HarborBrowser.Services
         internal static async Task<ProtonProxyProof> ReadProxyProof(CoreWebView2 core,CancellationToken cancellation=default(CancellationToken))
         {
             if(!ProtonPreviewService.IsProviderPage(core.Source))return new ProtonProxyProof();
-            string nonce=Guid.NewGuid().ToString("N");var done=new TaskCompletionSource<ProtonProxyProof>();
+            string nonce=Guid.NewGuid().ToString("N");var done=new TaskCompletionSource<ProtonProxyProof>(TaskCreationOptions.RunContinuationsAsynchronously);
             EventHandler<CoreWebView2WebMessageReceivedEventArgs> handler=(s,e)=>{
                 if(!ProtonPreviewService.IsProviderPage(e.Source))return;
                 try{
@@ -77,31 +78,57 @@ namespace HarborBrowser.Services
             }finally{core.WebMessageReceived-=handler;}
         }
 
-        internal static async Task<IPAddress> Address(CoreWebView2 core,CancellationToken cancellation=default(CancellationToken))
+        internal static async Task<IPAddress> Address(CoreWebView2 core,CancellationToken cancellation=default(CancellationToken),Action<ProtonRouteStage> progress=null)
         {
             string target=AddressTarget();
-            var done=new TaskCompletionSource<IPAddress>();var loaded=new TaskCompletionSource<bool>();ulong? id=null;
-            EventHandler<CoreWebView2NavigationStartingEventArgs> starting=(s,e)=>{if(e.Uri==target)id=e.NavigationId;else{e.Cancel=true;var error=new InvalidOperationException("The verifier redirected.");done.TrySetException(error);loaded.TrySetException(error);}};
+            var lifetime=CancellationTokenSource.CreateLinkedTokenSource(cancellation);cancellation=lifetime.Token;
+            var network=new ProtonNetworkReply(core,target);
+            var responseReady=new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);var loaded=new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);ulong? id=null;
+            EventHandler<CoreWebView2NavigationStartingEventArgs> starting=(s,e)=>{if(e.Uri==target)id=e.NavigationId;else{e.Cancel=true;var error=new InvalidOperationException("The verifier redirected.");responseReady.TrySetException(error);loaded.TrySetException(error);}};
             EventHandler<CoreWebView2NavigationCompletedEventArgs> completed=(s,e)=>{
                 if(e.NavigationId!=id)return;
+                progress?.Invoke(ProtonRouteStage.NavigationCompleted);
                 if(e.IsSuccess)loaded.TrySetResult(true);
-                else{var error=new InvalidOperationException("The verifier did not load.");done.TrySetException(error);loaded.TrySetException(error);}
+                else{var error=new InvalidOperationException("The verifier did not load.");responseReady.TrySetException(error);loaded.TrySetException(error);}
             };
-            EventHandler<CoreWebView2WebResourceResponseReceivedEventArgs> response=async(s,e)=>{
+            EventHandler<CoreWebView2WebResourceResponseReceivedEventArgs> response=(s,e)=>{
                 if(e.Request.Uri!=target)return;
                 try{
+                    progress?.Invoke(ProtonRouteStage.ResponseHeaders);
                     if(e.Response.StatusCode!=200)throw new InvalidOperationException("The verifier returned an unsuccessful response.");
-                    using(var stream=await e.Response.GetContentAsync())done.TrySetResult(await ReadAddress(stream,cancellation));
-                }catch(Exception error){done.TrySetException(error);}
+                    var headers=e.Response.Headers;
+                    if(!headers.Contains("Content-Type")||!headers.GetHeader("Content-Type").Split(';')[0].Trim().Equals("application/json",StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException("The verifier returned an unexpected content type.");
+                    responseReady.TrySetResult(true);
+                }catch(Exception error){responseReady.TrySetException(error);}
             };
+            async Task<IPAddress> ReadCompletedResponse()
+            {
+                await network.Prepare(cancellation);
+                progress?.Invoke(ProtonRouteStage.Navigating);
+                core.NavigateWithWebResourceRequest(core.Environment.CreateWebResourceRequest(target,"GET",null,"Cache-Control: no-store\r\nPragma: no-cache"));
+                var first=await Task.WhenAny(responseReady.Task,loaded.Task);await first;
+                await responseReady.Task;await loaded.Task;
+                cancellation.ThrowIfCancellationRequested();
+                if(core.Source!=target)throw new InvalidOperationException("The verifier document changed.");
+                progress?.Invoke(ProtonRouteStage.ContentRequested);
+                byte[] body=await network.Read(cancellation);
+                cancellation.ThrowIfCancellationRequested();
+                if(core.Source!=target)throw new InvalidOperationException("The verifier document changed.");
+                using(var stream=new MemoryStream(body))
+                {progress?.Invoke(ProtonRouteStage.ContentReceived);var address=await ReadAddress(stream,cancellation);progress?.Invoke(ProtonRouteStage.AddressParsed);return address;}
+            }
             core.NavigationStarting+=starting;core.NavigationCompleted+=completed;core.WebResourceResponseReceived+=response;
-            try{core.NavigateWithWebResourceRequest(core.Environment.CreateWebResourceRequest(target,"GET",null,"Cache-Control: no-store\r\nPragma: no-cache"));return await Bounded(LoadedAddress(done.Task,loaded.Task),20000,cancellation);}
-            finally{core.NavigationStarting-=starting;core.NavigationCompleted-=completed;core.WebResourceResponseReceived-=response;}
+            try{return await Bounded(ReadCompletedResponse(),20000,cancellation);}
+            finally{lifetime.Cancel();try{core.NavigationStarting-=starting;core.NavigationCompleted-=completed;core.WebResourceResponseReceived-=response;}catch{}Observe(responseReady.Task);Observe(loaded.Task);await network.Close();lifetime.Dispose();}
         }
-        private static async Task<IPAddress> LoadedAddress(Task<IPAddress> content,Task loaded)
-        {await Task.WhenAll(content,loaded);return await content;}
         internal static string AddressTarget()
         {return "https://api.ipify.org/?format=json&harbor_beta="+Guid.NewGuid().ToString("N");}
+        internal static bool IsAddressTarget(string target)
+        {
+            const string prefix="https://api.ipify.org/?format=json&harbor_beta=";
+            Guid nonce;return target!=null&&target.StartsWith(prefix,StringComparison.Ordinal)&&Guid.TryParseExact(target.Substring(prefix.Length),"N",out nonce);
+        }
 
         internal static async Task<IPAddress> DirectAddress(Uri target,CancellationToken cancellation)
         {
@@ -133,7 +160,9 @@ namespace HarborBrowser.Services
                 while((count=await stream.ReadAsync(buffer,0,buffer.Length,cancellation))>0)
                 {if(memory.Length+count>16384)throw new InvalidDataException("The verifier response was too large.");memory.Write(buffer,0,count);}
                 cancellation.ThrowIfCancellationRequested();
-                var value=new JavaScriptSerializer{MaxJsonLength=16384,RecursionLimit=4}.Deserialize<Dictionary<string,object>>(Encoding.UTF8.GetString(memory.ToArray()));
+                Dictionary<string,object> value;
+                try{value=new JavaScriptSerializer{MaxJsonLength=16384,RecursionLimit=4}.Deserialize<Dictionary<string,object>>(Encoding.UTF8.GetString(memory.ToArray()));}
+                catch{throw new InvalidDataException("The verifier returned invalid JSON.");}
                 object address;IPAddress ip;
                 if(value==null||!value.TryGetValue("ip",out address)||!IPAddress.TryParse(Convert.ToString(address),out ip)||ip.AddressFamily!=AddressFamily.InterNetwork)
                     throw new InvalidDataException("The verifier returned no valid IPv4 address.");
@@ -151,6 +180,13 @@ namespace HarborBrowser.Services
             }finally{deadline.Cancel();}
         }
         private static void Observe(Task task){task.ContinueWith(t=>{var ignored=t.Exception;},CancellationToken.None,TaskContinuationOptions.OnlyOnFaulted|TaskContinuationOptions.ExecuteSynchronously,TaskScheduler.Default);}
+        internal static string FailureMessage(Exception error)
+        {
+            if(error is TimeoutException)return "The browser route check timed out. Browsing is paused; Harbor will retry. Open Proton controls → Options → Check browser route to retry now.";
+            if(error is OperationCanceledException)return "The browser route check was interrupted. Browsing is paused until a fresh check succeeds.";
+            if(error is InvalidDataException)return "The verification service returned a reply Harbor could not verify. Browsing is paused; check Proton's connection and try Check browser route again.";
+            return "The browser route could not be confirmed. Browsing is paused; open Proton's controls and try Check browser route again.";
+        }
     }
 }
 

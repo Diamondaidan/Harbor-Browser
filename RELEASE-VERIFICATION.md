@@ -1,9 +1,9 @@
-# Harbor Browser 0.6.2 release verification
+# Harbor Browser 0.6.3 release verification
 
-Passed **1461 assertions across 19 suites** against matching app/helper copies.
+Passed **1516 assertions across 21 suites** against matching app/helper copies.
 
-App SHA-256: EFE5565D4A6F13E260E5AF953D2EE18F2A53912C3EEE771B857EC5815A5F87BC
-Update launcher SHA-256: 5064FA58D5BB6CED7EBDA204679C1E0D276D6470B8A81A2DD121F84E1387386D
+App SHA-256: 103840485A9B49B361B632A22BDD8CF3747AFAB4A77D05DEABE7E2B528D097C1
+Update launcher SHA-256: 113A4D459E6BDF98FA61421ED29F27982B34D73CE142E9E4C6C02A8ED4145312
 
 | Suite | Assertions | Passed |
 | --- | ---: | --- |
@@ -22,15 +22,17 @@ Update launcher SHA-256: 5064FA58D5BB6CED7EBDA204679C1E0D276D6470B8A81A2DD121F84
 | release057 | 9 | True |
 | updates | 120 | True |
 | updates-ui | 8 | True |
-| environment061 | 67 | True |
+| environment061 | 69 | True |
 | ui061 | 46 | True |
 | proton-off061 | 59 | True |
 | site062 | 72 | True |
+| route063 | 36 | True |
+| downloads063 | 17 | True |
 
-The new 72-check site suite covers challenge/refusal classification, stale responses, report redaction, bounded observation, native HTTPS helper/return/reload behavior, retained document content, responsive notices, themed details windows, native Tor-block classification, protected private-tab refusal and an accurate private label before first navigation. Private tabs remain unavailable with browser-only Proton/Tor enabled; Off permits native InPrivate on the regular connection. See SITE-0.6.2-VERIFICATION.md for implementation scope, the private-route probe, initial failures/corrections and limits.
+The new route suite performs thirty immediate comparisons in one existing verifier controller, checks original response bytes despite controlled page changes, rejects malformed/oversized replies and redirects, cancels failed comparison halves, and recovers after cancellation. Native destination counters verify redirect denial. Offline adapter state cannot accept a proof or start a manual check, and network return schedules fresh verification. No timeout was lengthened.
 
-Other coverage includes actual local browsing/downloads/filename handling, tabs, media, bookmarks, settings, title bars, simulated sizes/scaling, private cleanup, synthetic account handoff, request guards, clock/network recovery, off/on retention and updater integrity. Native tests use owned profiles and synthetic canaries, not the installed user profile or account tokens. Generated light/dark report and notice renders were visually inspected.
+The download suite checks generated ZIP bytes, protection-blocked and duplicate Resume, original row/file retention, explicitly injected independent native private sessions, cleanup and recovery explanations. The existing network/wake suite now includes rejection of proof until an unavailable adapter returns. Other suites cover browsing, media, filename handling, tabs, bookmarks, settings, appearance, privacy, account-handoff fixtures, request guards, off/on retention, startup/engine recovery and updater integrity.
 
-Initial R4 fixture runs intermittently timed out; fresh full checks passed without relaxing timeouts or changing the production verifier. The startup privacy-label race was corrected before this final receipt. Earlier logs remain in Evidence/062-initial. NuGet vulnerability metadata was unavailable (NU1900); a fresh online dependency-vulnerability scan is not established. All 336 pinned provider hashes passed.
+Baseline and intermediate test failures are documented in RELIABILITY-0.6.3-VERIFICATION.md. Only the final app/helper hashes above are represented by this table. NuGet vulnerability metadata remained unavailable in the build logs (NU1900); no fresh online dependency-vulnerability scan is established. All 336 pinned provider asset hashes passed. Generated light/dark downloads and diagnostic layouts were inspected as offline renders.
 
-Still manual: real website verification through signed-in Proton, live account/session off/on/restart validity, actual clean/offline spare-PC setup with missing Microsoft prerequisites/UAC/reboot, physical network/sleep/DPI/input and hosted GitHub update/rollback. The retained older performance baseline is historical; no new speed/memory gain or complete privacy audit is claimed. Windows packages remain intentionally unsigned. No publication or production installation was performed.
+Still manual: live Proton off/on/restart and real site verification; clean/offline spare-PC setup with actual missing Microsoft prerequisites/UAC/reboot; physical network/sleep/DPI/input and broader hardware; hosted GitHub update/rollback after approved publication. Private tabs remain blocked with browser-only protection enabled. No complete leak audit or whole-browser performance improvement is claimed. Windows packages are intentionally unsigned. No installed user profile or account tokens were used, and nothing was published.

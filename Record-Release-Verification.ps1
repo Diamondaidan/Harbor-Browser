@@ -3,10 +3,10 @@ param()
 $ErrorActionPreference='Stop'
 $root=$PSScriptRoot
 $app=Get-Item -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\HarborBrowser.exe')
-$suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061','site062')
+$suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061','site062','route063','downloads063')
 $results=@()
 foreach($suite in $suites){
- $path=Join-Path $root ($suite+'-release062.log')
+ $path=Join-Path $root ($suite+'-release063.log')
  $present=Test-Path -LiteralPath $path
  $lines=if($present){@(Get-Content -LiteralPath $path)}else{@()}
  $current=$present -and (Get-Item -LiteralPath $path).LastWriteTimeUtc -ge $app.LastWriteTimeUtc
@@ -26,7 +26,7 @@ foreach($runner in @('Tests','IntegrationTests','UpdateTests')){
  $copiesMatch=$copiesMatch -and (Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash -eq $hash -and (Get-FileHash -LiteralPath $helperCopy -Algorithm SHA256).Hash -eq $helperHash
 }
 $verification=@{
- UpdateLauncherSHA256=$helperHash;Version='0.6.2';RecordedUtc=[DateTime]::UtcNow.ToString('o');AppSHA256=$hash
+ UpdateLauncherSHA256=$helperHash;Version='0.6.3';RecordedUtc=[DateTime]::UtcNow.ToString('o');AppSHA256=$hash
  ReadyToPackage=$copiesMatch -and @($results | Where-Object {!$_.Passed}).Count -eq 0
  TestCopiesMatch=$copiesMatch;AssertionsPassed=($results | Measure-Object AssertionsPassed -Sum).Sum;Suites=$results
 }

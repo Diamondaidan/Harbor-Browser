@@ -39,7 +39,7 @@ namespace HarborBrowser
         }
         internal long BeginProtonProtection(bool enabled) { return ProtonProtection.Begin(enabled); }
         internal long InvalidateProtonProtection(string reason, bool connecting = false) { return ProtonProtection.Invalidate(reason, connecting); }
-        internal bool MarkProtonRouteVerified(long epoch) { return ProtonProtection.TryProtect(epoch, ProtonVerificationLease); }
+        internal bool MarkProtonRouteVerified(long epoch) { return _protonNetworkAvailable && ProtonProtection.TryProtect(epoch, ProtonVerificationLease); }
 
         private void ApplyProtonProtectionChange()
         {

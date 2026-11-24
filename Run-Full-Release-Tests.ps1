@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061','site062')][string[]]$Suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061','site062'))
+param([ValidateSet('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061','site062','route063','downloads063')][string[]]$Suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061','site062','route063','downloads063'))
 $ErrorActionPreference='Stop'
 $releaseRoot=$PSScriptRoot
 $output=Join-Path $releaseRoot ('T\'+(Get-Date -Format 'MMddHHmmss'))
@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 function Run-Check([string]$name,[string]$exe,[string[]]$arguments){
     if($Suites -notcontains $name){return}
     Write-Output ('Running '+$name)
-    $log=Join-Path $releaseRoot ($name+'-release062.log')
+    $log=Join-Path $releaseRoot ($name+'-release063.log')
     & $exe @arguments *> $log
     if($LASTEXITCODE -ne 0){Get-Content -LiteralPath $log -Tail 25;throw ($name+' failed: '+$LASTEXITCODE)}
     Get-Content -LiteralPath $log -Tail 2
@@ -43,3 +43,5 @@ Run-Check 'updates-ui' $integration @((Join-Path $output 'updates-ui'),$fixtures
 Run-Check 'ui061' $integration @((Join-Path $output 'ui061'),$fixtures,'--ui061')
 Run-Check 'proton-off061' $integration @((Join-Path $output 'proton-off061'),$fixtures,'--proton-off061')
 Run-Check 'site062' $integration @((Join-Path $output 'site062'),$fixtures,'--site062')
+Run-Check 'route063' $integration @((Join-Path $output 'route063'),$fixtures,'--route063')
+Run-Check 'downloads063' $integration @((Join-Path $output 'downloads063'),$fixtures,'--downloads063')
