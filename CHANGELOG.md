@@ -1,3 +1,9 @@
+# 0.7.0
+
+- Optional inactive-tab unloading with conservative page-state/media/download checks; off by default.
+- Separate unloaded/sleeping/deferred states, unload reasons and Reload controls in Resource Monitor; clarify process memory accounting.
+- Avoid the unused background initialization attempt during restored-session startup.
+- Record matching 0.6.3/0.7.0 performance results and native lifecycle/protection-transition coverage. Windows installer remains unsigned; installed/live/spare-PC validation remains pending.
 # Harbor 0.6.1 development
 
 - Close the thread-safe Proton request gate directly when a network/address/suspend/resume notification arrives, before interface work is queued.

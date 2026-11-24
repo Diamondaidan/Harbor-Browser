@@ -15,6 +15,8 @@ namespace HarborBrowser.Models
         public bool EnableDeveloperTools { get; set; }
         public bool SuspendInactiveTabs { get; set; }
         public int InactiveTabSuspendDelaySeconds { get; set; }
+        public bool UnloadInactiveTabs { get; set; }
+        public int InactiveTabUnloadDelaySeconds { get; set; } = 900;
         public bool RestorePreviousSession { get; set; }
         public bool EnableTrackerBlocking { get; set; }
         public string TrackingPreventionLevel { get; set; }
@@ -63,6 +65,8 @@ namespace HarborBrowser.Models
                 EnableDeveloperTools = EnableDeveloperTools,
                 SuspendInactiveTabs = SuspendInactiveTabs,
                 InactiveTabSuspendDelaySeconds = InactiveTabSuspendDelaySeconds,
+                UnloadInactiveTabs = UnloadInactiveTabs,
+                InactiveTabUnloadDelaySeconds = InactiveTabUnloadDelaySeconds,
                 RestorePreviousSession = RestorePreviousSession,
                 EnableTrackerBlocking = EnableTrackerBlocking,
                 TrackingPreventionLevel = TrackingPreventionLevel,

@@ -41,6 +41,7 @@ namespace HarborBrowser
                 if(tab.IsClosing)continue;
                 if(tab==SelectedTab)
                 {
+                    tab.UnloadTimer?.Stop(); tab.RetryUnloadAfterUtc=default(DateTime); tab.UnloadReason=null;
                     tab.InactiveSinceUtc=null;tab.RetrySleepAfterUtc=default(DateTime);
                     if(tab.SuspendTimer!=null)tab.SuspendTimer.Stop();ResumeTabIfNeeded(tab);
                 }
@@ -49,6 +50,7 @@ namespace HarborBrowser
                     if(!tab.InactiveSinceUtc.HasValue)tab.InactiveSinceUtc=DateTime.UtcNow;
                     if(!_settings.SuspendInactiveTabs){if(tab.SuspendTimer!=null)tab.SuspendTimer.Stop();ResumeTabIfNeeded(tab);}
                     else if(!tab.IsSuspended)StartTabSuspendTimer(tab);
+                    StartTabUnloadTimer(tab);
                 }
             }
         }
@@ -81,7 +83,7 @@ namespace HarborBrowser
         }
         private async Task SuspendTabIfInactiveAsync(BrowserTab tab)
         {
-            if(tab==null||tab.SuspensionInProgress||!_settings.SuspendInactiveTabs)return;
+            if(tab==null||tab.SuspensionInProgress||tab.UnloadingInProgress||tab.IsUnloaded||!_settings.SuspendInactiveTabs)return;
             string reason=SleepProtection(tab);
             if(reason!=null){tab.SleepReason=reason;RetryTabSleep(tab);return;}
             var view=tab.View;int navigation=tab.NavigationGeneration;
@@ -128,6 +130,7 @@ namespace HarborBrowser
         private async void SuspendInactiveTabsNow_Click(object sender,RoutedEventArgs e){await SleepInactiveTabs();}
         private string TabResourceState(BrowserTab tab)
         {
+            if(tab.IsUnloaded)return "Unloaded — reloads on selection";
             if(tab.FailureMessage!=null||tab.NeedsNewView){tab.IsSuspended=false;return "Needs reload";}
             if(tab.Initialized&&!tab.NeedsNewView&&tab.FailureMessage==null)try{tab.IsSuspended=tab.View.CoreWebView2.IsSuspended;}catch{}
             if(tab.IsSuspended)return "Sleeping";
@@ -141,17 +144,17 @@ namespace HarborBrowser
         }
         internal IList<TabResourceRow> BuildTabResourceRows()
         {
-            return OpenTabs.Select((tab,index)=>new TabResourceRow{Id=tab.ResourceId,Title=tab.IsPrivate?"Private tab "+(index+1):tab.PageTitle??"New tab",Scope=tab.IsPrivate?"Private":"Normal",State=TabResourceState(tab),KeepAwake=tab.KeepAwake,CanSleep=_settings.SuspendInactiveTabs&&!tab.IsSuspended&&SleepProtection(tab)==null,CanWake=tab.IsSuspended}).ToList();
+            return OpenTabs.Select((tab,index)=>new TabResourceRow{Id=tab.ResourceId,Title=tab.IsPrivate?"Private tab "+(index+1):tab.PageTitle??"New tab",Scope=tab.IsPrivate?"Private":"Normal",State=TabResourceState(tab),UnloadState=TabUnloadState(tab),KeepAwake=tab.KeepAwake,CanSleep=_settings.SuspendInactiveTabs&&!tab.IsSuspended&&!tab.IsUnloaded&&!tab.UnloadingInProgress&&SleepProtection(tab)==null,CanWake=tab.IsSuspended||tab.IsUnloaded,CanUnload=_settings.UnloadInactiveTabs&&!tab.UnloadingInProgress&&UnloadProtection(tab)==null,IsUnloaded=tab.IsUnloaded}).ToList();
         }
         internal void SetTabKeepAwake(BrowserTab tab,bool value)
         {
             if(tab==null||tab.IsClosing)return;tab.KeepAwake=value;WakeTab(tab);if(value&&tab.SuspendTimer!=null)tab.SuspendTimer.Stop();
         }
         private void WakeTab(BrowserTab tab)
-        {if(tab==null)return;ResumeTabIfNeeded(tab);tab.InactiveSinceUtc=tab==SelectedTab?(DateTime?)null:DateTime.UtcNow;tab.RetrySleepAfterUtc=default(DateTime);StartTabSuspendTimer(tab);}
+        {if(tab==null)return;if(tab.IsUnloaded){BrowserTabs.SelectedItem=tab.Item;_=EnsureTabInitializedAsync(tab);}else ResumeTabIfNeeded(tab);tab.InactiveSinceUtc=tab==SelectedTab?(DateTime?)null:DateTime.UtcNow;tab.RetrySleepAfterUtc=default(DateTime);tab.RetryUnloadAfterUtc=default(DateTime);StartTabSuspendTimer(tab);StartTabUnloadTimer(tab);}
         private ResourceMonitorActions MonitorActions()
         {
-            return new ResourceMonitorActions{Tabs=BuildTabResourceRows,Activate=id=>{var tab=OpenTabs.FirstOrDefault(t=>t.ResourceId==id);if(tab!=null){BrowserTabs.SelectedItem=tab.Item;Activate();}},Sleep=async id=>{var tab=OpenTabs.FirstOrDefault(t=>t.ResourceId==id);if(tab!=null)await SuspendTabIfInactiveAsync(tab);},Wake=id=>WakeTab(OpenTabs.FirstOrDefault(t=>t.ResourceId==id)),KeepAwake=(id,value)=>SetTabKeepAwake(OpenTabs.FirstOrDefault(t=>t.ResourceId==id),value),SleepInactive=SleepInactiveTabs};
+            return new ResourceMonitorActions{Tabs=BuildTabResourceRows,Activate=id=>{var tab=OpenTabs.FirstOrDefault(t=>t.ResourceId==id);if(tab!=null){BrowserTabs.SelectedItem=tab.Item;Activate();}},Sleep=async id=>{var tab=OpenTabs.FirstOrDefault(t=>t.ResourceId==id);if(tab!=null)await SuspendTabIfInactiveAsync(tab);},Unload=async id=>await UnloadTabIfInactiveAsync(OpenTabs.FirstOrDefault(t=>t.ResourceId==id)),Wake=id=>WakeTab(OpenTabs.FirstOrDefault(t=>t.ResourceId==id)),KeepAwake=(id,value)=>SetTabKeepAwake(OpenTabs.FirstOrDefault(t=>t.ResourceId==id),value),SleepInactive=SleepInactiveTabs};
         }
         private string SampleProcessCpu(Process process,long timestamp)
         {

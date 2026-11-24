@@ -65,6 +65,8 @@ internal static partial class Program
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
                 if(args.Length>2&&args[2]=="--downloads063")
                 {await Downloads063Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" download recovery and private-session resume checks. Owned files and profiles only.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--unloading070")
+                {await Unloading070Checks(main,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" unloading, form protection and resource monitor checks. Owned profiles only.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--route063")
                 {try{await Route063Checks(main,args[0],r4Proxy);Console.WriteLine("ALL PASSED: "+checks+" route-verification reliability checks. Owned proxy and profiles only.");exit=0;}finally{r4Proxy.Dispose();}return;}
                 if(args.Length>2&&args[2]=="--site062")

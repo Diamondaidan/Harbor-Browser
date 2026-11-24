@@ -42,6 +42,13 @@ namespace HarborBrowser.Views
         public string NativeProfileName { get; set; }
         public System.Threading.CancellationTokenSource StartupCancellation { get; set; }
         public bool IsSuspended { get; set; }
+        public bool IsUnloaded { get; set; }
+        public bool UnloadingInProgress { get; set; }
+        public bool IsLoading { get; set; }
+        public bool NonGetDocument { get; set; }
+        public DateTime RetryUnloadAfterUtc { get; set; }
+        public string UnloadReason { get; set; }
+        public DispatcherTimer UnloadTimer { get; set; }
         public Guid ResourceId {get;}=Guid.NewGuid();
         public bool KeepAwake {get;set;}
         public bool SuspensionInProgress {get;set;}

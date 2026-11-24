@@ -34,12 +34,16 @@ namespace HarborBrowser.Views
             if(ActivateTabButton==null)return;
             var row=Selected;ActivateTabButton.IsEnabled=!_busy&&row!=null;
             SleepTabButton.IsEnabled=!_busy&&row!=null&&row.CanSleep;WakeTabButton.IsEnabled=!_busy&&row!=null&&row.CanWake;
+            UnloadTabButton.IsEnabled=!_busy&&row!=null&&row.CanUnload;
+            WakeTabButton.Content=row!=null&&row.IsUnloaded?"Reload selected":"Wake selected";
+            WakeTabButton.ToolTip=row!=null&&row.IsUnloaded?"Switches to this tab and reloads its saved address.":"Resumes the page without switching tabs.";
             KeepAwakeButton.IsEnabled=!_busy&&row!=null;KeepAwakeButton.Content=row!=null&&row.KeepAwake?"Allow sleep":"Keep awake";SleepInactiveButton.IsEnabled=!_busy&&_actions!=null;
         }
         private void ActivateTab_Click(object sender,RoutedEventArgs e){if(Selected!=null)_actions?.Activate?.Invoke(Selected.Id);RefreshReport();}
         private void WakeTab_Click(object sender,RoutedEventArgs e){if(Selected!=null)_actions?.Wake?.Invoke(Selected.Id);RefreshReport();}
         private void KeepAwake_Click(object sender,RoutedEventArgs e){if(Selected!=null)_actions?.KeepAwake?.Invoke(Selected.Id,!Selected.KeepAwake);RefreshReport();}
         private async void SleepTab_Click(object sender,RoutedEventArgs e){if(Selected!=null&&_actions?.Sleep!=null){Guid id=Selected.Id;await RunAction(()=>_actions.Sleep(id));}}
+        private async void UnloadTab_Click(object sender,RoutedEventArgs e){if(Selected!=null&&_actions?.Unload!=null){Guid id=Selected.Id;await RunAction(()=>_actions.Unload(id));}}
         private async void SleepInactive_Click(object sender,RoutedEventArgs e){if(_actions?.SleepInactive!=null)await RunAction(_actions.SleepInactive);}
         private async Task RunAction(Func<Task> action)
         {

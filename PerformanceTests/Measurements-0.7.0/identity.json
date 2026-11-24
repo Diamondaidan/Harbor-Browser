@@ -1,0 +1,12 @@
+{
+  "BaselineSHA256": "103840485A9B49B361B632A22BDD8CF3747AFAB4A77D05DEABE7E2B528D097C1",
+  "CandidateSHA256": "4D68688B270E3A5CBE653C280CA66E62905F7231FDB994FC54ADF76338C65883",
+  "BaselineCases": 10,
+  "Runtime": "157.0.4341.60",
+  "BaselineRawDirectory": "HarborBrowser-0.6.3\\T\\P1123222235",
+  "CandidateCases": 10,
+  "BaselineAppSHA256": "103840485A9B49B361B632A22BDD8CF3747AFAB4A77D05DEABE7E2B528D097C1",
+  "StartupInitialCases": 6,
+  "StartupFollowupCases": 6,
+  "Scope": "Generated owned pages; private commit is not physical RAM; working-set sums may double count shared pages; user desktop/caches uncontrolled"
+}

@@ -1,27 +1,15 @@
-# Harbor 0.6.3 local package verification
+# Harbor 0.7.0 rc1 local candidate
 
-Prepared locally on November 23, 2026. The 0.6.3 installer was built without running it over regular Harbor. Earlier builds and the installed browser profile/accounts remain preserved. Nothing was uploaded or published.
+Prepared November 23, 2026, America/Chicago. The application and installer candidate are local work; the installed browser remains 0.6.3, and no 0.7.0 source/release was uploaded or published by this task.
 
-## Completed checks
+The frozen candidate application passed 1,564 assertions across 22 suites, including 48 native unloading/restore/protection-transition checks. Matching app/helper copies were verified. Core installer fixtures passed 94 checks; the final staged payload passed 104 full installer checks, all 399 installed payload/manifest files matched, and the installed test copy passed 355 assertions across eight smoke suites. Fixture IDs, folders and registrations were isolated; actual browser defaults and the installed profile were preserved. Signed Microsoft prerequisite packages were hash/signature checked; their execution/restart behaviors used safe stubs rather than running vendor installers on this PC.
 
-- 1,516 application assertions passed across 21 suites against matching final app/helper copies. This includes 36 route-reliability checks, 17 download-recovery checks, 69 network/wake checks and the retained browsing, filename, media, tabs, bookmarks, settings, appearance, privacy, account-handoff, protection, off/on, recovery and updater suites.
-- 94 core installer fixture checks and 103 full-payload installer fixture checks passed. All 399 payload/manifest files matched after temporary installation and upgrade. The installed test copy passed 307 assertions across seven smoke suites, including route and download recovery. Install/profile paths, AppIds and registration were isolated; actual HTTP/HTTPS defaults remained unchanged.
-- Both embedded Microsoft prerequisites matched pinned hashes/sizes and valid Microsoft publisher signatures. Vendor installers were embedded, not executed. Prerequisite behavior used harmless stubs. The production installer is intentionally unsigned for Windows.
-- All 336 pinned provider files remained unchanged. The local Harbor-signed update record uses sequence 6 and approves the preserved 0.6.2 installer as the compatible previous version. Two production-trust roundtrip checks passed. The protected private key is excluded from deliverables. The record expires and is not a live hosted feed.
-- Light/dark download-recovery renders from the installed test copy were inspected. Generated downloads completed with exact source bytes, and explicitly injected independent private sessions retained separate rows/files and cleared private records on close.
+All 336 official Proton asset hashes remain unchanged. The candidate Windows installer is intentionally unsigned. A new Harbor-signed 0.7.0 update record has not been prepared for this rc1 candidate, and the public update feed remains inactive. Historical 0.6.3 update-record evidence is not a 0.7.0 record.
 
-App SHA-256: 103840485A9B49B361B632A22BDD8CF3747AFAB4A77D05DEABE7E2B528D097C1
+The same candidate app bytes were measured against frozen 0.6.3 on the same runtime. In the repeated generated 20-tab workload, WebView2 private commit averaged 1,007.5 MiB awake, 965.0 MiB sleeping and 314.0 MiB after 19 tabs unloaded (68.8% below awake). The corresponding summed working sets were 1,821.9 and 499.1 MiB. These counters are not interchangeable with exclusive physical RAM. Elapsed startup timings varied; no general speedup is claimed. See PERFORMANCE-0.7.0.md and sanitized measurement CSVs for the complete scope.
 
-Update launcher SHA-256: 113A4D459E6BDF98FA61421ED29F27982B34D73CE142E9E4C6C02A8ED4145312
+Unloading is off by default, loses in-page state/scroll/Back-Forward history, and is best effort for unsaved website state. Keep important tabs awake. Owned tests verify protection of edited forms/frames, native POST pages, media, private/pinned/kept-awake tabs and active/paused downloads; native request counters also verify blocked selection, no automatic replay after proof, and successful explicit Retry after verification.
 
-Installer SHA-256: F0DB3548D44462DD0A5B2F5918F99E1EADED3372FACDAB8C642CEE0D665A8E37
+Still pending: installed 0.7.0 real-account/off-on/restart and live pause/resume/site checks, physical network/sleep/wake/reboot/monitor/input validation, actual clean/offline spare-PC setup with missing prerequisites/admin/restart flows, and hosted update/rollback after approved publication. The NuGet vulnerability feed was unreachable, so no fresh online vulnerability scan is claimed.
 
-## Scope and remaining validation
-
-The baseline native verification stalled after successful response/loading events. Asynchronous scheduling and a deferred content read still failed. The final network reader passed immediate sequential comparisons without extending timeouts and rejected controlled page-text forgery, invalid replies, redirects and cancellation. Failed comparisons cancel the unfinished half and release the verifier. The development download test also caught and corrected a pending-row marker being removed before a replacement operation could rebind. See RELIABILITY-0.6.3-VERIFICATION.md for details and earlier log locations.
-
-NuGet vulnerability metadata was unavailable during the builds (NU1900), so no fresh online dependency-vulnerability scan is established. No new whole-browser performance improvement or complete leak audit is claimed. IPv6 protection remains unresolved.
-
-Still manual: live Proton session validity after off/on/restart and a real site verification; physical network/sleep/reboot/DPI/input; clean/offline spare-PC setup with real missing prerequisites and administrator prompts; and approved GitHub hosting with an actual newer-version update/rollback cycle. No real account credentials, tokens or authentication databases were read or copied. Private tabs remain blocked while browser-only protection is enabled.
-
-The matching source archive and spare-PC kit are local deliverables. Archive/member hashes and packaged helper checks are recorded in LOCAL-DELIVERY-CHECKS.json beside the artifacts. Current-PC preflight results are kept outside the kit. A normally launched portable app shares the regular Harbor profile; automatic runtime checks must use owned test hosts. GitHub's dated inventory is in GITHUB-UPLOAD-STATUS.md.
+The installer artifact, exact sizes/checksums, source commit and archive checks are recorded separately in LOCAL-DELIVERY-CHECKS.json beside the local artifacts. Regular portable launches share the regular profile; automatic testing must use owned test hosts. Earlier staging artifacts remain preserved; use the rc1 package for this candidate review.
