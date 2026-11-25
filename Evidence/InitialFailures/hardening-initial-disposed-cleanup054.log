@@ -1,0 +1,43 @@
+PASS ordinary site modules cannot inject into internal Tor controls
+PASS fixture simulates a missing native extension with saved permission intact
+PASS saved enabled module is reinstalled after native registration loss
+PASS restored module runs on its saved allowed site
+PASS restoration does not regain a revoked site
+PASS disabled module remains unregistered after restart
+PASS changed module content is blocked before automatic restoration
+PASS Enable cannot transiently register a changed package
+PASS changed script never executes on its formerly allowed site
+PASS corrupt saved permissions cannot trigger restoration
+PASS closing the connection service cancels in-flight setup
+FAIL System.OperationCanceledException: The operation was canceled.
+   at System.Threading.CancellationToken.ThrowOperationCanceledException()
+   at HarborBrowser.Services.BrowserVpnService.<Deadline>d__69`1.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\HarborBrowser\Services\BrowserVpnService.cs:line 206
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at HarborBrowser.Services.BrowserVpnService.<Remove>d__73.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\HarborBrowser\Services\BrowserVpnService.cs:line 270
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at HarborBrowser.MainWindow.<WithProfile>d__189.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\HarborBrowser\MainWindow.Privacy.cs:line 158
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at HarborBrowser.MainWindow.<ChangeBrowserVpn>d__38.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\HarborBrowser\MainWindow.BrowserVpn.cs:line 134
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   at Program.<ModuleRestore052>d__45.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\Release052Checks.cs:line 79
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at Program.<ModuleRestore052>d__45.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\Release052Checks.cs:line 81
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<>c__DisplayClass39_0.<<Main>b__3>d.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\Program.cs:line 64

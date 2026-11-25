@@ -1,0 +1,24 @@
+PASS indicator starts with Tor off
+PASS off mode makes no health request
+PASS connected status requires actual route verification
+PASS manual health check confirms the actual browser route
+PASS health check retains the existing helper
+PASS routing inspector verifies SOCKS, WebRTC policy and prediction settings
+PASS a non-Tor verification response fails the check
+PASS failed verification keeps Tor enabled and blocks managed requests
+PASS a failure does not replace the last successful check time
+PASS local Home remains available during a failed check
+PASS missing routing is rejected before a verification request
+FAIL System.TimeoutException: Timed out waiting for app state.
+   at Program.<Wait>d__31.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\Program.cs:line 24
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<Tor054Checks>d__59.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\Tor054Checks.cs:line 46
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at Program.<Tor054Checks>d__59.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\Tor054Checks.cs:line 88
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<>c__DisplayClass35_0.<<Main>b__3>d.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\Program.cs:line 56

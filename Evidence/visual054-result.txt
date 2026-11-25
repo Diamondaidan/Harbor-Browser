@@ -1,0 +1,1 @@
+Native screenshot attempt: window capture timed out: timed out waiting on channel. Fresh window selection and one retry returned the same error. No visual pass claimed; DWM attribute checks are separate.

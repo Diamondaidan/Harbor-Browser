@@ -1,0 +1,35 @@
+PASS BookmarksWindow receives a native dark title bar
+PASS BookmarksWindow updates its existing title bar to light
+PASS BookmarksWindow updates its existing title bar back to dark
+PASS SettingsWindow receives a native dark title bar
+PASS SettingsWindow updates its existing title bar to light
+PASS SettingsWindow updates its existing title bar back to dark
+PASS BookmarkEditorWindow receives a native dark title bar
+PASS BookmarkEditorWindow updates its existing title bar to light
+PASS BookmarkEditorWindow updates its existing title bar back to dark
+PASS ResourceMonitorWindow receives a native dark title bar
+PASS ResourceMonitorWindow updates its existing title bar to light
+PASS ResourceMonitorWindow updates its existing title bar back to dark
+PASS ClearBrowsingDataWindow receives a native dark title bar
+PASS ClearBrowsingDataWindow updates its existing title bar to light
+PASS ClearBrowsingDataWindow updates its existing title bar back to dark
+PASS SitePermissionsWindow receives a native dark title bar
+PASS SitePermissionsWindow updates its existing title bar to light
+PASS SitePermissionsWindow updates its existing title bar back to dark
+PASS SiteModulesWindow receives a native dark title bar
+PASS SiteModulesWindow updates its existing title bar to light
+PASS SiteModulesWindow updates its existing title bar back to dark
+PASS ModuleSiteAccessWindow receives a native dark title bar
+PASS ModuleSiteAccessWindow updates its existing title bar to light
+PASS ModuleSiteAccessWindow updates its existing title bar back to dark
+PASS BrowserVpnWindow receives a native dark title bar
+PASS BrowserVpnWindow updates its existing title bar to light
+PASS BrowserVpnWindow updates its existing title bar back to dark
+PASS History receives the shared native dark title bar
+PASS History title bar follows live light-mode changes
+PASS History title bar follows live dark-mode changes
+PASS Tor status is visible while off
+PASS Tor controls fit at width 480
+PASS Tor controls fit at width 600
+PASS Tor controls fit at width 1366
+ALL PASSED: 34 native title bar and toolbar checks.

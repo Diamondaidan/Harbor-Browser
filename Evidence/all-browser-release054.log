@@ -1,0 +1,22 @@
+Running regression
+PASS 1320 caption buttons clickable
+ALL PASSED: 384 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
+Running full
+PASS privacy exit waits for cleanup and marks journal clean 1
+ALL PASSED: 360 isolated app/media integration checks.
+Running suggestions
+PASS Dark Home suggestion accepts actual browser pointer events
+ALL PASSED: 17 focused suggestion-click checks.
+Running home
+PASS home loaded without external network requests
+ALL PASSED: 39 WebView2 browser checks. Captures are from an isolated test host, not the installed Harbor window.
+Running tor
+PASS off state persists
+ALL PASSED: 20 Tor connection, isolation, failure and rollback checks.
+Running live-sites
+INFO live site title=Example Domain favicon=
+FINISHED: 6 live-site assertions; see any UNVERIFIED results.
+Running recovery
+PASS normal tab stays usable after startup failure and retry
+ALL PASSED: 15 startup recovery and version checks.
+Browser release results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\T\1114111910

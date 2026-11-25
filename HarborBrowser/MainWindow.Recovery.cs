@@ -104,6 +104,7 @@ namespace HarborBrowser
         }
         private async Task FinishPrivacyBeforeClose()
         {
+            _torDebounce?.Stop();_browserVpn.PauseVerification();
             foreach(var tab in BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).Where(t=>t!=null&&t.Initializing))CancelTabStartup(tab);
             CancelPermissions();CancelOnlineSuggestions();foreach(var tab in BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab))CancelHomeSuggestions(tab);
             foreach(var entry in _downloads.Where(d=>d.IsPrivate&&(d.IsActive||d.CanResume)).ToList())CancelDownload(entry);

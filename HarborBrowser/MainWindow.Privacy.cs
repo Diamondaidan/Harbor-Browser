@@ -41,6 +41,7 @@ namespace HarborBrowser
         private void InitializePrivacy()
         {
             _browserVpn=new BrowserVpnService(_store.RootFolder);
+            InitializeBrowserVpnMonitoring();
             Closed+=(s,e)=>_browserVpn.Dispose();
             _normalPermissions=new SitePermissionService(_store.LoadPermissions());
             ConfirmPrivateDownload=()=>MessageBox.Show(this,"Private browsing does not hide downloaded files from this computer. Continue downloading?","Private download",MessageBoxButton.YesNo,MessageBoxImage.Information)==MessageBoxResult.Yes;

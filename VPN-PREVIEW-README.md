@@ -1,20 +1,22 @@
-# Harbor 0.5.3 optional free Tor connection
+# Harbor 0.5.4 optional free Tor connection
 
-The regular Harbor installer includes an experimental Tor connection. No account or subscription is required. This is a Tor connection, not a conventional VPN or Tor Browser.
+The regular installer includes an experimental Tor connection, off by default. No account is needed. Open the toolbar Tor button or cog > VPN > Free browser connection - Tor preview. Connect before browsing; existing connections are not retrofitted. Private tabs and native online typing suggestions pause while enabled. Other apps and external programs opened from downloads keep their own routes.
 
-Open cog > VPN > Free browser connection - Tor preview, then Connect with Tor. It is OFF by default. Connect before browsing; already-open connections are not retrofitted. Wait for Connected to Tor. The first connection can take up to two minutes. Check Tor connection opens Tor's verification page. Websites may be slower, reject Tor exits or show CAPTCHAs. There is no country picker.
+Tor On means Harbor's routing extension settings were read back, the owned helper bootstrapped, and an HTTPS request made through that browser profile received a successful Tor Project IsTor response. A running helper alone is not treated as a verified route. The last successful check appears in the panel and toolbar tooltip.
 
-Disconnect and restore stops Harbor's helper, removes its routing extension and restores direct browsing. It can also cancel startup. Finish or cancel downloads before changing routing. An enabled choice is restored before normal page navigation at the next startup. The regular release uses %LOCALAPPDATA%\HarborBrowser and Downloads\Harbor Browser. Close earlier previews before using this release; their separate profiles are not imported automatically.
+Harbor checks at connection time, every five minutes while enabled, and after network/wake notifications. These requests contact check.torproject.org through the browser route without including typed searches. An ordinary periodic check keeps an already verified route active while pending. Network loss/address changes, suspend/resume, helper exit or failed verification invalidate it and pause new managed HTTP/HTTPS page requests. The local Home remains available. Selected top-level navigation cancelled by the guard resumes only after verification; failed subresources may need a page reload.
 
-Only normal Harbor pages and browser-managed downloads use the connection. Other apps retain their routing. Private tabs and native online typing suggestions pause while enabled; saved preferences are preserved. History/bookmark suggestions remain available. External apps opened from downloads are outside this connection.
+Use Check connection now to inspect and verify the existing route. Reconnect with Tor rebuilds routing and restarts the owned helper. Disconnect and restore cancels outstanding connection work, stops the helper and removes Harbor's routing extension. Finish or cancel downloads before changing routing. Late check results cannot re-enable a disconnected mode. An enabled choice is restored before normal browsing on the next start.
 
-When the helper was killed in tests, page requests failed instead of falling back directly. Disconnect and restore returns to direct browsing. The routing extension restricts non-proxied WebRTC UDP and network prediction. SafeSocks rejects unsafe IP-only requests. A complete packet-level DNS/WebRTC leak, anonymity and background-service audit has not been performed. Harbor lacks Tor Browser's fingerprinting defenses. For strong anonymity use the official Tor Browser.
+Routing uses the normal Harbor browser profile and covers normal page traffic and browser-managed downloads. Tor has no country picker and can be slow, blocked or challenged by websites. There is no silent direct fallback for managed page requests after a failed check. Already established connections are not retroactively removed or certified. In a deliberately disabled-extension test, Chromium made a speculative TCP connection before the navigation guard cancelled the page; no HTTP bytes were observed in that short local test. The application guard is not a packet-level firewall. Native background services, external handlers and packet-level coverage require further auditing.
 
-The bundled official Tor expert bundle 16.0.1 contains Tor 0.4.9.16. Its archive matched the Tor Project's published SHA-256. The required client, geoip files, original component notices and matching Tor source are included. Unused transport executables are omitted. Read Licensing/TOR-PROVENANCE.md in the installed application or ThirdParty/TOR-PROVENANCE.md in source.
+The extension reads back SOCKS proxy ownership, endpoint and bypass settings, non-proxied WebRTC UDP restriction and disabled network prediction. Release tests also forward a unique .invalid hostname through a local SOCKS test server and compare protected WebRTC UDP against a functioning local STUN positive control. These bounded tests do not establish complete DNS-leak prevention, background traffic coverage or anonymity. Harbor does not provide Tor Browser's fingerprinting defenses; use official Tor Browser for its protections.
 
-See VERIFICATION.md for release test results. Disconnecting is reversible and does not require Windows networking repairs. The feature does not install a VPN driver/service or change Windows proxy settings.
+The bundled official expert bundle 16.0.1 contains Tor 0.4.9.16. Its archive matched the Tor Project's published SHA-256. Required runtime, geoip files, original component notices and matching Tor source are included; unused transport executables are omitted. See ThirdParty/TOR-PROVENANCE.md or installed Licensing/TOR-PROVENANCE.md.
+
+Disconnecting is reversible and does not require Windows networking repairs. This feature adds no VPN driver, service or Windows proxy change. See VERIFICATION.md for executed checks and unverified cases.
 
 Official references:
-- https://download.torproject.org/tor/
 - https://support.torproject.org/tor-browser/security/using-tor-with-other-browsers/
 - https://support.torproject.org/little-t-tor/troubleshooting/check-for-leaks/
+- https://developer.chrome.com/docs/extensions/reference/api/privacy

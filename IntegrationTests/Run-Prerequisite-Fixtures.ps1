@@ -31,8 +31,8 @@ $compiler=Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 7\ISCC.exe'
 $checks=0
 function Check([string]$name,[bool]$value){if(!$value){throw $name};$script:checks++;Write-Output ('PASS '+$name)}
 $template=[IO.File]::ReadAllText((Join-Path $releaseRoot 'Installer\HarborBrowser.iss'))
-$template=$template.Replace('{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}','{760FABE5-A162-440A-A793-2AC0468F0530}')
-$template=$template.Replace('#define AppName "Harbor Browser"','#define AppName "Harbor Prerequisite Fixture 053"')
+$template=$template.Replace('{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}','{760FABE5-A162-440A-A793-2AC0468F0540}')
+$template=$template.Replace('#define AppName "Harbor Browser"','#define AppName "Harbor Prerequisite Fixture 054"')
 $template=$template.Replace('PrivilegesRequired=admin','PrivilegesRequired=lowest').Replace('CloseApplications=yes','CloseApplications=no')
 $template=$template.Replace('#define PayloadDir "..\dist\payload"','#define PayloadDir "'+$payload+'"').Replace('#define RedistDir "redist"','#define RedistDir "'+$redist+'"')
 $template=$template.Replace('SetupIconFile=assets\HarborBrowser.ico','SetupIconFile='+(Join-Path $releaseRoot 'Installer\assets\HarborBrowser.ico'))

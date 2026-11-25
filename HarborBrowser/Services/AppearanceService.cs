@@ -78,6 +78,7 @@ namespace HarborBrowser.Services
         public static void Apply(ResourceDictionary resources,BrowserSettings settings)
         {
             var palette=Palette(settings);
+            resources["HarborDarkMode"]=settings.ThemeMode=="Dark";
             foreach(var pair in palette)
             {
                 var brush=new SolidColorBrush(pair.Value);brush.Freeze();resources[pair.Key]=brush;
@@ -92,10 +93,18 @@ namespace HarborBrowser.Services
             resources[SystemColors.HighlightTextBrushKey]=resources["HarborText"];
             resources[SystemColors.InfoBrushKey]=resources["HarborPanel"];
             resources[SystemColors.InfoTextBrushKey]=resources["HarborText"];
+            if(Application.Current!=null)foreach(Window window in Application.Current.Windows)
+                if(ReferenceEquals(window.Resources,resources))WindowTitleBarService.Apply(window);
         }
         public static void ApplyApplication(BrowserSettings settings)
         {
-            if(Application.Current!=null)Apply(Application.Current.Resources,settings);
+            if(Application.Current!=null)
+            {
+                WindowTitleBarService.Initialize();
+                Apply(Application.Current.Resources,settings);
+                Application.Current.Resources["HarborDarkMode"]=settings.ThemeMode=="Dark";
+                foreach(Window window in Application.Current.Windows)WindowTitleBarService.Apply(window);
+            }
         }
         public static object HomeAppearance(BrowserSettings settings)
         {

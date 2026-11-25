@@ -50,6 +50,12 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--theme054")
+                {await Theme054Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" native title bar and toolbar checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--tor054")
+                {await Tor054Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Tor monitoring and recovery checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--privacy054")
+                {await Privacy054Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" bounded SOCKS hostname and WebRTC/STUN checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--release053")
                 {await Release053Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" startup recovery and version checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--browser-vpn")

@@ -78,7 +78,7 @@ internal static partial class Program
         load=NextLoad(core);core.Navigate(HomePageService.Url);await load;await Task.Delay(300);
         Check("module cannot inject into trusted Harbor Home",await core.ExecuteScriptAsync("document.body.dataset.harborModule===undefined")=="true");
         var privateTab=AddTab(main,HomePageService.Url,true);main.BrowserTabs.SelectedItem=privateTab.Item;await Wait(()=>privateTab.Initialized);
-        var privateCore=privateTab.View.CoreWebView2;privateCore.SetVirtualHostNameToFolderMapping("module.test.invalid",fixtures,CoreWebView2HostResourceAccessKind.DenyCors);load=NextLoad(privateCore);privateCore.Navigate("https://module.test.invalid/plain.html");await load;await Task.Delay(300);
+        var privateCore=privateTab.View.CoreWebView2;privateCore.SetVirtualHostNameToFolderMapping("module.test.invalid",fixtures,CoreWebView2HostResourceAccessKind.DenyCors);load=NextLoad(privateCore,"https://module.test.invalid/plain.html");privateCore.Navigate("https://module.test.invalid/plain.html");await load;await Task.Delay(300);
         Console.WriteLine("INFO private module marker: "+await privateCore.ExecuteScriptAsync("document.body.dataset.harborModule")+"; native extensions: "+string.Join(",",(await privateCore.Profile.GetBrowserExtensionsAsync()).Select(x=>x.Name+" "+x.Id))+"; profile: "+privateCore.Profile.ProfileName);
         Check("normal module never executes in private profile",await privateCore.ExecuteScriptAsync("document.body.dataset.harborModule===undefined")=="true"&&!(await privateCore.Profile.GetBrowserExtensionsAsync()).Any(e=>e.Id==id));
         CloseTab(main,privateTab);await main.WaitForPrivateCleanup();main.BrowserTabs.SelectedItem=tab.Item;

@@ -479,12 +479,20 @@ namespace HarborBrowser
                 core.Settings.IsStatusBarEnabled = false;
                 core.Settings.IsZoomControlEnabled = true;
                 ConfigureTrackerProtection(tab);
+                ConfigureTorRequestGuard(tab,core);
                 core.FaviconChanged += (s, args) => { if (current()) UpdateTabFavicon(tab); };
                 UpdateTabFavicon(tab);
 
                 core.NavigationStarting += (s, args) =>
                 {
                     if (!current()) return;
+                    if(!tab.IsPrivate&&TorBlocksRequest(args.Uri))
+                    {
+                        args.Cancel=true;tab.TorBlockedUrl=args.Uri;
+                        SetStatus("Browsing is paused. Check or reconnect Tor, or disconnect to use your regular connection.");
+                        return;
+                    }
+                    tab.TorBlockedUrl=null;
                     tab.NavigationGeneration++;
                     ResetTabFavicon(tab, args.Uri);
                     ResetTabSleepOnNavigation(tab);
@@ -2021,7 +2029,7 @@ namespace HarborBrowser
                 try { await FinishPrivacyBeforeClose(); }
                 catch (Exception ex)
                 {
-                    if (MessageBox.Show(this, "Cleanup did not finish. Close anyway?\n\n" + ex.Message, "Privacy cleanup", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) { _shuttingDown = false; return; }
+                    if (MessageBox.Show(this, "Cleanup did not finish. Close anyway?\n\n" + ex.Message, "Privacy cleanup", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) { _shuttingDown = false;_ = CheckBrowserVpnHealth();return; }
                 }
                 _closingAfterPrivacyCleanup = true;
                 Close();

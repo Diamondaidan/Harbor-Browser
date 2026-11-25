@@ -1,3 +1,15 @@
+# Harbor Browser 0.5.4
+
+- Match native History, Bookmarks, Settings, resource monitor and other dialog title bars to Harbor's light/dark appearance, including live changes.
+- Add an always visible Tor connection indicator and last-successful-check information.
+- Require actual same-profile HTTPS Tor verification before showing a verified connection; inspect the actual proxy/WebRTC/prediction settings.
+- Add five-minute health checks, network/wake invalidation and recovery, manual recheck and reconnect controls.
+- Pause new managed HTTP/HTTPS page requests while Tor is unverified. Resume a recorded cancelled top-level navigation after verification; retain explicit Disconnect and restore for regular browsing.
+- Cancel connection/check work on disconnect or disposal and reject stale positive results.
+- Add native caption, failed-routing, cancellation, recovery, SOCKS hostname and local STUN positive-control tests.
+
+Tor remains experimental; these checks are not a complete DNS/background-traffic/anonymity audit. Setup remains Windows x64 with bundled offline prerequisites. See VERIFICATION.md for final results and untested cases.
+
 # Harbor Browser 0.5.3
 
 - Use compact random GUID-based private-session names, reducing the profile paths that stalled WebView2 initialization in the reproduced deep-folder case.

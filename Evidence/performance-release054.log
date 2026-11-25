@@ -1,0 +1,35 @@
+PASS benchmark 0.5.4.0 idle tabs=5 trial=1 sleeping=4
+PASS benchmark 0.5.4.0 idle tabs=10 trial=1 sleeping=9
+PASS benchmark 0.5.4.0 idle tabs=20 trial=1 sleeping=19
+PASS benchmark 0.5.4.0 idle tabs=5 trial=2 sleeping=4
+PASS benchmark 0.5.4.0 idle tabs=10 trial=2 sleeping=9
+PASS benchmark 0.5.4.0 idle tabs=20 trial=2 sleeping=19
+PASS benchmark 0.5.4.0 automatic tabs=10 trial=1 sleeping=9
+PASS benchmark 0.5.4.0 automatic tabs=10 trial=2 sleeping=9
+PASS benchmark 0.5.4.0 video tabs=10 trial=1 sleeping=8
+INFO fixture request: GET /benchmark HTTP/1.1; start=0
+INFO fixture sent 2097597 bytes
+PASS benchmark 0.5.4.0 download tabs=10 trial=1 sleeping=8
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\T\P1114112459
+
+Version Scene     Tabs Phase    Sleeping CpuPercent WebWorkingMB WebPrivateMB
+------- -----     ---- -----    -------- ---------- ------------ ------------
+0.5.4.0 automatic   10 Awake        0.00       3.40       991.31       558.76
+0.5.4.0 automatic   10 Sleeping     9.00       2.04       969.16       522.67
+0.5.4.0 automatic   10 Woken        0.00       3.20       971.71       524.90
+0.5.4.0 download    10 Awake        0.00       3.30       992.45       559.45
+0.5.4.0 download    10 Sleeping     8.00       3.72       982.71       539.55
+0.5.4.0 download    10 Woken        0.00       2.47       985.69       539.86
+0.5.4.0 idle         5 Awake        0.00       2.11       628.81       343.72
+0.5.4.0 idle         5 Sleeping     4.00       1.57       615.32       325.19
+0.5.4.0 idle         5 Woken        0.00       1.69       610.57       319.62
+0.5.4.0 idle        10 Awake        0.00       2.88       978.26       550.25
+0.5.4.0 idle        10 Sleeping     9.00       2.88       968.54       527.68
+0.5.4.0 idle        10 Woken        0.00       3.34       975.84       534.26
+0.5.4.0 idle        20 Awake        0.00       4.05      1731.14       977.48
+0.5.4.0 idle        20 Sleeping    19.00       5.47      1702.08       931.70
+0.5.4.0 idle        20 Woken        0.00       4.21      1715.15       945.57
+0.5.4.0 video       10 Awake        0.00       2.69      1036.47       586.03
+0.5.4.0 video       10 Sleeping     8.00       2.80      1020.14       560.96
+0.5.4.0 video       10 Woken        0.00       2.55      1020.63       561.75
+

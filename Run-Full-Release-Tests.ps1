@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('regression','full','suggestions','home','tor','hardening','live-sites','recovery')][string[]]$Suites=@('regression','full','suggestions','home','tor','hardening','live-sites','recovery'))
+param([ValidateSet('regression','full','suggestions','home','tor','hardening','live-sites','recovery','theme','tor-monitor','privacy-probes')][string[]]$Suites=@('regression','full','suggestions','home','tor','hardening','live-sites','recovery','theme','tor-monitor','privacy-probes'))
 $ErrorActionPreference='Stop'
 $releaseRoot=$PSScriptRoot
 $output=Join-Path $releaseRoot ('T\'+(Get-Date -Format 'MMddHHmmss'))
@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 function Run-Check([string]$name,[string]$exe,[string[]]$arguments){
     if($Suites -notcontains $name){return}
     Write-Output ('Running '+$name)
-    $log=Join-Path $releaseRoot ($name+'-release053.log')
+    $log=Join-Path $releaseRoot ($name+'-release054.log')
     & $exe @arguments *> $log
     if($LASTEXITCODE -ne 0){Get-Content -LiteralPath $log -Tail 25;throw ($name+' failed: '+$LASTEXITCODE)}
     Get-Content -LiteralPath $log -Tail 2
@@ -23,4 +23,7 @@ Run-Check 'tor' $integration @((Join-Path $output 'tor'),$fixtures,'--browser-vp
 Run-Check 'hardening' $integration @((Join-Path $output 'hardening'),$fixtures,'--release052')
 Run-Check 'live-sites' $integration @((Join-Path $output 'live-sites'),$fixtures,'--live-sites')
 Run-Check 'recovery' $integration @((Join-Path $output 'recovery'),$fixtures,'--release053')
+Run-Check 'theme' $integration @((Join-Path $output 'theme'),$fixtures,'--theme054')
+Run-Check 'tor-monitor' $integration @((Join-Path $output 'tor-monitor'),$fixtures,'--tor054')
+Run-Check 'privacy-probes' $integration @((Join-Path $output 'privacy-probes'),$fixtures,'--privacy054')
 Write-Output ('Browser release results: '+$output)

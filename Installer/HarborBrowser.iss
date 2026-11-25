@@ -137,7 +137,7 @@ function IsUsableVersion(const VersionText: String): Boolean;
 var
   DotPosition, MajorVersion: Integer;
 begin
-  { Release 0.5.3 is tested with Runtime 157; update older installations
+  { Release 0.5.4 is tested with Runtime 157; update older installations
     using the included, signed Evergreen standalone package. }
   DotPosition := Pos('.', VersionText);
   MajorVersion := 0;

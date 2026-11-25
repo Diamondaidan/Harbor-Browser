@@ -1,84 +1,91 @@
-# Harbor Browser 0.5.3 - release verification
+# Harbor Browser 0.5.4 - release verification
 
-November 14, 2026. Built and tested on Windows 10 Home x64 build 19045 with WebView2 157.0.4341.46, an Intel Core i7-7700HQ, 8 logical processors and 12 GiB memory. Browser tests used isolated profiles/download folders and owned test processes. The installed Harbor, personal profile, browser defaults and Windows proxy settings were preserved.
+November 14, 2026. Tested on Windows 10 Home x64 build 19045, WebView2 157.0.4341.46, .NET Framework 4.8, Intel Core i7-7700HQ, 8 logical processors and 12 GiB memory. Tests used isolated profiles, downloads, application instances and installer identities. The installed browser, personal profile, browser defaults and Windows proxy configuration were preserved.
 
 ## Final selected suites
 
 | Suite | Result |
-| --- | --- |
-| Regression/services/settings/offline WPF layouts | 384 passed |
-| Running browser/UI/media/download/privacy/recovery | 360 passed |
+| --- | ---: |
+| Regression/services/settings/offline layouts | 384 passed |
+| Complete running browser/UI/media/download/privacy/recovery | 360 passed |
 | Focused address/Home suggestion clicks | 17 passed |
-| Staged Home page in actual WebView2 | 39 passed, including the current version footer |
+| Staged Home page in actual WebView2 | 39 passed |
 | Live Tor connection, download, failure and reversal | 20 passed |
 | Module integrity plus real Tor restart/crash lifecycle | 26 passed |
-| W3C, Wikipedia and Example Domain navigation/icon checks | 6 passed; no unverified sites |
-| New startup recovery, cancellation, late completion, isolation and version checks | 15 passed |
-| Isolated 0.5.2 to 0.5.3 installer upgrade/uninstall | 26 passed |
-| Simulated prerequisite skip/success/failure/restart and setup-log checks | 41 passed |
-| Isolated Start menu/desktop shortcut behavior and cleanup | 23 passed |
-| Total across the final selected suites | **957 successful assertions** |
-| Four additional deep-profile suggestion/private-tab replays | All passed; 68 repeated assertions, counted separately |
-| Performance scenarios | 10 passed; 90 samples; see PERFORMANCE-0.5.3.md |
-| Builds | Release app and all four test projects built with zero errors |
-| Current NuGet advisory listing | Completed; no vulnerable packages reported by the configured sources |
+| Live W3C/Wikipedia/Example Domain navigation and icons | 6 passed; none unverified |
+| Startup recovery, cancellation, isolation and versions | 15 passed |
+| Native caption attributes and compact toolbar | 34 passed |
+| Tor monitoring, faults, recovery, disconnect and disposal | 28 passed |
+| Bounded SOCKS hostname and local WebRTC/STUN controls | 9 passed |
+| Isolated 0.5.3-to-0.5.4 installer upgrade/uninstall | 26 passed |
+| Simulated prerequisite skip/success/failure/restart | 41 passed |
+| Isolated shortcuts and cleanup | 23 passed |
+| **Total final selected assertions** | **1,028 passed** |
+| Four additional deep-profile suggestion/private replays | 68 repeated assertions; all passed |
+| Performance scenarios | 10 passed; 90 samples; see PERFORMANCE-0.5.4.md |
+| Builds | App and four test projects; zero errors |
+| Current direct/transitive NuGet advisory listing | Completed; no vulnerable packages reported by configured sources |
 
-These are assertion counts, not 957 independent workflows. Repeated development runs are not included in the total. Evidence in the source package includes final logs, counts, file hashes and performance measurements. Some initial restricted restores warned that the advisory feed was unavailable; the later network-enabled advisory check completed successfully. This is not a native-code security audit.
+Counts are assertions, not 1,028 independent workflows. Development attempts and repeated assertions are excluded from the total. The deep-profile replays used WebView2 roots 183 characters long and the final packaged binary. Restricted restores initially warned that the advisory feed was unavailable; the later network-enabled advisory listing completed. This is not a native-code vulnerability audit.
 
-## Private-tab startup and recovery
+## Native dark title bars
 
-The 0.5.2 follow-up reproduced a private controller startup stall with a WebView2 data root 181 characters long. In this release, the private profile name is a compact prefix plus a full random GUID, reducing its path length without moving the normal profile or weakening session uniqueness. Four final fresh-profile replays used data roots 183 characters long and passed all 17 checks each. This demonstrates the fix for the reproduced condition; it does not promise unlimited path-length support.
+A shared service applies Harbor's selected appearance to native captions on Harbor-owned WPF windows. Actual DWM attributes were read back for History, Bookmarks, Settings, Bookmark editor, Resource monitor, Clear browsing data, Site permissions, Site modules, Module site access and Tor controls. Each was checked dark, light and dark again while open. Settings' local preview resources are respected. Main window custom chrome is retained. System-owned file pickers and message boxes use Windows' own controls.
 
-The suggestion test now waits for the private Home document to finish loading before observing the user's click navigation. Previously, controller initialization could be true while the initial document was still about:blank. This removes a race in that test. The original 0.5.2 unexpected navigation URL was not recorded, so its precise historical value cannot be reconstructed.
+The toolbar indicator was also checked at widths 480, 600 and 1366. All 34 focused native-attribute/toolbar assertions passed. These are native API/layout checks, not pixel-level visual verification. Desktop capture failed twice with `window capture timed out: timed out waiting on channel`, including a fresh window selection and retry. No desktop screenshot pass is claimed. Review the actual title-bar appearance on the target PC; Windows 11 caption/text color attributes were not exercised on this Windows 10 host. Older Previews images are historical component/browser captures and omit native title bars.
 
-Normal startup steps have 45-second deadlines; Tor connection preparation has a separate three-minute allowance. A failed/timed-out tab displays a Reload recovery action, rather than indefinitely waiting or presenting a startup modal. The failed controller is disposed and replaced by an uninitialized placeholder so toolbar/resource queries remain safe. Retry creates a fresh controller. A cancelled or replaced view cannot apply late startup completion to the new tab.
+## Tor monitoring and recovery
 
-Fault-injection tests verified timeout-to-recovery, Reload producing a usable private controller, late completion leaving the replacement intact, closing a never-started private tab without recreating its failed controller, fresh-session identity/storage isolation, and continued use of a normal tab. The test timeout is shortened only through an internal test hook; the shipping default remains 45 seconds per normal step.
+Tor now separates enabled intent, bootstrap, verified browser route and last successful check. The routing worker reads back actual SOCKS endpoint/ownership/bypass settings, WebRTC IP policy and disabled prediction. A hidden controller in the same normal profile verifies the raw response to a nonce-bearing HTTPS Tor Project API request, including HTTP status and a strict boolean IsTor. Rendered page text is not used as the health proof.
 
-Private sessions that did initialize still receive their existing data cleanup. A session whose controller never started has never navigated; cleanup skips recreating that controller. Hidden profile-controller access and private data clearing also have bounded waits. Failed cleanup still prevents a clean shutdown journal. No silent direct-routing fallback, shared normal/private cookies or relaxed extension permissions was added.
+The toolbar displays off, connecting, checking, verified or failed. Checks run at connection time, every five minutes while enabled, and after network/wake notifications. An ordinary periodic check keeps an already verified route active while pending. Network changes and failures invalidate verification. New managed HTTP/HTTPS page requests pause until verification or explicit Disconnect and restore. Local Home stays available. Only a recorded cancelled top-level navigation is automatically resumed; failed subresources may require a reload.
 
-## Tabs and version consistency
+The focused live tests exercised actual connection and recheck, non-Tor fault injection, missing/disabled routing, a native 503 response, cancelled navigation, reconnect-before-resume, simulated network loss/return and suspend/resume, actual helper termination/reconnect, prompt cancellation on Disconnect, rejection of late positive results, disposal, helper cleanup, direct-route restoration and unchanged Windows proxy settings. Simulated notifications do not prove physical adapter switching or real sleep/wake on every computer.
 
-Queued new-tab scrolling now checks that its tab is still selected before moving the strip. The overflow-tab test checks actual header visibility rather than relying on 80/100-millisecond sleeps. An initial full-suite scroll assertion failed before that correction; full-initial-scroll-timing053.log is retained. The final complete suite passed both overflow-selection checks.
+Development testing caught a reconnect stall caused by re-adding an existing extension; setup now reuses/re-enables it. A prior lifecycle test caught cancelled lifetime state preventing later explicit cleanup after disposal. Removal now has its own bounded cleanup path, including late-registration cleanup after explicit removal, while disposed services cannot enable routing again. Final suites exercise both corrected paths.
 
-VERSION.txt is the release version source for the project and builder. Home receives the running assembly version through its trusted state message. About, the status bar, branding and module compatibility use the same assembly version. Direct Inno compilation reads VERSION.txt unless a version is explicitly supplied; the standard builder rejects a version that conflicts with VERSION.txt. The obsolete 0.5.0 Home footer is gone. Home/browser and version checks passed with 0.5.3.
+## Bounded privacy probes and limits
 
-Test projects exclude generated TestResults files. This fixes a build problem where a generated prerequisite test helper's C# entry point was inadvertently compiled into the next integration-test build.
+A fresh browser profile used Harbor's actual routing extension with a local SOCKS5 fixture. A unique .invalid hostname reached SOCKS as a domain and its fixture response rendered successfully. This demonstrates hostname forwarding for that request; it does not prove the absence of all local DNS traffic.
+
+A secure-context RTCPeerConnection gathered candidates without requesting camera/microphone access. Protected gathering sent no UDP to the local STUN listener. After removing the extension, the direct positive control reached that same listener. Evidence records packet counts and candidate types, without candidate addresses. These nine assertions are bounded local controls, not a complete WebRTC/DNS leak audit.
+
+With the routing extension deliberately disabled, a cancelled local navigation opened a speculative TCP connection before the navigation guard acted; no HTTP bytes were observed during the short local observation (200 ms plus up to 500 ms per accepted connection). The guard is not a packet-level firewall. Existing sockets, all Chromium background services, fingerprinting, DNS prefetch initiated by pages and anonymity were not certified. Tor remains experimental, off by default and limited to normal Harbor page traffic/browser-managed downloads. Private tabs and native online typing suggestions remain paused while enabled. This is not Tor Browser or a conventional VPN.
 
 ## Functional and installer coverage
 
-The complete suite exercised download filename/extension recovery, unsafe/duplicate names, cancel/resume, private transfers, stored state, normal/private history and storage, site permissions, module grants/integrity, session recovery, resource monitoring, tab/bookmark organization, menus, light/dark appearance, colors and responsive layouts. Browser fullscreen/work-area behavior, video fullscreen and picture in picture were exercised in isolated monitor/layout fixtures. A live Tor .asc download retained its expected complete name and contained PGP signature text; detached-signature verification was not performed.
+The full browser suite covers filename/extension recovery (including signature filenames), unsafe/duplicate names, interruption/cancel/resume, private transfers, history/storage isolation, site permissions, modules and grants/integrity, tab/bookmark ordering, resource monitoring, menus, appearance customization, responsive layouts, session/crash/startup recovery, video fullscreen and picture in picture. Monitor/fullscreen cases use isolated layout fixtures and do not replace physical multi-monitor/video checks. The live Tor .asc download retained its full name and PGP signature text; detached signature verification was not performed.
 
-Setup includes the app, Microsoft-signed offline .NET Framework 4.8 and WebView2 x64 standalone packages, the optional Tor client, its matching source and original component notices. WebView2 157 or later is required; the included runtime is 157.0.4341.46. The normal production upgrade identity and %LOCALAPPDATA%\HarborBrowser profile remain unchanged. Setup snapshots core profile metadata before upgrade and preserves profile data on uninstall.
+An initial full-suite attempt mistook cancellation of a new private tab's initial Home load for the module fixture's navigation. The test now matches the expected target/navigation ID. Initial failures are retained separately; only final successful selected runs are counted.
 
-Installer variants exercised actual Inno file copying, registration, backups, shortcuts and uninstall in isolated folders and per-user fixture registrations. Every installed payload file matched its staged hash. Upgrade preserved settings, bookmarks, module permissions, startup state and saved Tor choice. Shortcut targets, working folders, versioned Beacon icons and application identity were checked, with the optional desktop task both off and on. Fixture uninstall removed its links/registration and preserved browser defaults.
+Setup contains signed offline .NET Framework 4.8 and WebView2 x64 packages, optional Tor 0.4.9.16, component notices and matching source. Cached vendor packages passed size and Microsoft-signature checks. Setup requires WebView2 157 or later; the included package supplies 157.0.4341.46. Target is Intel/AMD Windows x64; administrator access is required. Harbor and its installer remain unsigned.
 
-Prerequisite tests ran harmless stand-ins instead of the actual Microsoft installers. They checked existing-prerequisite skips, zero exits, both 3010 restart paths, both 1603 abort paths, silent arguments, native runtime-version comparisons and log contents. The new setup log records detected versions, skipped/run helpers, exit codes and restart requests. These simulations do not substitute for genuine clean-Windows installation or a real reboot.
+Isolated Inno variants exercise actual file copying, 0.5.3-to-0.5.4 upgrade, core-profile backup/preservation, browser registration, shortcuts and uninstall. All 35 installed payload files matched their staged hashes. Test registrations, links and install folders were removed without changing default-browser choices. Production setup was compiled but not installed under its production identity on this host.
 
-The production installer compiled successfully, but was not run under its production identity on this host. No system prerequisite was uninstalled or replaced to force a test. Harbor and its installer remain unsigned; Microsoft signatures on the bundled prerequisites do not sign Harbor.
+Prerequisite cases use harmless stand-ins instead of running Microsoft installers. They cover existing-component skips, success, both restart-required (3010) paths, both failure (1603) paths, silent arguments, runtime-version comparisons and setup logs. These simulations do not establish genuine missing-prerequisite installation or reboot success.
 
-## Tor scope
+## Remaining checks requiring another Windows environment
 
-Actual browser checks verified Tor's IsTor response, a separate direct route, the expected exit-address difference, helper-failure blocking, disconnect restoration, requested-state restart, normal shutdown, forced termination and crash recovery. No owned helper remained after the tests. Native online suggestions and private tabs remain paused while Tor is enabled.
+- Install this exact 0.5.4 setup on the spare PC and inspect native title bars, toolbar layout, downloads and real sleep/network recovery.
+- In a disposable clean Windows environment, test genuinely missing prerequisites, offline setup and an actual requested restart. Shared Windows components were not removed from this working computer to force those conditions.
+- Exercise Windows 11, additional display/scaling/GPU/audio/input configurations, multi-monitor fullscreen/taskbar behavior and prolonged sessions.
+- Complete packet-level DNS/WebRTC/background-traffic and independent security/anonymity reviews before expanding privacy claims.
 
-Tor remains optional, off by default and experimental. It covers normal Harbor page traffic and browser-managed downloads, not other apps or external programs opened from downloads. This is not Tor Browser or a conventional VPN. Complete packet-level DNS/WebRTC, background-service, fingerprinting and anonymity audits were not performed.
+The previously supplied spare-PC results apply to 0.5.2; they are not 0.5.4 physical-system results. See LAPTOP-CHECKS.md for the existing user checklist. The earlier 0.5.3 installer/source hashes were rechecked and remain unchanged.
+
+## Primary implementation references
+
+- [Microsoft DWM window attributes](https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute)
+- [Chrome extension privacy settings and limits](https://developer.chrome.com/docs/extensions/reference/api/privacy)
+- [Microsoft network availability notifications](https://learn.microsoft.com/en-us/dotnet/api/system.net.networkinformation.networkchange.networkavailabilitychanged)
+- [Microsoft power-mode notifications](https://learn.microsoft.com/en-us/dotnet/api/microsoft.win32.systemevents.powermodechanged)
 
 ## Build identity
 
-- Application file/assembly version: 0.5.3.0; product version: 0.5.3.
-- Final tested/staged application SHA-256: BF36D03382CA42EF331F400768DE354DA88928EABDD5AD7073372E48E6121EF6.
-- Final installer SHA-256: EBFFA135C1B8B766B5EEDAC9F1FDF23D237AA1CD55107907D0F39321A41AD408.
-- Installer size: 358,790,945 bytes, approximately 342.2 MiB.
-- Both offline Microsoft packages passed the builder's size and Authenticode publisher checks.
-- Test-project copies of HarborBrowser.exe match the staged application hash. The source ZIP is checked separately after creation; PACKAGE-HASHES.txt is external to avoid a self-referential archive hash.
+- Assembly/file version: 0.5.4.0; product version: 0.5.4.
+- Final tested and staged application SHA-256: 83EA457909C821074D301F1B70854843464ED1378D43D84671B37C8F9A808E40.
+- Final installer SHA-256: 6BBD6069AE8ECCB3CE6886B081739EB34798711A5033F55BAB79E42484EE6AB7.
+- Installer size: 358,812,070 bytes.
+- Source/installer/application hashes are recorded externally in PACKAGE-HASHES.txt to avoid a source archive self-hash cycle.
 
-The original 0.5.2 installer/source packages and synced sources were preserved. Earlier 0.5.2 spare-PC reports remain in that release folder; they are not counted as physical tests of 0.5.3.
-
-## Remaining external validation
-
-- A disposable Windows environment genuinely missing a prerequisite, offline installation, elevation/servicing errors and an actual installer-requested restart.
-- Physical mouse/trackpad, screen/DPI/taskbar/video checks of this 0.5.3 build on the spare PC, plus Windows 11 and other hardware. Native screenshot/pointer automation was unavailable in the earlier follow-up; this release does not claim a successful manual desktop pass from that tool.
-- The spare PC's exact downloaded filename, previously marked Unknown, remains a separate manual result. Automated local and live Tor filename checks passed.
-- Long sessions, protected streaming/DRM, account/site-specific behavior, security-software interaction, real configured Windows VPN authentication/routing/MFA, and the Tor audits above.
-
-This installer targets Intel/AMD x64 Windows 10 version 1709 or later and Windows 11 x64; 32-bit Windows and ARM64 are excluded. Source build and test instructions are in SETUP-README.md and the supplied test scripts. Build all test projects before starting tests; do not rebuild loaded binaries during a run.
+Evidence in the source ZIP includes final suite logs/counts, earlier failed attempts, build logs, payload hashes, the desktop-capture failure and bounded privacy results. No browser profiles, caches or download folders are included.

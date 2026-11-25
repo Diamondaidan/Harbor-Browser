@@ -1,0 +1,43 @@
+PASS AlreadyInstalled handles prerequisite result
+PASS AlreadyInstalled gates application copying
+PASS AlreadyInstalled invokes only the expected prerequisite steps
+PASS setup logs skipping existing .NET
+PASS setup logs skipping existing WebView2
+PASS Success handles prerequisite result
+PASS native setup version checks reject missing/old and accept tested/newer WebView2
+PASS Success gates application copying
+PASS Success invokes only the expected prerequisite steps
+PASS Success passes silent no-restart .NET arguments
+PASS Success passes silent WebView arguments
+PASS Success logs the .NET helper exit code
+PASS Success logs the WebView helper exit code
+PASS DotNetRestart handles prerequisite result
+PASS DotNetRestart gates application copying
+PASS DotNetRestart invokes only the expected prerequisite steps
+PASS DotNetRestart passes silent no-restart .NET arguments
+PASS DotNetRestart passes silent WebView arguments
+PASS DotNetRestart logs the .NET helper exit code
+PASS DotNetRestart logs the WebView helper exit code
+PASS DotNetRestart logs the restart request
+PASS WebViewRestart handles prerequisite result
+PASS WebViewRestart gates application copying
+PASS WebViewRestart invokes only the expected prerequisite steps
+PASS WebViewRestart passes silent no-restart .NET arguments
+PASS WebViewRestart passes silent WebView arguments
+PASS WebViewRestart logs the .NET helper exit code
+PASS WebViewRestart logs the WebView helper exit code
+PASS WebViewRestart logs the restart request
+PASS DotNetFailure handles prerequisite result
+PASS DotNetFailure gates application copying
+PASS DotNetFailure invokes only the expected prerequisite steps
+PASS DotNetFailure passes silent no-restart .NET arguments
+PASS DotNetFailure logs the .NET helper exit code
+PASS WebViewFailure handles prerequisite result
+PASS WebViewFailure gates application copying
+PASS WebViewFailure invokes only the expected prerequisite steps
+PASS WebViewFailure passes silent no-restart .NET arguments
+PASS WebViewFailure passes silent WebView arguments
+PASS WebViewFailure logs the .NET helper exit code
+PASS WebViewFailure logs the WebView helper exit code
+ALL PASSED: 41 simulated prerequisite checks. Real vendor packages were not executed.
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\IntegrationTests\TestResults\prerequisites-20261114-112042

@@ -1,0 +1,30 @@
+PASS indicator starts with Tor off
+PASS off mode makes no health request
+PASS connected status requires actual route verification
+PASS manual health check confirms the actual browser route
+PASS health check retains the existing helper
+PASS routing inspector verifies SOCKS, WebRTC policy and prediction settings
+PASS a non-Tor verification response fails the check
+PASS failed verification keeps Tor enabled and blocks managed requests
+PASS a failure does not replace the last successful check time
+PASS local Home remains available during a failed check
+PASS missing routing is rejected before a verification request
+PASS guard returns a blocked response when the routing extension is disabled
+INFO cancelled local navigation: completed=False, speculativeTcp=True, observedHttpBytes=0
+PASS cancelled local navigation sends no HTTP bytes during the observation
+PASS top-level navigation is cancelled while Tor is unverified
+PASS reconnect restores routing before resuming a cancelled navigation
+PASS network loss pauses browsing without disabling Tor
+PASS network return verifies the route without restarting a healthy helper
+PASS wake handling rechecks the browser route
+PASS real helper termination produces a paused failure state
+PASS manual reconnect replaces the dead helper and verifies its route
+PASS Disconnect cancels a pending health check promptly
+PASS late verification cannot re-enable a disconnected mode
+PASS disconnected routing is removed
+PASS regular browser routing is restored
+PASS Windows proxy settings are unchanged
+PASS disposal cancels an active health check
+PASS disposal stops its owned helper
+PASS a disposed service cannot accept a late positive verification
+ALL PASSED: 28 Tor monitoring and recovery checks.

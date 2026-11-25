@@ -1,0 +1,177 @@
+[
+  {
+    "Path": "HarborBrowser.exe",
+    "Bytes": 1681920,
+    "SHA256": "83EA457909C821074D301F1B70854843464ED1378D43D84671B37C8F9A808E40"
+  },
+  {
+    "Path": "HarborBrowser.exe.config",
+    "Bytes": 174,
+    "SHA256": "051099983B896673909E01A1F631B6652ABB88DA95C9F06F3EFEF4BE033091FA"
+  },
+  {
+    "Path": "Microsoft.Web.WebView2.Core.dll",
+    "Bytes": 703328,
+    "SHA256": "ACDD517B951829F763D1255F32DF1E6A936CB8623A7EBFF6B8B24172DEDE6BD6"
+  },
+  {
+    "Path": "Microsoft.Web.WebView2.WinForms.dll",
+    "Bytes": 38792,
+    "SHA256": "C66437F80886AECF074804B61AF4CC10AD90A95310C8E0A717F31EA377C26B03"
+  },
+  {
+    "Path": "Microsoft.Web.WebView2.Wpf.dll",
+    "Bytes": 86368,
+    "SHA256": "BAAFA0A595C2CEFB3BE8F18288C3DB76F52E3966C8B99957D5E56CAF1B137BC1"
+  },
+  {
+    "Path": "README.md",
+    "Bytes": 1881,
+    "SHA256": "741EBD806C867BD085F6EE3E71F53EED95D5500B94A34756B85F97A599910CA5"
+  },
+  {
+    "Path": "SETUP-README.md",
+    "Bytes": 2771,
+    "SHA256": "080DFA3207F923A271AB46CB4C0C18B258AA714D8BBD79E9CEE5D318BE4AAC21"
+  },
+  {
+    "Path": "VPN-PREVIEW-README.md",
+    "Bytes": 3827,
+    "SHA256": "923763D927ADF3E3379155AE0752BBB804D31DB2E9A951BD244946B9E767BC2C"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\Control\\control.js",
+    "Bytes": 175,
+    "SHA256": "B50038BD91E20F841D896B8BFEB5CB70057F235C2A61E8FBB3DCF3470A2C7852"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\Control\\index.html",
+    "Bytes": 110,
+    "SHA256": "2BD54E620D2276A23657094B3F78F6B90C5E06CCD4FAC10977B5097AC73C150D"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\Router\\content.js",
+    "Bytes": 469,
+    "SHA256": "C20F4A08D4F8D0420CF0FA0CE204253BF05D4E5619517F9E0CBCCEA27D556406"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\Router\\manifest.json",
+    "Bytes": 810,
+    "SHA256": "7FFBD1C57965B694FA2617F9B32EF57ECC43F7BBA50F41D6196BA2FA947B90AF"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\Router\\worker.js",
+    "Bytes": 1969,
+    "SHA256": "7F490B6FAF00BE5E71E9A4063FAEFAEE99407105D82638A764ACDBF4C712C75E"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\data\\geoip",
+    "Bytes": 9855249,
+    "SHA256": "5F0EBC505AD5A5B219F9C053CE6228C837669364349A1A70C236192DD99A1C3D"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\data\\geoip6",
+    "Bytes": 16075127,
+    "SHA256": "D6BC775EFB8F970AFACBB702EA0C80DBF9E2ADD32232AFCFE3F376A972503B56"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\data\\torrc-defaults",
+    "Bytes": 928,
+    "SHA256": "0F5205266CCB37DA3D8D6A4F5C52862E42DAC9F1DC2650BE60CAD523FA6EE964"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\docs\\conjure.txt",
+    "Bytes": 127227,
+    "SHA256": "0522541E3505D6669334F6EB488D4FDE9C4AF2234DAEC13170A0CF4D46D99E92"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\docs\\libevent.txt",
+    "Bytes": 4528,
+    "SHA256": "FF02EFFC9B331EDCDAC387D198691BFA3E575E7D244AD10CB826AA51EF085670"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\docs\\lyrebird.txt",
+    "Bytes": 290809,
+    "SHA256": "93CC0AFFDFFDAED8ABCA7E19B74FE31C3268D8117DDC45506872A300F77D166B"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\docs\\openssl.txt",
+    "Bytes": 10175,
+    "SHA256": "7D5450CB2D142651B8AFA315B5F238EFC805DAD827D91BA367D8516BC9D49E7A"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\docs\\tor.txt",
+    "Bytes": 21086,
+    "SHA256": "5DC29EA302CC75DB6DB4A7C88D7B5D4638B4E0F5F1D2E6D21CE71F707470B766"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\docs\\zlib.txt",
+    "Bytes": 1002,
+    "SHA256": "E32FF4E00D9D94930537635291DA39E7E612703334BF6FDE8C7F1686FE8A45A2"
+  },
+  {
+    "Path": "Assets\\BrowserVpn\\TorRuntime\\tor\\tor.exe",
+    "Bytes": 10248704,
+    "SHA256": "DA22856F95EE24F8ACE4AD1AB04ACBD818FD6C3042BC3CF8F1D7CC3FA3EDCB2B"
+  },
+  {
+    "Path": "Assets\\Home\\beacon.png",
+    "Bytes": 1043043,
+    "SHA256": "E14473034EAF2D80846027FF69E43079B7338C1E3AEA7586F6030801E09E460A"
+  },
+  {
+    "Path": "Assets\\Home\\blue-hour.png",
+    "Bytes": 2072030,
+    "SHA256": "7760BD1404F0FC44B794F405E397B3BCF0D7F6A44757C7CE4F413D1D38B5FFA5"
+  },
+  {
+    "Path": "Assets\\Home\\home.css",
+    "Bytes": 6969,
+    "SHA256": "61DFFA7223230E08ED5D5F3D69A65E2C6C1BE52103993D74CB303E0340F1DAD7"
+  },
+  {
+    "Path": "Assets\\Home\\home.js",
+    "Bytes": 9546,
+    "SHA256": "FBCF6D6C6587B94FB1EB2AA344C4FA35FD22F4B39A248FAA23A0A8A5AB23B3B9"
+  },
+  {
+    "Path": "Assets\\Home\\index.html",
+    "Bytes": 2640,
+    "SHA256": "409071660468E11C9846B072AFFE654F77D28C63E04BA8A6B0E0A540A83C9614"
+  },
+  {
+    "Path": "Assets\\Home\\morning.png",
+    "Bytes": 2238893,
+    "SHA256": "009C6AD2EE8ABA40A0D41D554A818F716FD63476BF2F253F35DA95A0B60BE217"
+  },
+  {
+    "Path": "Branding\\HarborBeacon.ico",
+    "Bytes": 74217,
+    "SHA256": "94E30D23F1A2D2915E6BFD3BB105107781457D43D040AC3A2A898333CB2EB87D"
+  },
+  {
+    "Path": "Licensing\\tor-0.4.9.16-source.tar.gz",
+    "Bytes": 11078321,
+    "SHA256": "6180E193152F4525BDCA5475168419B2A2035B963C3C60162A187F86E6160E48"
+  },
+  {
+    "Path": "Licensing\\TOR-PROVENANCE.md",
+    "Bytes": 1421,
+    "SHA256": "5F05E5598DF643D4AECAA3C770BA34E892E4C9B04D854E99180095492AFF490B"
+  },
+  {
+    "Path": "runtimes\\win-arm64\\native\\WebView2Loader.dll",
+    "Bytes": 180104,
+    "SHA256": "05429881D918FD64A3FE4955155C1AF79E66D7B7D944034467874F420BC2265A"
+  },
+  {
+    "Path": "runtimes\\win-x64\\native\\WebView2Loader.dll",
+    "Bytes": 194912,
+    "SHA256": "D3FCE90BDEECB08596E377DEA6A316354DD8949E32FF09B89D51BE00C14E21B6"
+  },
+  {
+    "Path": "runtimes\\win-x86\\native\\WebView2Loader.dll",
+    "Bytes": 155528,
+    "SHA256": "1D348D3C0A5CB0D985389B68A0FD9BF966C2AED65F5E44BBC0233739B7A57F9E"
+  }
+]

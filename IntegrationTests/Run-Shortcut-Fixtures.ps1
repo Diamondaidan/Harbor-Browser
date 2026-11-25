@@ -5,17 +5,17 @@ $installRoot=Join-Path $fixtureRoot 'App'
 $shortcutRoot=Join-Path $fixtureRoot 'Links'
 $profileRoot=Join-Path $fixtureRoot 'Profile'
 New-Item -ItemType Directory -Path $fixtureRoot,$profileRoot -Force | Out-Null
-$fixtureId='{FF710D81-8527-4A48-9CE2-99200B9F0530}'
+$fixtureId='{FF710D81-8527-4A48-9CE2-99200B9F0540}'
 $template=[IO.File]::ReadAllText((Join-Path $releaseRoot 'Installer\HarborBrowser.iss'))
 $template=$template.Replace('{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}',$fixtureId)
-$template=$template.Replace('#define AppName "Harbor Browser"','#define AppName "Harbor Shortcut Fixture 053"')
+$template=$template.Replace('#define AppName "Harbor Browser"','#define AppName "Harbor Shortcut Fixture 054"')
 $template=$template.Replace('PrivilegesRequired=admin','PrivilegesRequired=lowest').Replace('CloseApplications=yes','CloseApplications=no')
-$template=$template.Replace('#define BrowserRegistryRoot "HKLM"','#define BrowserRegistryRoot "HKCU"').Replace('#define BrowserClient "HarborBrowser"','#define BrowserClient "HarborShortcutFixture053"').Replace('#define BrowserRegisteredName "Harbor Browser"','#define BrowserRegisteredName "Harbor Shortcut Fixture 053"')
+$template=$template.Replace('#define BrowserRegistryRoot "HKLM"','#define BrowserRegistryRoot "HKCU"').Replace('#define BrowserClient "HarborBrowser"','#define BrowserClient "HarborShortcutFixture054"').Replace('#define BrowserRegisteredName "Harbor Browser"','#define BrowserRegisteredName "Harbor Shortcut Fixture 054"')
 $template=$template.Replace('DefaultDirName={autopf}\Harbor Browser','DefaultDirName='+$installRoot)
 $template=$template.Replace('#define PayloadDir "..\dist\payload"','#define PayloadDir "'+(Join-Path $releaseRoot 'dist\payload')+'"')
 $template=$template.Replace('SetupIconFile=assets\HarborBrowser.ico','SetupIconFile='+(Join-Path $releaseRoot 'Installer\assets\HarborBrowser.ico'))
 $template=$template.Replace('OutputDir=..\dist','OutputDir='+$fixtureRoot).Replace('OutputBaseFilename=HarborBrowserSetup-{#AppVersion}{#ReleaseSuffix}','OutputBaseFilename=ShortcutFixture')
-$template=$template.Replace('Name: "{group}\Harbor Browser"','Name: "'+$shortcutRoot+'\Start Menu\Harbor Browser"').Replace('Name: "{autodesktop}\Harbor Browser"','Name: "'+$shortcutRoot+'\Desktop\Harbor Browser"').Replace('AppUserModelID: "HarborBrowser.Desktop"','AppUserModelID: "HarborBrowser.ShortcutFixture053"')
+$template=$template.Replace('Name: "{group}\Harbor Browser"','Name: "'+$shortcutRoot+'\Start Menu\Harbor Browser"').Replace('Name: "{autodesktop}\Harbor Browser"','Name: "'+$shortcutRoot+'\Desktop\Harbor Browser"').Replace('AppUserModelID: "HarborBrowser.Desktop"','AppUserModelID: "HarborBrowser.ShortcutFixture054"')
 $template=$template.Replace("  DataDir := ExpandConstant('{localappdata}\HarborBrowser');","  DataDir := '"+$profileRoot.Replace("'","''")+"';")
 $template=[regex]::Replace($template,'(?ms)^\[Run\].*?(?=^\[Registry\])','')
 $template=[regex]::Replace($template,'(?m)^Source:.*RedistDir.*\r?\n','')
@@ -63,10 +63,10 @@ try {
    $link=$wsh.CreateShortcut($linkPath);$kind=Split-Path (Split-Path $linkPath) -Leaf
    Check ($label+' '+$kind+' targets installed app') ($link.TargetPath -eq (Join-Path $installRoot 'HarborBrowser.exe'))
    Check ($label+' '+$kind+' sets working directory') ($link.WorkingDirectory -eq $installRoot)
-   $icon=(Join-Path $installRoot 'Branding\HarborBeacon-0.5.3.ico')
+   $icon=(Join-Path $installRoot 'Branding\HarborBeacon-0.5.4.ico')
    Check ($label+' '+$kind+' uses packaged Beacon icon') ($link.IconLocation.StartsWith($icon,[StringComparison]::OrdinalIgnoreCase) -and (Get-FileHash -LiteralPath $icon).Hash -eq (Get-FileHash -LiteralPath (Join-Path $releaseRoot 'Installer\assets\HarborBrowser.ico')).Hash)
    $folder=$shell.Namespace((Split-Path $linkPath));$item=$folder.ParseName((Split-Path $linkPath -Leaf))
-   Check ($label+' '+$kind+' stores application identity') ($item.ExtendedProperty('System.AppUserModel.ID') -eq 'HarborBrowser.ShortcutFixture053')
+   Check ($label+' '+$kind+' stores application identity') ($item.ExtendedProperty('System.AppUserModel.ID') -eq 'HarborBrowser.ShortcutFixture054')
   }
   Uninstall
   Check ($label+' uninstall removes fixture links') (!(Test-Path -LiteralPath $menu) -and !(Test-Path -LiteralPath $desk))

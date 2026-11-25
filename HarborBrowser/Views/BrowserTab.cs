@@ -46,6 +46,7 @@ namespace HarborBrowser.Views
         public string PrivateSessionId {get;set;}
         public int NavigationGeneration {get;set;}
         public string LastKnownUrl {get;set;}
+        public string TorBlockedUrl {get;set;}
         public string FailureMessage {get;set;}
         public bool NeedsNewView {get;set;}
         public bool IsPinned { get; set; }

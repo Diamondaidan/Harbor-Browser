@@ -129,6 +129,7 @@
               <ColumnDefinition Width="35" x:Name="BookmarkColumn" />
               <ColumnDefinition Width="46" x:Name="GoColumn" />
               <ColumnDefinition Width="145" x:Name="EngineColumn" />
+              <ColumnDefinition Width="66" />
               <ColumnDefinition Width="35" />
               <ColumnDefinition Width="35" />
             </Grid.ColumnDefinitions>
@@ -148,8 +149,9 @@
             <Button x:Name="BookmarkToggleButton" Grid.Column="5" Content="☆" FontSize="20" Padding="0" Margin="1" ToolTip="Bookmark this page" Click="ToggleCurrentBookmark_Click" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource HarborMuted}" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
             <Button Grid.Column="6" Content="Go" Click="Go_Click" Margin="2,1" x:Name="GoButton" />
             <ComboBox x:Name="SearchEngineBox" Grid.Column="7" Margin="4,1,1,1" VerticalContentAlignment="Center" SelectedValuePath="Id" SelectionChanged="SearchEngineBox_SelectionChanged" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
-            <Button x:Name="GearMenuButton" Grid.Column="9" Content="⚙" FontSize="19" Padding="0" Margin="1" ToolTip="Harbor menu" AutomationProperties.Name="Harbor menu" Background="Transparent" BorderThickness="0" Click="GearMenuButton_Click" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
-            <Button xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="PictureInPictureButton" Grid.Column="8" Content="▣" FontSize="19" Padding="0" Margin="1" ToolTip="Picture in picture (Ctrl+Shift+P)" AutomationProperties.Name="Picture in picture" Click="PictureInPicture_Click" />
+            <Button x:Name="TorIndicatorButton" Grid.Column="8" Content="Tor Off" FontSize="11" Padding="2,0" Margin="2,1" ToolTip="Tor connection controls" AutomationProperties.Name="Tor connection: Off" Click="BrowserVpn_Click" />
+            <Button x:Name="GearMenuButton" Grid.Column="10" Content="⚙" FontSize="19" Padding="0" Margin="1" ToolTip="Harbor menu" AutomationProperties.Name="Harbor menu" Background="Transparent" BorderThickness="0" Click="GearMenuButton_Click" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
+            <Button xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="PictureInPictureButton" Grid.Column="9" Content="▣" FontSize="19" Padding="0" Margin="1" ToolTip="Picture in picture (Ctrl+Shift+P)" AutomationProperties.Name="Picture in picture" Click="PictureInPicture_Click" />
           </Grid>
         </Border>
         <Border x:Name="BookmarksBar" DockPanel.Dock="Top" Height="31" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,0,0,1" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">

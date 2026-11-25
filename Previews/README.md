@@ -1,1 +1,1 @@
-Rendered components and WebView2 captures from the 0.4.1 Hotfix 1 regression suites. Native desktop mouse verification was interrupted by the input guard. See ../HOTFIX-VERIFICATION.md. Performance data remains from the original 0.4.1 release.
+These are historical component renders and WebView2 captures from earlier releases. WPF renders do not include native Windows title bars. They are not 0.5.4 desktop screenshots or evidence of the new DWM caption appearance. Current executed checks and the failed desktop-capture attempt are documented in VERIFICATION.md.
