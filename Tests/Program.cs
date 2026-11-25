@@ -116,6 +116,7 @@ internal static partial class Program
             PerformanceChecks();
             Release042Checks();
             Release043Checks();
+            Release050Checks();
             Layout(args[4], 1320, 850);
             Layout(args[4], 800, 560);
             AppearanceService.ApplyApplication(new HarborBrowser.Models.BrowserSettings {ThemeMode="Dark"});

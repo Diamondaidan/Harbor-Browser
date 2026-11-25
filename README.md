@@ -1,16 +1,15 @@
-# Harbor Browser 0.4.3
+# Harbor Browser 0.5.0
 
-This release improves extension controls and organization while keeping the 0.4.2 fixes:
+This release adds Windows VPN profile controls, visible private-tab markers and Windows browser registration.
 
-- **Site access:** Cog > Tools > Site modules > Site access lets you choose the module's requested website patterns. Unchecked patterns are removed from its native injection rules. Uncheck everything to stop all site access; Enable cannot override that choice. Overlapping/wildcard patterns are explained in the editor.
-- **Clearer controls:** the module list shows enabled/disabled/blocked status, keeps selection after an action, explains page access, and fits short windows with scrolling and wrapping controls.
-- **Safer permission changes:** disabled modules stay disabled while editing access. Changes persist across restarts; unreadable permission metadata disables managed modules. Changing site access may reset the module's own stored preferences. It does not clear Harbor bookmarks or history.
-- **Bookmark dragging:** empty space on the bar now accepts drops and moves the bookmark to the end. The drop surface follows window resizing. Move left/right commands and saved ordering remain available.
-- **Crowded tabs:** selecting a tab outside the visible strip scrolls it into view. Normal tabs still share equal shrinking widths, with scrolling at the icon-size minimum.
+- **Private tabs:** a purple P badge remains visible on narrow/pinned tabs, while the tab label and window title say Private. Website icons remain visible. Private browsing keeps local history out of Harbor; it does not hide network activity.
+- **Default browser:** run the installer, then open Cog > Tools > Default browser. In Windows Default apps, choose Harbor Browser for web browsing (HTTP/HTTPS). The installer also offers .htm/.html handling. Windows makes the final choice; installation does not change your existing default browser. Portable/source builds need installation for this registration.
+- **Windows links:** links and local HTML files opened from Windows reach the existing Harbor window, or start a new one. Links always open normal tabs, including when a private tab is selected. Startup targets preserve existing restored normal tabs. Unsupported command schemes, remote file shares and extra association-launch arguments are refused.
+- **VPN:** Cog > VPN > Manage Windows VPN connections lists current-user and all-user profiles separately. It shows Windows-reported connection status and offers Connect/Disconnect for the selected profile. Add/edit profiles and saved credentials through Windows VPN settings. Harbor does not include a VPN service or subscription, and profiles belonging to separate provider apps may not appear.
 
-Close Harbor before running `dist/HarborBrowserSetup-0.4.3.exe`. Prerequisites are bundled. The first launch snapshots migration to profile schema 9; earlier builds protect newer-schema data by disabling saves. Previous releases remain separate.
+Close Harbor before running `dist/HarborBrowserSetup-0.5.0.exe`. The installer bundles .NET Framework 4.8 and WebView2 x64 prerequisites, retains the existing AppId/profile location and creates an upgrade snapshot. Profile schema remains 9. Previous releases remain separate.
 
-See VERIFICATION.md for executed checks and remaining physical laptop checks, and SITE-MODULES.md for the supported local extension interface. This is not full Chrome Web Store support. PERFORMANCE.md and Measurements retain historical 0.4.1 measurements; no new benchmark claim is made.
+See DEFAULT-BROWSER.md, VPN.md and VERIFICATION.md for setup, supported behavior and test limits. Existing site-module, bookmark ordering, tab sizing, download, privacy and customization features are retained. Full Chrome Web Store support, installer signing and broad hardware validation remain future work.
 
 ## Performance and resource monitor
 
@@ -76,7 +75,7 @@ Requests are delayed briefly while typing, cancelled when superseded, and stale 
 
 ## Install and data
 
-Close Harbor and run dist/HarborBrowserSetup-0.4.3.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
+Close Harbor and run dist/HarborBrowserSetup-0.5.0.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
 
 Profile schema 9 adds saved extension site-access grants. Older profiles are migrated with a snapshot before changes. Harbor snapshots the existing profile before migration. Earlier builds protect newer-schema data by disabling saves.
 

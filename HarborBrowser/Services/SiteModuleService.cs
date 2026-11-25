@@ -20,7 +20,7 @@ namespace HarborBrowser.Services
     // the generated manifest's site scope; Harbor never exposes host objects.
     public static class SiteModuleService
     {
-        public const string HarborVersion="0.4.3";
+        public const string HarborVersion="0.5.0";
         private static readonly JavaScriptSerializer Json=new JavaScriptSerializer{MaxJsonLength=262144,RecursionLimit=30};
         private static readonly HashSet<string> FileTypes=new HashSet<string>(new[]{".json",".js",".css",".png",".jpg",".jpeg",".svg",".ico",".txt",".md",".webp"},StringComparer.OrdinalIgnoreCase);
         public static SiteModulePackage Inspect(string folder,string originalManifest=null)

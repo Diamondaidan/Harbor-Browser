@@ -182,11 +182,12 @@ namespace HarborBrowser
                     }
                     finally { _restoringSession = false; }
                 }
-                if (!restored)
+                if (!restored && _externalTargets.Count == 0)
                     CreateNewTab(_settings.HomePage, true);
                 SaveSession();
             }
 
+            _externalNavigationReady = true; FlushExternalTargets();
             await Task.CompletedTask;
         }
 
@@ -295,6 +296,18 @@ namespace HarborBrowser
             var iconHost = new Grid { Width = 20, Height = 20, VerticalAlignment = VerticalAlignment.Center };
             tab.HeaderContainer.Children.Clear();
             iconHost.Children.Add(tab.HeaderIcon); iconHost.Children.Add(tab.FallbackIcon);
+            tab.PrivateBadge = new Border
+            {
+                Width = 12, Height = 12, CornerRadius = new CornerRadius(6),
+                HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Bottom,
+                Background = new SolidColorBrush(Color.FromRgb(106, 56, 160)),
+                BorderBrush = Brushes.White, BorderThickness = new Thickness(1),
+                ToolTip = "Private tab — local browsing history is not saved",
+                Child = new TextBlock { Text = "P", Foreground = Brushes.White, FontSize = 8, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center },
+                Visibility = tab.IsPrivate ? Visibility.Visible : Visibility.Collapsed
+            };
+            System.Windows.Automation.AutomationProperties.SetName(tab.PrivateBadge, "Private tab");
+            iconHost.Children.Add(tab.PrivateBadge);
             tab.HeaderLayout.Children.Add(iconHost);
             Grid.SetColumn(tab.HeaderText, 1); tab.HeaderLayout.Children.Add(tab.HeaderText);
             Grid.SetColumn(tab.CloseButton, 2); tab.HeaderLayout.Children.Add(tab.CloseButton);
@@ -491,7 +504,7 @@ namespace HarborBrowser
                     tab.PageTitle = title;
                     UpdateTabHeader(tab);
                     if (SelectedTab == tab)
-                        Title = title + " - Harbor Browser";
+                        Title = (tab.IsPrivate ? "Private · " : "") + title + " - Harbor Browser";
                 };
 
                 core.NavigationCompleted += (s, args) =>
@@ -841,7 +854,7 @@ namespace HarborBrowser
             UpdateTabActivity();
             SaveSession();
             string title = string.IsNullOrWhiteSpace(tab.PageTitle) ? "New tab" : tab.PageTitle;
-            Title = title + " - Harbor Browser";
+            Title = (tab.IsPrivate ? "Private · " : "") + title + " - Harbor Browser";
             if (!tab.Initialized)
                 _ = EnsureTabInitializedAsync(tab);
         }
@@ -852,7 +865,9 @@ namespace HarborBrowser
                 return;
 
             string title = string.IsNullOrWhiteSpace(tab.PageTitle) ? "New tab" : tab.PageTitle;
-            tab.HeaderText.Text = (tab.IsSuspended ? "☾ " : "") + title;
+            tab.HeaderText.Text = (tab.IsSuspended ? "☾ " : "") + (tab.IsPrivate ? "Private · " : "") + title;
+            if (tab.PrivateBadge != null) tab.PrivateBadge.Visibility = tab.IsPrivate ? Visibility.Visible : Visibility.Collapsed;
+            System.Windows.Automation.AutomationProperties.SetName(tab.Item, (tab.IsPrivate ? "Private tab: " : "Tab: ") + title);
             tab.Item.Opacity = tab.IsSuspended ? 0.65 : 1.0;
             tab.HeaderText.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             tab.CloseButton.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
@@ -1692,37 +1707,12 @@ namespace HarborBrowser
 
             menu.Items.Add(CreateTabGroupsMenu());
             MenuItem vpn = CreateGearSubmenu("VPN");
-            List<string> profiles = VpnService.GetConfiguredProfiles();
-            if (profiles.Count > 0)
-            {
-                foreach (string profile in profiles)
-                {
-                    AddGearCommand(vpn, "Connect: " + profile, async (s, args) =>
-                    {
-                        SetStatus("Connecting to " + profile + "…");
-                        string result = await Task.Run(() => VpnService.Connect(profile));
-                        MessageBox.Show(this, result, "VPN connection", MessageBoxButton.OK,
-                            result.StartsWith("ERROR:", StringComparison.OrdinalIgnoreCase) ? MessageBoxImage.Warning : MessageBoxImage.Information);
-                        SetStatus("VPN command finished");
-                    });
-                }
-            }
-            else
-            {
-                AddGearCommand(vpn, "No VPN profiles found", null, false);
-            }
-            AddGearSeparator(vpn);
-            AddGearCommand(vpn, "Disconnect VPN", async (s, args) =>
-            {
-                SetStatus("Disconnecting VPN…");
-                string result = await Task.Run(() => VpnService.Disconnect());
-                MessageBox.Show(this, result, "VPN disconnect", MessageBoxButton.OK, MessageBoxImage.Information);
-                SetStatus("VPN disconnect command finished");
-            });
+            AddGearCommand(vpn, "Manage Windows VPN connections…", (s, args) => new VpnWindow { Owner = this }.ShowDialog());
             AddGearCommand(vpn, "Windows VPN settings…", VpnSettings_Click);
             menu.Items.Add(vpn);
 
             MenuItem tools = CreateGearSubmenu("Tools");
+            AddGearCommand(tools, "Default browser…", DefaultBrowser_Click);
             AddGearCommand(tools, "Site modules…", Modules_Click);
             AddGearCommand(tools, "Site permissions…", SitePermissions_Click);
             AddGearCommand(tools, "Clear browsing data… (Ctrl+Shift+Delete)", ClearBrowsingData_Click);
@@ -1954,7 +1944,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.4.3\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.5.0\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

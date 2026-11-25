@@ -3,7 +3,7 @@
 ; signed offline .NET Framework 4.8 and WebView2 Evergreen installers.
 
 #ifndef AppVersion
-  #define AppVersion "0.4.3"
+  #define AppVersion "0.5.0"
 #endif
 #ifndef BuildRevision
   #define BuildRevision 0
@@ -17,6 +17,15 @@
 #define AppExeName "HarborBrowser.exe"
 #define PayloadDir "..\dist\payload"
 #define RedistDir "redist"
+#ifndef BrowserRegistryRoot
+  #define BrowserRegistryRoot "HKLM"
+#endif
+#ifndef BrowserClient
+  #define BrowserClient "HarborBrowser"
+#endif
+#ifndef BrowserRegisteredName
+  #define BrowserRegisteredName "Harbor Browser"
+#endif
 
 [Setup]
 AppId={{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}
@@ -74,6 +83,30 @@ Name: "{autodesktop}\Harbor Browser"; Filename: "{app}\{#AppExeName}"; WorkingDi
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Launch Harbor Browser"; Flags: postinstall nowait skipifsilent
+
+; Advertise supported associations. Windows keeps the user's default choice.
+[Registry]
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}"; ValueType: string; ValueData: "{#BrowserRegisteredName}"; Flags: uninsdeletekey
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\DefaultIcon"; ValueType: string; ValueData: """{app}\Branding\HarborBeacon-{#AppVersion}.ico"",0"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExeName}"""
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities"; ValueType: string; ValueName: "ApplicationName"; ValueData: "{#BrowserRegisteredName}"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "Harbor web browser for HTTP and HTTPS links and local HTML pages."
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities"; ValueType: string; ValueName: "ApplicationIcon"; ValueData: """{app}\Branding\HarborBeacon-{#AppVersion}.ico"",0"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities\URLAssociations"; ValueType: string; ValueName: "http"; ValueData: "{#BrowserClient}.URL"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities\URLAssociations"; ValueType: string; ValueName: "https"; ValueData: "{#BrowserClient}.URL"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities\FileAssociations"; ValueType: string; ValueName: ".htm"; ValueData: "{#BrowserClient}.HTML"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities\FileAssociations"; ValueType: string; ValueName: ".html"; ValueData: "{#BrowserClient}.HTML"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities\Startmenu"; ValueType: string; ValueName: "StartMenuInternet"; ValueData: "{#BrowserClient}"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\RegisteredApplications"; ValueType: string; ValueName: "{#BrowserRegisteredName}"; ValueData: "Software\Clients\StartMenuInternet\{#BrowserClient}\Capabilities"; Flags: uninsdeletevalue
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\{#BrowserClient}.URL"; ValueType: string; ValueData: "Harbor web link"; Flags: uninsdeletekey
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\{#BrowserClient}.URL"; ValueType: string; ValueName: "URL Protocol"; ValueData: ""
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\{#BrowserClient}.URL\DefaultIcon"; ValueType: string; ValueData: """{app}\Branding\HarborBeacon-{#AppVersion}.ico"",0"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\{#BrowserClient}.URL\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExeName}"" -- ""%1"""
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\{#BrowserClient}.HTML"; ValueType: string; ValueData: "Harbor HTML document"; Flags: uninsdeletekey
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\{#BrowserClient}.HTML\DefaultIcon"; ValueType: string; ValueData: """{app}\Branding\HarborBeacon-{#AppVersion}.ico"",0"
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\{#BrowserClient}.HTML\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppExeName}"" -- ""%1"""
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\.htm\OpenWithProgids"; ValueType: string; ValueName: "{#BrowserClient}.HTML"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty
+Root: {#BrowserRegistryRoot}; Subkey: "Software\Classes\.html\OpenWithProgids"; ValueType: string; ValueName: "{#BrowserClient}.HTML"; ValueData: ""; Flags: uninsdeletevalue uninsdeletekeyifempty
 
 [Code]
 const

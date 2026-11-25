@@ -1,0 +1,5 @@
+PASS real App startup opens shell URL without an extra Home tab
+PASS secondary App exits after forwarding shell activation
+PASS real App forwards external link into a normal tab
+PASS real App forwards local HTML file activation with spaces
+ALL PASSED: 4 startup checks.

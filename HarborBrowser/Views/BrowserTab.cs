@@ -22,6 +22,7 @@ namespace HarborBrowser.Views
         public System.Threading.CancellationTokenSource HomeSuggestionCancellation {get;set;}
         public TextBlock HeaderText { get; set; }
         public Image HeaderIcon { get; set; }
+        public Border PrivateBadge {get;set;}
         public TextBlock FallbackIcon { get; set; }
         public StackPanel HeaderContainer { get; set; }
         public MenuItem PinCommand {get;set;}

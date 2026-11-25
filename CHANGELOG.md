@@ -1,3 +1,13 @@
+## 0.5.0
+
+- Add private-tab text, a persistent P badge over the favicon, accessible names and a Private window-title prefix.
+- Register browser capabilities, HTTP/HTTPS handlers and HTML file ProgIDs during installation; clean up owned registration during uninstall without editing UserChoice.
+- Add a Windows Default apps shortcut with Windows 10/11 URI behavior.
+- Validate startup link/file arguments and forward activations through a current-user protected pipe to the existing window; always create normal tabs for external targets.
+- Avoid an extra Home tab on a fresh external-link startup while preserving session restore and crash-recovery behavior.
+- Add scoped Windows VPN profile discovery/status, selected-profile connect/disconnect, bounded background commands, status refresh and actionable errors. Keep credentials/profile editing in Windows settings.
+- Add real App startup/forwarding/file-activation tests, private marker renders, simulated VPN lifecycle tests and browser-registration installer fixtures.
+
 ## 0.4.3
 
 - Add persisted, native-enforced site-pattern choices for local modules and a deny-all state that Enable cannot bypass.

@@ -28,6 +28,7 @@ internal static partial class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length>2&&args[2]=="--startup-host")return StartupHost(args);
         int exit=1;Directory.CreateDirectory(args[0]);
         var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
         app.Resources.MergedDictionaries.Add(new ResourceDictionary{Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml")});
@@ -75,6 +76,10 @@ internal static partial class Program
                 {await Release042Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.4.2 checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--release043")
                 {await Release043Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.4.3 checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--startup-only")
+                {await StartupChecks(args[0]);Console.WriteLine("ALL PASSED: "+checks+" startup checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release050")
+                {await Release050Checks(main,args[0]);await StartupChecks(args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.5.0 checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--live-sites")
                 {await LiveSiteChecks(main,args[0]);Console.WriteLine("FINISHED: "+checks+" live-site assertions; see any UNVERIFIED results.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--privacy-edge")
@@ -185,6 +190,8 @@ internal static partial class Program
                 await CustomizationChecks(main,store,args[0]);
                 await Release042Checks(main,store,args[0]);
                 await Release043Checks(main,store,args[0]);
+                await Release050Checks(main,args[0]);
+                await StartupChecks(args[0]);
                 await PerformanceChecks(main,args[0],args[1]);
                 await PrivacyChecks(main,store,args[0],args[1]);
                 await PrivacyEdgeChecks(main,args[0],args[1]);
