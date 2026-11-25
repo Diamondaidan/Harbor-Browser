@@ -8,4 +8,5 @@
     <Reference Include="System.IO.Compression" /><Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Xml.Linq" /><Reference Include="System.Web.Extensions" />
   </ItemGroup>
+  <PropertyGroup><DefaultItemExcludes>$(DefaultItemExcludes);TestResults\**</DefaultItemExcludes></PropertyGroup>
 </Project>

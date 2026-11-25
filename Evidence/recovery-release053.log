@@ -1,0 +1,16 @@
+PASS Home footer uses the running application version
+PASS module compatibility uses the same application version
+PASS window branding uses the same application version
+PASS Home state delivers the authoritative version
+PASS stalled private startup reaches a recovery state
+PASS recovery screen offers Reload tab
+PASS failed controller never becomes a working private tab
+PASS Reload creates a usable private controller
+PASS compact private identity retains a random GUID
+PASS late completion cannot replace the recovered controller
+PASS closing a never-started private tab does not recreate its controller
+PASS closed startup cannot initialize or reopen its tab
+PASS new private session gets a different identity
+PASS new private session has no recovered-session storage
+PASS normal tab stays usable after startup failure and retry
+ALL PASSED: 15 startup recovery and version checks.

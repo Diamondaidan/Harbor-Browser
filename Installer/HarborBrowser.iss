@@ -3,7 +3,9 @@
 ; signed offline .NET Framework 4.8 and WebView2 Evergreen installers.
 
 #ifndef AppVersion
-  #define AppVersion "0.5.2"
+  #define VersionHandle FileOpen("..\VERSION.txt")
+  #define AppVersion Trim(FileRead(VersionHandle))
+  #call FileClose(VersionHandle)
 #endif
 #ifndef BuildRevision
   #define BuildRevision 0
@@ -125,15 +127,17 @@ function IsDotNet48OrLaterInstalled: Boolean;
 var
   ReleaseValue: Cardinal;
 begin
+  ReleaseValue := 0;
   Result := RegQueryDWordValue(HKLM64, DotNet48ReleaseKey, 'Release', ReleaseValue)
     and (ReleaseValue >= 528040);
+  Log('.NET release value: ' + IntToStr(ReleaseValue) + '; requirement met: ' + IntToStr(Ord(Result)));
 end;
 
 function IsUsableVersion(const VersionText: String): Boolean;
 var
   DotPosition, MajorVersion: Integer;
 begin
-  { Release 0.5.2 is tested with Runtime 157; update older installations
+  { Release 0.5.3 is tested with Runtime 157; update older installations
     using the included, signed Evergreen standalone package. }
   DotPosition := Pos('.', VersionText);
   MajorVersion := 0;
@@ -150,16 +154,23 @@ begin
 
   { Microsoft documents the machine-wide x64 runtime key in the 32-bit registry view. }
   if RegQueryStringValue(HKLM32, WebView2ClientKey, 'pv', VersionText) then
+  begin
+    Log('Machine WebView2 runtime: ' + VersionText);
     if IsUsableVersion(VersionText) then
     begin
       Result := True;
       Exit;
     end;
+  end;
 
   { Also check a per-user runtime installation. }
   if RegQueryStringValue(HKCU, WebView2ClientKey, 'pv', VersionText) then
+  begin
+    Log('User WebView2 runtime: ' + VersionText);
     if IsUsableVersion(VersionText) then
       Result := True;
+  end;
+  if not Result then Log('A WebView2 runtime update is required.');
 end;
 
 function CopyProfileFile(const DataDir, BackupDir, FileName: String): Boolean;
@@ -234,12 +245,14 @@ var
   ExitCode: Integer;
 begin
   Result := '';
+  Log('Starting bundled prerequisite: ' + FriendlyName);
   if not Exec(FileName, Parameters, '', SW_HIDE, ewWaitUntilTerminated, ExitCode) then
   begin
     Result := 'Windows could not start the ' + FriendlyName + ' installer.';
     Exit;
   end;
 
+  Log(FriendlyName + ' installer exit code: ' + IntToStr(ExitCode));
   if ExitCode = 0 then
     Exit;
 
@@ -247,6 +260,7 @@ begin
   begin
     NeedsRestart := True;
     PrerequisitesNeedRestart := True;
+    Log(FriendlyName + ' requested a Windows restart.');
     Exit;
   end;
 
@@ -268,7 +282,8 @@ begin
     Result := ExecutePrerequisite(PrereqPath, '/q /norestart', '.NET Framework 4.8', NeedsRestart);
     if Result <> '' then
       Exit;
-  end;
+  end
+  else Log('Using existing .NET Framework; bundled installer skipped.');
 
   if not IsWebView2RuntimeInstalled then
   begin
@@ -278,7 +293,8 @@ begin
     Result := ExecutePrerequisite(PrereqPath, '/silent /install', 'Microsoft Edge WebView2 Runtime', NeedsRestart);
     if Result <> '' then
       Exit;
-  end;
+  end
+  else Log('Using existing WebView2; bundled installer skipped.');
 
   WizardForm.StatusLabel.Caption := 'Backing up Harbor profile...';
   Result := BackupExistingProfile;

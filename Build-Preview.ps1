@@ -2,6 +2,7 @@
 param([switch]$SkipCompile)
 $ErrorActionPreference='Stop'
 $projectRoot=$PSScriptRoot
+$version=(Get-Content -LiteralPath (Join-Path $projectRoot 'VERSION.txt') -Raw).Trim()
 if(!$SkipCompile){
     $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
     $builder=& $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
@@ -23,7 +24,7 @@ New-Item -ItemType Directory -Path $licensing -Force | Out-Null
 foreach($file in @('tor-0.4.9.16-source.tar.gz','TOR-PROVENANCE.md')){
     Copy-Item -LiteralPath (Join-Path $projectRoot ('ThirdParty\'+$file)) -Destination $licensing
 }
-$zip=Join-Path $dist 'HarborBrowser-0.5.2-portable.zip'
+$zip=Join-Path $dist ('HarborBrowser-'+$version+'-portable.zip')
 Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
 Get-FileHash -LiteralPath $zip -Algorithm SHA256
 Write-Host "Portable release: $zip"

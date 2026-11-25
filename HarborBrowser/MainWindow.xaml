@@ -67,7 +67,7 @@
         </StatusBarItem>
         <Separator />
         <StatusBarItem HorizontalAlignment="Right">
-          <TextBlock Text="Harbor 0.5.2  •  WebView2" Foreground="{DynamicResource HarborMuted}" />
+          <TextBlock x:Name="VersionStatusText" Text="Harbor • WebView2" Foreground="{DynamicResource HarborMuted}" />
         </StatusBarItem>
       </StatusBar>
       <Border x:Name="DownloadNotificationBar" DockPanel.Dock="Bottom" Visibility="Collapsed" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,1,0,0" Padding="12,5">
@@ -96,7 +96,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
               <Image x:Name="HeaderBrandLogo" Source="pack://application:,,,/HarborBrowser;component/Assets/Home/beacon.png" Width="24" Height="24" Margin="0,0,7,0" AutomationProperties.Name="Harbor Beacon logo" />
-              <TextBlock Text="HARBOR" ToolTip="Harbor Browser 0.5.2" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" x:Name="HeaderBrandWordmark" />
+              <TextBlock Text="HARBOR" ToolTip="Harbor Browser" FontSize="11" FontWeight="Bold" VerticalAlignment="Center" x:Name="HeaderBrandWordmark" />
             </StackPanel>
             <TabControl x:Name="BrowserTabs" Height="34" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,0,0,1" AllowDrop="True" DragOver="BrowserTabs_DragOver" Drop="BrowserTabs_Drop" DragLeave="BrowserTabs_DragLeave" SelectionChanged="BrowserTabs_SelectionChanged" Grid.Column="1" Margin="1,2,0,2" WindowChrome.IsHitTestVisibleInChrome="True" PreviewMouseLeftButtonDown="TitleTabStrip_MouseDown" PreviewMouseWheel="TitleTabStrip_MouseWheel" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
               <TabControl.Template>

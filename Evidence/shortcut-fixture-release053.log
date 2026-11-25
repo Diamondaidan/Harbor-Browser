@@ -1,0 +1,25 @@
+PASS Default shortcuts setup succeeds
+PASS Default shortcuts creates Start menu link
+PASS Default shortcuts honors optional desktop task
+PASS Default shortcuts Start Menu targets installed app
+PASS Default shortcuts Start Menu sets working directory
+PASS Default shortcuts Start Menu uses packaged Beacon icon
+PASS Default shortcuts Start Menu stores application identity
+PASS Default shortcuts uninstall removes fixture links
+PASS Default shortcuts uninstall removes fixture app
+PASS Desktop selected setup succeeds
+PASS Desktop selected creates Start menu link
+PASS Desktop selected honors optional desktop task
+PASS Desktop selected Start Menu targets installed app
+PASS Desktop selected Start Menu sets working directory
+PASS Desktop selected Start Menu uses packaged Beacon icon
+PASS Desktop selected Start Menu stores application identity
+PASS Desktop selected Desktop targets installed app
+PASS Desktop selected Desktop sets working directory
+PASS Desktop selected Desktop uses packaged Beacon icon
+PASS Desktop selected Desktop stores application identity
+PASS Desktop selected uninstall removes fixture links
+PASS Desktop selected uninstall removes fixture app
+PASS shortcut installs preserve Windows browser defaults
+ALL PASSED: 23 isolated shortcut assertions.
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.3\T\links1114100152

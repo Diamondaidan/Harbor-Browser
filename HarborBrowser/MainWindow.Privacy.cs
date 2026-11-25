@@ -21,6 +21,7 @@ namespace HarborBrowser
         private readonly Dictionary<string,Task> _permissionResetTasks=new Dictionary<string,Task>();
         private readonly List<Task> _privateCleanupTasks=new List<Task>();
         private readonly HashSet<string> _privateCleanupFailures=new HashSet<string>();
+        private readonly HashSet<string> _initializedPrivateSessions=new HashSet<string>();
         private string _currentPrivateSession;
         private readonly Queue<PendingPermission> _permissionQueue=new Queue<PendingPermission>();
         private PendingPermission _activePermission;
@@ -50,7 +51,7 @@ namespace HarborBrowser
             if(!tab.IsPrivate)return;
             if(tab.PrivateSessionId==null)
             {
-                if(_currentPrivateSession==null)_currentPrivateSession="HarborPrivate_"+Guid.NewGuid().ToString("N");
+                if(_currentPrivateSession==null)_currentPrivateSession="p"+Guid.NewGuid().ToString("N");
                 tab.PrivateSessionId=_currentPrivateSession;
             }
             if(!_privatePermissions.ContainsKey(tab.PrivateSessionId))_privatePermissions[tab.PrivateSessionId]=new SitePermissionService();
@@ -155,9 +156,14 @@ namespace HarborBrowser
             var source=BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).Concat(_retainedDownloadTabs).FirstOrDefault(t=>t!=null&&t.Initialized&&!t.NeedsNewView&&((privateSession==null&&!t.IsPrivate)||(privateSession!=null&&t.IsPrivate&&t.PrivateSessionId==privateSession)));
             if(source!=null){await action(source.View.CoreWebView2.Profile);return;}
             await EnsureEnvironmentAsync();var options=_environment.CreateCoreWebView2ControllerOptions();options.ProfileName=privateSession??"Default";options.IsInPrivateModeEnabled=privateSession!=null;
-            var controller=await _environment.CreateCoreWebView2ControllerAsync(new WindowInteropHelper(this).Handle,options);
+            var creation=_environment.CreateCoreWebView2ControllerAsync(new WindowInteropHelper(this).Handle,options);
+            try{await StartupStep(creation,System.Threading.CancellationToken.None,BrowserStartupTimeout,"profile access");}
+            catch{_ = CloseLateProfileController(creation);throw;}
+            var controller=await creation;
             try{controller.IsVisible=false;await action(controller.CoreWebView2.Profile);}finally{controller.Close();}
         }
+        private static async Task CloseLateProfileController(Task<CoreWebView2Controller> creation)
+        {try{(await creation).Close();}catch{}}
         private async void SitePermissions_Click(object sender,RoutedEventArgs e)
         {
             var tab=SelectedTab;string session=tab!=null&&tab.IsPrivate?tab.PrivateSessionId:null;
@@ -215,7 +221,10 @@ namespace HarborBrowser
         }
         private async Task CleanupPrivateSession(string session)
         {
-            try{await WithProfile(session,profile=>profile.ClearBrowsingDataAsync(CoreWebView2BrowsingDataKinds.AllProfile));_privateCleanupFailures.Remove(session);}
+            // A controller that never started cannot hold page data. Recreating
+            // that failed controller during close can repeat its startup hang.
+            if(!_initializedPrivateSessions.Contains(session)){_permissionResetTasks.Remove(session+"|True");return;}
+            try{await WithProfile(session,profile=>StartupStep(profile.ClearBrowsingDataAsync(CoreWebView2BrowsingDataKinds.AllProfile),System.Threading.CancellationToken.None,BrowserStartupTimeout,"private cleanup"));_privateCleanupFailures.Remove(session);_initializedPrivateSessions.Remove(session);}
             catch(Exception ex){_privateCleanupFailures.Add(session);SetStatus("Private cleanup could not finish. New private tabs use a separate session. "+ex.Message);}
             finally{_permissionResetTasks.Remove(session+"|True");}
         }

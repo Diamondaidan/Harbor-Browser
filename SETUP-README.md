@@ -1,6 +1,6 @@
-# Harbor Browser 0.5.2 setup
+# Harbor Browser 0.5.3 setup
 
-Use dist/HarborBrowserSetup-0.5.2.exe for installation. It contains Harbor, Microsoft's .NET Framework 4.8 offline installer, the Evergreen WebView2 x64 standalone installer, the optional Tor client, notices, and matching Tor source.
+Use dist/HarborBrowserSetup-0.5.3.exe for installation. It contains Harbor, Microsoft's .NET Framework 4.8 offline installer, the Evergreen WebView2 x64 standalone installer, the optional Tor client, notices, and matching Tor source.
 
 Supported target: Intel/AMD x64 Windows 10 version 1709 or later, or Windows 11 x64. Administrator access is required. Setup installs missing prerequisites and honors their restart-required result. WebView2 157 or later is required for this tested release: older or missing runtimes trigger the bundled Microsoft standalone installer. The included runtime is 157.0.4341.46; Evergreen normally keeps it updated afterward.
 
@@ -17,3 +17,5 @@ Official prerequisite sources:
 Keep these filenames under Installer/redist when using cached packages: ndp48-x86-x64-allos-enu.exe and MicrosoftEdgeWebView2RuntimeInstallerX64.exe. Do not substitute the small online WebView2 bootstrapper. Source archives omit cached Microsoft installers; the builder obtains them from Microsoft.
 
 See VERIFICATION.md for executed tests. Clean-machine prerequisite installation, other Windows versions and hardware remain separate validation work. This unsigned Harbor installer may produce Windows reputation prompts.
+
+Setup's log now records detected prerequisite versions, whether each bundled installer was skipped or run, helper exit codes, and restart requests. Keep that log when reporting setup problems.

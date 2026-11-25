@@ -1,13 +1,13 @@
-# 0.5.2 changes and reversal
+# Harbor 0.5.3 changes and reversal
 
-The regular release is in HarborBrowser-0.5.2. Stable 0.5.0 and earlier Tor preview source/packages are preserved in their original folders.
+All application changes are contained in HarborBrowser-0.5.3. The 0.5.2 release, preview packages and user-reported spare-PC results are preserved separately.
 
-Site modules save explicit enable choices, reviewed package hashes and site grants. A missing native registration is restored only after integrity and permission checks. Disabled, changed or corrupt-policy packages remain blocked. Ordinary modules cannot inject Harbor Home or internal Tor controls. Legacy modules lacking the new metadata may need Site access saved again and an explicit Enable; files and grants are not silently trusted.
+New private-session names retain a complete random GUID with a compact prefix. They reduce directory length without changing the normal profile location, sharing normal cookies with private tabs, or reusing the identity of a closed private session. Existing installed browser data does not migrate or move.
 
-The optional Tor helper is cancelled on disposal and remains owned by Harbor. It has no Windows driver or service and changes no Windows proxy settings. Its requested state is persisted in the regular profile. Disconnect and restore reverses routing; complete/cancel downloads first.
+Startup steps have deadlines and cancellation guards. A failed controller is disposed and represented by an uninitialized replacement while the tab shows Reload recovery. Late completion from the abandoned view cannot initialize the new one. A private controller that never started cannot have navigated or held page data; cleanup skips recreating it. Sessions that did initialize still require their existing data cleanup. Hidden profile-controller creation and private data clearing have bounded waits; cleanup failure still prevents a clean shutdown journal.
 
-The regular installer keeps Harbor's production upgrade identity and profile, advertises browser capabilities without changing UserChoice, and preserves profile data on uninstall. Before upgrade it snapshots existing core metadata in UpgradeBackups, including the connection flag and startup state. It bundles official signed offline Microsoft prerequisites and the required Tor notices and matching source. Restart-required results are carried through setup completion.
+Queued new-tab scroll requests only act while their tab remains selected. Suggestion tests wait for the private Home document before recording the user's navigation. Version labels and setup metadata use VERSION.txt and the compiled assembly. Setup records prerequisite detection, skips, helper results and restart requests.
 
-For application rollback, close Harbor and uninstall/reinstall the earlier version from its preserved package. Keep a full profile backup: an older build may not accept newer data. The earlier portable Tor previews use separate profiles and can be opened separately after this release is closed. Profile snapshots are safety copies, not a tested automatic downgrade tool.
+Tor routing and its permission restrictions remain unchanged. This release adds no Windows networking configuration, drivers, services, VPN providers or extension privileges. Tor remains optional and experimental.
 
-VERIFICATION.md distinguishes live checks, simulated prerequisite checks and untested clean-computer/hardware/privacy cases.
+Use Disconnect and restore to stop Tor routing. Before an application downgrade, close Harbor and keep a separate profile backup; use the preserved earlier installer/source package. Setup makes its normal core-file UpgradeBackups snapshot, and uninstall retains the profile. Automatic downgrade compatibility is not guaranteed.

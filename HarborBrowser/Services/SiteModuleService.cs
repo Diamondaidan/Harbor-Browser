@@ -20,7 +20,7 @@ namespace HarborBrowser.Services
     // the generated manifest's site scope; Harbor never exposes host objects.
     public static class SiteModuleService
     {
-        public const string HarborVersion="0.5.2";
+        public static readonly string HarborVersion=AppVersion.Number;
         public static string Fingerprint(SiteModulePackage package)
         {
             using(var data=new MemoryStream())

@@ -33,6 +33,7 @@ namespace HarborBrowser.Views
         public string LastRecordedUrl { get; set; }
         public bool Initialized { get; set; }
         public bool Initializing { get; set; }
+        public System.Threading.CancellationTokenSource StartupCancellation { get; set; }
         public bool IsSuspended { get; set; }
         public Guid ResourceId {get;}=Guid.NewGuid();
         public bool KeepAwake {get;set;}

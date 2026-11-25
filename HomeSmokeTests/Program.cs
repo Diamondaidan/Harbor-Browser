@@ -72,6 +72,7 @@ internal static class HomeSmoke
                 await Task.Delay(400);
                 await CheckJs(core,"actual HTML title", "document.title === 'Harbor Home'");
                 await CheckJs(core,"selected engine delivered", "document.getElementById('engine').textContent === 'Bing'");
+                await CheckJs(core,"Home version matches the running application", "document.getElementById('app-version').textContent === 'Harbor "+AppVersion.Number+"'");
                 await CheckJs(core,"logo loaded locally", "document.querySelector('.brand img').complete && document.querySelector('.brand img').naturalWidth > 0");
                 await core.ExecuteScriptAsync("document.querySelector('[data-theme=light]').click()");
                 await CheckJs(core,"morning background applied", "getComputedStyle(document.body).backgroundImage.includes('morning.png')");

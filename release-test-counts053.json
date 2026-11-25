@@ -1,0 +1,68 @@
+[
+  {
+    "Suite": "regression",
+    "Passes": 384,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "full",
+    "Passes": 360,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "suggestions",
+    "Passes": 17,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "home",
+    "Passes": 39,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "tor",
+    "Passes": 20,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "hardening",
+    "Passes": 26,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "live-sites",
+    "Passes": 6,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "recovery",
+    "Passes": 15,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "installer-fixture",
+    "Passes": 26,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "prerequisite-fixture",
+    "Passes": 41,
+    "Failures": 0,
+    "Unverified": 0
+  },
+  {
+    "Suite": "shortcut-fixture",
+    "Passes": 23,
+    "Failures": 0,
+    "Unverified": 0
+  }
+]

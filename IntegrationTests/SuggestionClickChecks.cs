@@ -66,7 +66,11 @@ internal static partial class Program
             target=SuggestionPart(main,0);count=navigations.Count;SuggestionMouse(target,true);reply.TrySetResult("[\"query\",[\"late replacement\"]]");await Task.Delay(100);
             Check("online reply cannot replace rows during a click",((AddressSuggestion)main.AddressSuggestionList.Items[0]).Url=="https://click.test.invalid/bookmark");
             SuggestionMouse(target,false);await Wait(()=>navigations.Count>count);Check("press/release still opens original row after late reply",navigations.Last()=="https://click.test.invalid/bookmark");main.OnlineSuggestions=online;
-            var privateTab=AddTab(main,HomePageService.Url,true);main.BrowserTabs.SelectedItem=privateTab.Item;await Wait(()=>privateTab.Initialized);string privateNavigation=null;
+            var privateTab=AddTab(main,HomePageService.Url,true);main.BrowserTabs.SelectedItem=privateTab.Item;await Wait(()=>privateTab.Initialized);
+            // Initialization creates the controller before the initial document
+            // finishes loading. Capture the user's navigation after that load.
+            await WaitJs(privateTab.View.CoreWebView2,"document.readyState==='complete'&&location.href==='https://harbor.invalid/index.html'");
+            string privateNavigation=null;
             EventHandler<CoreWebView2NavigationStartingEventArgs> privateCapture=(s,e)=>{privateNavigation=e.Uri;e.Cancel=true;};privateTab.View.CoreWebView2.NavigationStarting+=privateCapture;
             await PrepareClicks(main,"clicksentinel");Check("private click popup contains bookmarks without history",main.AddressSuggestionList.Items.Cast<AddressSuggestion>().All(s=>s.SourceLabel=="Bookmark"));
             target=SuggestionPart(main,0);SuggestionMouse(target,true);SuggestionMouse(target,false);await Wait(()=>privateNavigation!=null);Check("private bookmark suggestion click navigates",privateNavigation=="https://click.test.invalid/bookmark");

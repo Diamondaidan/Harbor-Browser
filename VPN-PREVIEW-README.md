@@ -1,4 +1,4 @@
-# Harbor 0.5.2 optional free Tor connection
+# Harbor 0.5.3 optional free Tor connection
 
 The regular Harbor installer includes an experimental Tor connection. No account or subscription is required. This is a Tor connection, not a conventional VPN or Tor Browser.
 

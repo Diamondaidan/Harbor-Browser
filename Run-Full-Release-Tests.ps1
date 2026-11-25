@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param([ValidateSet('regression','full','suggestions','home','tor','hardening','live-sites')][string[]]$Suites=@('regression','full','suggestions','home','tor','hardening','live-sites'))
+param([ValidateSet('regression','full','suggestions','home','tor','hardening','live-sites','recovery')][string[]]$Suites=@('regression','full','suggestions','home','tor','hardening','live-sites','recovery'))
 $ErrorActionPreference='Stop'
 $releaseRoot=$PSScriptRoot
 $output=Join-Path $releaseRoot ('T\'+(Get-Date -Format 'MMddHHmmss'))
@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 function Run-Check([string]$name,[string]$exe,[string[]]$arguments){
     if($Suites -notcontains $name){return}
     Write-Output ('Running '+$name)
-    $log=Join-Path $releaseRoot ($name+'-release052.log')
+    $log=Join-Path $releaseRoot ($name+'-release053.log')
     & $exe @arguments *> $log
     if($LASTEXITCODE -ne 0){Get-Content -LiteralPath $log -Tail 25;throw ($name+' failed: '+$LASTEXITCODE)}
     Get-Content -LiteralPath $log -Tail 2
@@ -22,4 +22,5 @@ Run-Check 'home' (Join-Path $releaseRoot 'HomeSmokeTests\bin\Release\net48\Harbo
 Run-Check 'tor' $integration @((Join-Path $output 'tor'),$fixtures,'--browser-vpn')
 Run-Check 'hardening' $integration @((Join-Path $output 'hardening'),$fixtures,'--release052')
 Run-Check 'live-sites' $integration @((Join-Path $output 'live-sites'),$fixtures,'--live-sites')
+Run-Check 'recovery' $integration @((Join-Path $output 'recovery'),$fixtures,'--release053')
 Write-Output ('Browser release results: '+$output)

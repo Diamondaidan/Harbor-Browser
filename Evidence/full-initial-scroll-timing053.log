@@ -1,0 +1,246 @@
+PASS cross-origin iframe video discovered
+PASS group bar absent
+PASS caption and tabs share same row
+PASS Beacon window icon loaded
+PASS startup window fits available work area
+PASS 1366x768 @ 100% close fits
+PASS 1366x768 @ 100% cog fits
+PASS 1366x768 @ 100% address usable
+PASS 1366x768 @ 100% page retains usable height
+PASS 1366x768 @ 100% compact toolbar applied
+PASS 1366x768 @ 125% close fits
+PASS 1366x768 @ 125% cog fits
+PASS 1366x768 @ 125% address usable
+PASS 1366x768 @ 125% page retains usable height
+PASS 1366x768 @ 125% compact toolbar applied
+PASS 1366x768 @ 150% close fits
+PASS 1366x768 @ 150% cog fits
+PASS 1366x768 @ 150% address usable
+PASS 1366x768 @ 150% page retains usable height
+PASS 1366x768 @ 150% compact toolbar applied
+PASS 1366x768 @ 175% close fits
+PASS 1366x768 @ 175% cog fits
+PASS 1366x768 @ 175% address usable
+PASS 1366x768 @ 175% page retains usable height
+PASS 1366x768 @ 175% compact toolbar applied
+PASS 1366x768 @ 200% close fits
+PASS 1366x768 @ 200% cog fits
+PASS 1366x768 @ 200% address usable
+PASS 1366x768 @ 200% page retains usable height
+PASS 1366x768 @ 200% compact toolbar applied
+PASS 1280x720 @ 125% close fits
+PASS 1280x720 @ 125% cog fits
+PASS 1280x720 @ 125% address usable
+PASS 1280x720 @ 125% page retains usable height
+PASS 1280x720 @ 125% compact toolbar applied
+PASS 1024x768 @ 125% close fits
+PASS 1024x768 @ 125% cog fits
+PASS 1024x768 @ 125% address usable
+PASS 1024x768 @ 125% page retains usable height
+PASS 1024x768 @ 125% compact toolbar applied
+PASS 800x600 @ 150% close fits
+PASS 800x600 @ 150% cog fits
+PASS 800x600 @ 150% address usable
+PASS 800x600 @ 150% page retains usable height
+PASS 800x600 @ 150% compact toolbar applied
+PASS 1920x1080 @ 150% close fits
+PASS 1920x1080 @ 150% cog fits
+PASS 1920x1080 @ 150% address usable
+PASS 1920x1080 @ 150% page retains usable height
+PASS 1920x1080 @ 150% compact toolbar applied
+PASS 3840x2160 @ 250% close fits
+PASS 3840x2160 @ 250% cog fits
+PASS 3840x2160 @ 250% address usable
+PASS 3840x2160 @ 250% page retains usable height
+PASS 3840x2160 @ 250% compact toolbar applied
+PASS first address click selects full URL
+PASS second address click permits editing
+PASS keyboard address focus selects full URL
+PASS Dark cog menu compact width
+PASS Dark cog menu bounded height
+PASS Dark cog background matches palette
+PASS Dark no empty icon gutter
+PASS Dark group flyout opens
+PASS Dark flyout background matches palette
+PASS Dark flyout height bounded
+PASS Dark open item highlight themed
+PASS Dark History scrollbar visible
+PASS Dark History scrollbar on right
+PASS Dark History flyout still opens toward left
+PASS Dark History scroll reaches bottom
+PASS Light cog menu compact width
+PASS Light cog menu bounded height
+PASS Light cog background matches palette
+PASS Light no empty icon gutter
+PASS Light group flyout opens
+PASS Light flyout background matches palette
+PASS Light flyout height bounded
+PASS Light open item highlight themed
+PASS Light History scrollbar visible
+PASS Light History scrollbar on right
+PASS Light History flyout still opens toward left
+PASS Light History scroll reaches bottom
+PASS settings 650,552 Save fits
+PASS settings 650,552 Cancel fits
+PASS settings 650,552 scrolls instead of clipping
+PASS settings 600,448 Save fits
+PASS settings 600,448 Cancel fits
+PASS settings 600,448 scrolls instead of clipping
+PASS settings 500,330 Save fits
+PASS settings 500,330 Cancel fits
+PASS settings 500,330 scrolls instead of clipping
+PASS native 1366x768 window fit keeps every edge visible
+PASS native fit adjusts minimum height to available space
+PASS browser fullscreen uses monitor work area
+PASS browser fullscreen hides toolbars
+PASS browser fullscreen restores chrome
+PASS fullscreen request succeeded
+PASS HTML fullscreen fills complete monitor
+PASS video fullscreen removes header/status/frame
+PASS switching away from video restores browser chrome
+PASS exiting video retains prior browser fullscreen
+PASS fullscreen restores normal resize minimums
+PASS picture in picture window opened
+PASS PiP window stays on top
+PASS PiP keeps original browser/player
+PASS PiP exits video fullscreen cleanly
+PASS iframe focus expanded in popout
+PASS video controls available in popout
+PASS PiP page has no scrollbar
+PASS PiP iframe has no scrollbar
+PASS PiP play/pause button pauses video
+PASS PiP play/pause button resumes video
+PASS PiP mute button unmutes video
+PASS PiP mute button restores mute
+PASS video playback position retained
+PASS PiP tab not suspended
+PASS PiP close returns original browser to tab
+PASS iframe layout restored
+PASS original video controls restored
+PASS cog assigns current tab to group
+PASS cog filters tab group
+PASS cog restores all tabs
+PASS new actual app tab appended right
+PASS actual app reorder changes tab order
+PASS reordered session persisted
+PASS closing private app tab leaves restore list unchanged
+PASS actual app reopens newest closed tab
+PASS actual app restores pin group and position
+PASS reopened tab selected and visible
+PASS address suggestions popup opens from local data
+PASS Down selects first suggestion
+PASS Down selects next suggestion
+PASS Up returns to first suggestion
+PASS Escape dismisses suggestions
+PASS Enter navigates selected suggestion
+PASS mouse suggestion list visible
+PASS mouse selection opens history suggestion
+PASS private app tab excludes normal history suggestions
+PASS private navigation is not saved to history
+INFO fixture request: GET /archive HTTP/1.1; start=0
+PASS Downloads opens as native browser tab
+PASS Downloads reuses existing page
+PASS live download appears in Downloads page
+PASS Downloads page is saved in normal session
+PASS download pause button enabled
+PASS paused transfer is labelled Paused
+PASS paused progress stays stopped
+PASS short Downloads page scrolls all content
+PASS download controls reachable on small screen
+INFO before resume: Interrupted UserPaused CanResume=True
+PASS download resume button enabled
+INFO Range: bytes=622592-
+INFO fixture request: GET /archive HTTP/1.1; start=622592
+INFO after resume: InProgress ServerContentLengthMismatch CanResume=False UI=Downloading 30%
+INFO fixture sent 1475005 bytes
+PASS resumed transfer completes
+PASS resume retains one download row and original filename
+PASS resume reconnects after transfer connection closes
+INFO HTTP range requests: 1
+PASS download filename has zip extension
+PASS completed download bytes match source
+PASS downloaded ZIP opens
+PASS completed row exposes open and folder actions
+PASS Downloads search filters list
+PASS normal Downloads excludes private entries
+PASS private Downloads contains only private entries
+PASS clear completed keeps disk file and private list
+INFO fixture request: GET /cancel HTTP/1.1; start=0
+PASS download cancel button enabled
+INFO fixture connection closed: Unable to write data to the transport connection: An established connection was aborted by the software in your host machine.
+PASS cancelled row allows removal
+PASS download remove button enabled
+PASS remove deletes only row
+PASS last private tab clears its download records
+INFO fixture request: GET /background HTTP/1.1; start=0
+INFO fixture sent 2097597 bytes
+PASS download survives closing its source tab
+PASS closed source is released after download completes
+PASS Downloads tab can navigate back to web content
+PASS bookmark folder filters real grid
+PASS bookmark order moves within filtered folder
+PASS folder rename updates nested bookmark paths
+PASS bookmark editor adds to chosen folder
+PASS bookmark manager imports HTML folder
+PASS bookmark manager search filters grid
+PASS bookmark draft leaves original data unchanged
+PASS bookmark manager Save returns independent result
+PASS preset saved in Settings draft
+PASS preset restores saved color
+PASS closing Settings discards draft preset
+PASS Settings saves shortcut scene and online preferences
+PASS stale online replies cannot replace current suggestions
+PASS provider completion cannot invoke internal page
+PASS Settings toggle prevents online address requests
+PASS private address input makes no online requests
+PASS custom background and shortcut reach real Home
+PASS normal Home exposes customization button
+PASS online suggestions reach Home search field
+PASS Home keyboard selects search completion
+PASS Home Escape dismisses completion list
+PASS online toggle also prevents Home requests
+PASS private Home makes no online requests
+PASS private Home hides customization action
+PASS tab menu retains New tab command
+PASS tab menu has exactly one Pin command
+PASS pin menu changes only its own command
+PASS real app uses equal shrinking normal tab widths
+PASS new-tab button remains inside crowded title bar
+PASS bookmark move command interleaves folders
+PASS bookmark reorder updates real bar and stored settings
+PASS bookmark bar accepts drag reordering
+PASS saving appearance retains bookmark order
+PASS WebView2 favicon decodes into a visible tab image
+PASS SVG favicon renders through the browser decoder
+PASS ICO favicon renders through the browser decoder
+PASS Harbor Home retains the Beacon tab image
+INFO native modules: mpcohbdgplemmhmpcecfjggldcfecmne Harbor test module Enabled
+PASS native module installs with lifecycle metadata
+PASS declared-site content script runs in real WebView2
+PASS throwing module leaves page and browser usable
+PASS module runs outside the page JavaScript world
+PASS native match permissions block unrelated sites
+PASS module cannot inject into trusted Harbor Home
+INFO private module marker: null; native extensions: Microsoft Clipboard Extension dgiklkfkllikcanfonkcabmbdfmgleag,Microsoft Edge PDF Viewer mhjfbmdgcfjbbpaeojofohoefgiehjai; profile: pbf22bac061d34e30a57bd54eec4de202
+PASS normal module never executes in private profile
+PASS disable stops injection after page reload
+PASS enable restores module behavior
+PASS remove unregisters native extension and managed files
+PASS module manager leaves native PDF and clipboard components unchanged
+PASS removal reload clears injected effects
+PASS Light module manager fits its window
+PASS Light module manager uses Harbor palette and icon
+PASS Dark module manager fits its window
+PASS Dark module manager uses Harbor palette and icon
+PASS disabled module persists through closing and reopening Harbor
+PASS persisted module can be re-enabled
+PASS persisted module can be removed
+PASS selecting an overflow tab scrolls it into view
+FAIL System.Exception: returning to an earlier tab scrolls back
+   at Program.Check(String name, Boolean value) in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.3\IntegrationTests\Program.cs:line 23
+   at Program.<Release043Checks>d__38.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.3\IntegrationTests\Release043Checks.cs:line 25
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at System.Runtime.CompilerServices.TaskAwaiter.GetResult()
+   at Program.<>c__DisplayClass35_0.<<Main>b__3>d.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.3\IntegrationTests\Program.cs:line 201

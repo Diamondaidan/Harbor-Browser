@@ -31,15 +31,15 @@ $compiler=Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 7\ISCC.exe'
 $checks=0
 function Check([string]$name,[bool]$value){if(!$value){throw $name};$script:checks++;Write-Output ('PASS '+$name)}
 $template=[IO.File]::ReadAllText((Join-Path $releaseRoot 'Installer\HarborBrowser.iss'))
-$template=$template.Replace('{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}','{760FABE5-A162-440A-A793-2AC0468F0520}')
-$template=$template.Replace('#define AppName "Harbor Browser"','#define AppName "Harbor Prerequisite Fixture 052"')
+$template=$template.Replace('{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}','{760FABE5-A162-440A-A793-2AC0468F0530}')
+$template=$template.Replace('#define AppName "Harbor Browser"','#define AppName "Harbor Prerequisite Fixture 053"')
 $template=$template.Replace('PrivilegesRequired=admin','PrivilegesRequired=lowest').Replace('CloseApplications=yes','CloseApplications=no')
 $template=$template.Replace('#define PayloadDir "..\dist\payload"','#define PayloadDir "'+$payload+'"').Replace('#define RedistDir "redist"','#define RedistDir "'+$redist+'"')
 $template=$template.Replace('SetupIconFile=assets\HarborBrowser.ico','SetupIconFile='+(Join-Path $releaseRoot 'Installer\assets\HarborBrowser.ico'))
 $template=$template.Replace('OutputDir=..\dist','OutputDir='+$fixtureRoot).Replace('OutputBaseFilename=HarborBrowserSetup-{#AppVersion}{#ReleaseSuffix}','OutputBaseFilename=PrerequisiteFixture')
 $template=[regex]::Replace($template,'(?ms)^\[Icons\].*?(?=^\[Code\])','')
-$template=[regex]::Replace($template,'function IsDotNet48OrLaterInstalled:[\s\S]+?(?=function IsUsableVersion)',"function IsDotNet48OrLaterInstalled: Boolean;`r`nbegin`r`n  Result := False;`r`nend;`r`n`r`n")
-$template=[regex]::Replace($template,'function IsWebView2RuntimeInstalled:[\s\S]+?(?=function CopyProfileFile)',"function IsWebView2RuntimeInstalled: Boolean;`r`nbegin`r`n  Result := False;`r`nend;`r`n`r`n")
+$template=[regex]::Replace($template,'function IsDotNet48OrLaterInstalled:[\s\S]+?(?=function IsUsableVersion)',"function IsDotNet48OrLaterInstalled: Boolean;`r`nbegin`r`n  Result := GetEnv('HARBOR_FIXTURE_PRESENT') = '1';`r`nend;`r`n`r`n")
+$template=[regex]::Replace($template,'function IsWebView2RuntimeInstalled:[\s\S]+?(?=function CopyProfileFile)',"function IsWebView2RuntimeInstalled: Boolean;`r`nbegin`r`n  Result := GetEnv('HARBOR_FIXTURE_PRESENT') = '1';`r`nend;`r`n`r`n")
 $template=$template.Replace("  DataDir := ExpandConstant('{localappdata}\HarborBrowser');","  DataDir := '"+(Join-Path $fixtureRoot 'EmptyProfile').Replace("'","''")+"';")
 $versionChecks=@'
 
@@ -54,11 +54,12 @@ $template+=$versionChecks
 if($template.Contains('8D9A0F4C') -or $template.Contains('[Registry]') -or $template.Contains('[Run]') -or $template.Contains('[Icons]') -or $template.Contains("ExpandConstant('{localappdata}\HarborBrowser')")){throw 'Prerequisite fixture isolation failed.'}
 $iss=Join-Path $fixtureRoot 'PrerequisiteFixture.iss'
 [IO.File]::WriteAllText($iss,$template)
-& $compiler /Qp $iss *> (Join-Path $fixtureRoot 'compile.log')
+& $compiler /Qp ("/DAppVersion="+(Get-Content -LiteralPath (Join-Path $releaseRoot 'VERSION.txt') -Raw).Trim()) $iss *> (Join-Path $fixtureRoot 'compile.log')
 if($LASTEXITCODE -ne 0){Get-Content -LiteralPath (Join-Path $fixtureRoot 'compile.log') -Tail 15;throw 'Fixture compile failed.'}
-$saved=@{};foreach($key in @('HARBOR_FIXTURE_TRACE','HARBOR_FIXTURE_DOTNET_CODE','HARBOR_FIXTURE_WEBVIEW_CODE')){$saved[$key]=[Environment]::GetEnvironmentVariable($key)}
+$saved=@{};foreach($key in @('HARBOR_FIXTURE_TRACE','HARBOR_FIXTURE_DOTNET_CODE','HARBOR_FIXTURE_WEBVIEW_CODE','HARBOR_FIXTURE_PRESENT')){$saved[$key]=[Environment]::GetEnvironmentVariable($key)}
 try {
   foreach($case in @(
+    @{Name='AlreadyInstalled';Net=0;Web=0;Exit=0;Installed=$true;Calls=0},
     @{Name='Success';Net=0;Web=0;Exit=0;Installed=$true;Calls=2},
     @{Name='DotNetRestart';Net=3010;Web=0;Exit=3010;Installed=$true;Calls=2},
     @{Name='WebViewRestart';Net=0;Web=3010;Exit=3010;Installed=$true;Calls=2},
@@ -68,15 +69,25 @@ try {
     $target=Join-Path $fixtureRoot $case.Name
     $trace=Join-Path $fixtureRoot ($case.Name+'-trace.txt')
     $env:HARBOR_FIXTURE_TRACE=$trace;$env:HARBOR_FIXTURE_DOTNET_CODE=[string]$case.Net;$env:HARBOR_FIXTURE_WEBVIEW_CODE=[string]$case.Web
+    $env:HARBOR_FIXTURE_PRESENT=if($case.Calls -eq 0){'1'}else{'0'}
     $arguments=@('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/NOICONS','/RESTARTEXITCODE=3010',('/DIR="'+$target+'"'),('/LOG="'+(Join-Path $fixtureRoot ($case.Name+'.log'))+'"'))
     $run=Start-Process -FilePath (Join-Path $fixtureRoot 'PrerequisiteFixture.exe') -ArgumentList $arguments -WindowStyle Hidden -Wait -PassThru
     Check ($case.Name+' handles prerequisite result') (($case.Exit -eq -1 -and $run.ExitCode -ne 0) -or $run.ExitCode -eq $case.Exit)
     if($case.Name -eq 'Success'){Check 'native setup version checks reject missing/old and accept tested/newer WebView2' ($run.ExitCode -eq 0)}
     Check ($case.Name+' gates application copying') ((Test-Path -LiteralPath (Join-Path $target 'HarborBrowser.exe')) -eq $case.Installed)
-    $calls=@(Get-Content -LiteralPath $trace)
+    $calls=@();if(Test-Path -LiteralPath $trace){$calls=@(Get-Content -LiteralPath $trace)}
     Check ($case.Name+' invokes only the expected prerequisite steps') ($calls.Count -eq $case.Calls)
-    Check ($case.Name+' passes silent no-restart .NET arguments') ($calls[0] -eq 'ndp48-x86-x64-allos-enu.exe|/q /norestart')
+    if($case.Calls -gt 0){Check ($case.Name+' passes silent no-restart .NET arguments') ($calls[0] -eq 'ndp48-x86-x64-allos-enu.exe|/q /norestart')}
     if($case.Calls -eq 2){Check ($case.Name+' passes silent WebView arguments') ($calls[1] -eq 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe|/silent /install')}
+    $setupLog=Get-Content -LiteralPath (Join-Path $fixtureRoot ($case.Name+'.log')) -Raw
+    if($case.Calls -eq 0){
+      Check 'setup logs skipping existing .NET' ($setupLog.Contains('Using existing .NET Framework; bundled installer skipped.'))
+      Check 'setup logs skipping existing WebView2' ($setupLog.Contains('Using existing WebView2; bundled installer skipped.'))
+    }else{
+      Check ($case.Name+' logs the .NET helper exit code') ($setupLog.Contains('.NET Framework 4.8 installer exit code: '+$case.Net))
+      if($case.Calls -eq 2){Check ($case.Name+' logs the WebView helper exit code') ($setupLog.Contains('Microsoft Edge WebView2 Runtime installer exit code: '+$case.Web))}
+      if($case.Net -eq 3010 -or $case.Web -eq 3010){Check ($case.Name+' logs the restart request') ($setupLog.Contains('requested a Windows restart.'))}
+    }
     $uninstall=Join-Path $target 'unins000.exe'
     if(Test-Path -LiteralPath $uninstall){$remove=Start-Process -FilePath $uninstall -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -WindowStyle Hidden -Wait -PassThru;if($remove.ExitCode -ne 0){throw 'Fixture uninstall failed.'}}
   }

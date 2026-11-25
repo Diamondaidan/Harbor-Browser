@@ -18,10 +18,13 @@ internal static partial class Program
     private static async Task Release043Checks(MainWindow main,BrowserDataStore store,string output)
     {
         var tab=AddTab(main,HomePageService.Url);main.BrowserTabs.SelectedItem=tab.Item;await Wait(()=>tab.Initialized);
-        var crowded=new List<BrowserTab>();for(int i=0;i<24;i++)crowded.Add(AddTab(main,HomePageService.Url));main.UpdateLayout();main.BrowserTabs.SelectedItem=crowded.Last().Item;await Task.Delay(100);
+        var crowded=new List<BrowserTab>();for(int i=0;i<24;i++)crowded.Add(AddTab(main,HomePageService.Url));main.UpdateLayout();main.BrowserTabs.SelectedItem=crowded.Last().Item;
         var tabScroll=(ScrollViewer)typeof(MainWindow).GetMethod("FindTabScroller",BindingFlags.Static|BindingFlags.NonPublic).Invoke(null,new object[]{main.BrowserTabs});
+        await Wait(()=>{var item=crowded.Last().Item;var point=item.TransformToAncestor(tabScroll).Transform(new Point());return tabScroll.HorizontalOffset>0&&point.X>=-1&&point.X+item.ActualWidth<=tabScroll.ViewportWidth+1;});
         Check("selecting an overflow tab scrolls it into view",tabScroll.ScrollableWidth>0&&tabScroll.HorizontalOffset>0);
-        main.BrowserTabs.SelectedItem=tab.Item;await Task.Delay(80);Check("returning to an earlier tab scrolls back",tabScroll.HorizontalOffset<tabScroll.ScrollableWidth);
+        main.BrowserTabs.SelectedItem=tab.Item;
+        await Wait(()=>{var point=tab.Item.TransformToAncestor(tabScroll).Transform(new Point());return point.X>=-1&&point.X+tab.Item.ActualWidth<=tabScroll.ViewportWidth+1;});
+        Check("returning to an earlier tab scrolls back",tabScroll.HorizontalOffset<tabScroll.ScrollableWidth);
         foreach(var extra in crowded)CloseTab(main,extra);
         var bookmarks=(List<Bookmark>)Field(main,"_bookmarks");bookmarks.Clear();bookmarks.AddRange(new[]{new Bookmark{Title="Drag A",Url="https://a.test/"},new Bookmark{Title="Drag B",Url="https://b.test/"}});
         ((BrowserSettings)Field(main,"_settings")).BookmarkFolders.Clear();((BrowserSettings)Field(main,"_settings")).BookmarkBarOrder.Clear();

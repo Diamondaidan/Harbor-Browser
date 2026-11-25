@@ -53,7 +53,7 @@ namespace HarborBrowser.Services
                 .Where(b => b != null && IsWebLink(b.Url) && !IsHomeUrl(b.Url))
                 .Take(12).Select(b => new { title = b.Title ?? "", url = b.Url }).ToArray();
             return new JavaScriptSerializer { MaxJsonLength = 16 * 1024 * 1024 }.Serialize(new {
-                type = "home-state", engineName = engine.Name, searchTemplate = engine.SearchUrl,
+                type = "home-state", version = AppVersion.Number, engineName = engine.Name, searchTemplate = engine.SearchUrl,
                 isPrivate = isPrivate, bookmarks = links, appearance = appearance == null ? null : AppearanceService.HomeAppearance(appearance),
                 scene = appearance == null ? "Auto" : appearance.HomeScene,
                 customShortcuts = appearance != null && appearance.UseCustomHomeShortcuts,

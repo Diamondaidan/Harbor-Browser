@@ -49,6 +49,8 @@ namespace HarborBrowser
         internal MainWindow(BrowserDataStore store, Func<IntPtr, MonitorLayout> monitorProvider = null)
         {
             InitializeComponent();
+            HeaderBrandWordmark.ToolTip = AppVersion.Name;
+            VersionStatusText.Text = AppVersion.StatusLabel;
             _store = store ?? throw new ArgumentNullException(nameof(store));
             _monitorProvider = monitorProvider;
             InitializePresentation();
@@ -335,7 +337,14 @@ namespace HarborBrowser
             int insertIndex = TabOrderService.NewTabIndex(BrowserTabs.Items.Cast<TabItem>().Select(i => ((BrowserTab)i.Tag).IsPinned).ToList(), tab.IsPinned);
             BrowserTabs.Items.Insert(insertIndex, tab.Item);
             ApplyTabGroupFilter();
-            if (select && tab.Item.Visibility == Visibility.Visible) { BrowserTabs.SelectedItem = tab.Item; Dispatcher.BeginInvoke(new Action(() => tab.Item.BringIntoView()), DispatcherPriority.Loaded); }
+            if (select && tab.Item.Visibility == Visibility.Visible)
+            {
+                BrowserTabs.SelectedItem = tab.Item;
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    if (SelectedTab == tab && !tab.IsClosing && tab.Item.Visibility == Visibility.Visible) tab.Item.BringIntoView();
+                }), DispatcherPriority.Loaded);
+            }
             SaveSession();
             return tab;
         }
@@ -421,24 +430,29 @@ namespace HarborBrowser
                 return;
 
             tab.Initializing = true;
+            var startup = new System.Threading.CancellationTokenSource();
+            tab.StartupCancellation = startup;
             int generation = _browserGeneration;
             var view = tab.View;
-            Func<bool> current = () => !tab.IsClosing && generation == _browserGeneration && ReferenceEquals(view, tab.View);
+            Func<bool> current = () => !startup.IsCancellationRequested && !tab.IsClosing && generation == _browserGeneration && ReferenceEquals(view, tab.View);
             SetStatus("Starting browser engine…");
             try
             {
-                await EnsureEnvironmentAsync();
+                await StartupStep(EnsureEnvironmentAsync(),startup.Token,BrowserStartupTimeout,"engine creation");
 
                 if (!current()) return;
-                await view.EnsureCoreWebView2Async(_environment);
+                await StartupStep(BrowserViewInitializer==null?view.EnsureCoreWebView2Async(_environment):BrowserViewInitializer(view,_environment),startup.Token,BrowserStartupTimeout,"tab creation");
                 if (!current()) return;
                 CoreWebView2 core = view.CoreWebView2;
-                await InitializePermissionProfile(core.Profile);
-                await InitializeModules(core.Profile);
-                await PrepareBrowserVpn(core.Profile);
+                if(tab.IsPrivate)_initializedPrivateSessions.Add(tab.PrivateSessionId);
+                await StartupStep(InitializePermissionProfile(core.Profile),startup.Token,BrowserStartupTimeout,"permission initialization");
+                if (!current()) return;
+                await StartupStep(InitializeModules(core.Profile),startup.Token,BrowserStartupTimeout,"module initialization");
+                if (!current()) return;
+                await StartupStep(PrepareBrowserVpn(core.Profile),startup.Token,TimeSpan.FromMinutes(3),"connection preparation");
                 if (!current()) return;
                 core.PermissionRequested += (s, args) => { if (current()) CorePermissionRequested(tab, args); else { args.Handled = true; args.State = CoreWebView2PermissionState.Deny; args.SavesInProfile = false; } };
-                await InitializeVideoFeatures(tab, core);
+                await StartupStep(InitializeVideoFeatures(tab, core),startup.Token,BrowserStartupTimeout,"video initialization");
                 if (!current()) return;
 
                 string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
@@ -556,21 +570,13 @@ namespace HarborBrowser
             catch (Exception ex)
             {
                 if (!current()) return;
-                if(_browserVpn.Enabled)
-                {
-                    SetStatus("Tor routing could not start. Open VPN controls to disconnect.");
-                    MessageBox.Show(this,"Harbor could not prepare the Tor connection.\n\n"+ex.Message+"\n\nOpen the cog menu > VPN > Free browser connection · Tor preview, then choose Disconnect and restore to use your regular connection.","Tor connection unavailable",MessageBoxButton.OK,MessageBoxImage.Information);
-                    return;
-                }
-                SetStatus("Browser engine could not start");
-                MessageBox.Show(this,
-                    "Harbor could not initialize the WebView2 browser engine.\n\n" + ex.Message +
-                    "\n\nCheck that the Microsoft Edge WebView2 Runtime is installed and up to date.",
-                    "Browser startup error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowStartupFailure(tab,ex);
             }
             finally
             {
                 if (ReferenceEquals(view, tab.View)) tab.Initializing = false;
+                // Successful tabs retain this token for their event guards;
+                // closing/replacing the view cancels it before disposal.
             }
         }
 
@@ -956,6 +962,7 @@ namespace HarborBrowser
             RememberClosedTab(tab);
             CancelHomeSuggestions(tab);
             tab.IsClosing = true;
+            CancelTabStartup(tab);
             if (tab.NativeContent is DownloadsPage) ((DownloadsPage)tab.NativeContent).Dispose();
             if (tab.VideoPopout != null) tab.VideoPopout.Close();
             if (tab.SuspendTimer != null)
@@ -1953,7 +1960,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.5.2\nA compact, modular browser for Windows.\n\nRendering engine: Microsoft Edge WebView2\n\nFree browser connection: Tor routing for normal Harbor tabs, without an account. This is not Tor Browser or a conventional VPN.\n\nWindows VPN controls remain separate and can affect other apps.",
+                AppVersion.Name+"\nA compact, modular browser for Windows.\n\nRendering engine: Microsoft Edge WebView2\n\nFree browser connection: Tor routing for normal Harbor tabs, without an account. This is not Tor Browser or a conventional VPN.\n\nWindows VPN controls remain separate and can affect other apps.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2035,6 +2042,7 @@ namespace HarborBrowser
                 BrowserTab tab = item.Tag as BrowserTab;
                 if (tab == null || tab.View == null) continue;
                 tab.IsClosing = true;
+                CancelTabStartup(tab);
                 CancelHomeSuggestions(tab);
                 if (tab.NativeContent is DownloadsPage) ((DownloadsPage)tab.NativeContent).Dispose();
             if (tab.VideoPopout != null) tab.VideoPopout.Close();

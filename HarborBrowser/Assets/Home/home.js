@@ -45,6 +45,7 @@
 
   function applyState(state) {
     if (!state || state.type !== 'home-state') return;
+    if (typeof state.version === 'string' && /^\d+\.\d+\.\d+$/.test(state.version)) document.getElementById('app-version').textContent = 'Harbor ' + state.version;
     privateTab = state.isPrivate === true;
     homeScene=['Auto','Morning','BlueHour','Custom'].includes(state.scene)?state.scene:'Auto';
     customBackground=typeof state.backgroundData==='string'&&/^data:image\/png;base64,[a-z0-9+/=]+$/i.test(state.backgroundData)?state.backgroundData:null;

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.5.2',
+    [string]$Version = '',
     [ValidateRange(0,65535)][int]$BuildRevision = 0,
     [string]$ReleaseSuffix = '',
     [switch]$SkipPrerequisiteDownloads,
@@ -11,6 +11,11 @@ $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sourceVersion = [IO.File]::ReadAllText((Join-Path $ProjectRoot 'VERSION.txt')).Trim()
+if (!$Version) { $Version = $sourceVersion }
+if ($Version -ne $sourceVersion -or $Version -notmatch '^\d+\.\d+\.\d+$') {
+    throw 'Build version must match VERSION.txt. Update that single source before building a different release.'
+}
 $Solution = Join-Path $ProjectRoot 'HarborBrowser.sln'
 $ProjectDir = Join-Path $ProjectRoot 'HarborBrowser'
 $BuildOutputCandidates = @((Join-Path $ProjectDir 'bin\Release\net48'), (Join-Path $ProjectDir 'bin\Release'))
