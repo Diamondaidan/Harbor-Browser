@@ -12,7 +12,7 @@ using System.Windows.Shell;
 using System.Xml.Linq;
 using HarborBrowser.Services;
 
-internal static class Program
+internal static partial class Program
 {
     private static int count;
     private static string root;
@@ -46,6 +46,9 @@ internal static class Program
     {
         try
         {
+            var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+            app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml") });
+            AppearanceService.ApplyApplication(new HarborBrowser.Models.BrowserSettings());
             root = args[0];
             Directory.CreateDirectory(root);
             string url = "https://example.invalid/7e0ce342-2669-445e-9984-b0ca280db995";
@@ -102,8 +105,11 @@ internal static class Program
             Equal("PE DLL not executable", null, DownloadFileNameService.DetectExtension(args[3]));
 
             HomeChecks();
+            NewTabAndAppearanceChecks();
             Layout(args[4], 1320, 850);
             Layout(args[4], 800, 560);
+            AppearanceService.ApplyApplication(new HarborBrowser.Models.BrowserSettings {ThemeMode="Dark"});
+            Layout(args[4], 1320, 850, "-dark");
             Console.WriteLine("ALL PASSED: " + count + " checks. Layout PNGs are offline WPF renders, not desktop screenshots.");
             return 0;
         }
@@ -153,10 +159,10 @@ internal static class Program
         Equal("bookmarks limited to eight", "8", ((object[])json["bookmarks"]).Length.ToString());
     }
 
-    private static void Layout(string path, int width, int height)
+    private static void Layout(string path, int width, int height, string suffix = "")
     {
         var doc = XDocument.Load(path);
-        string[] events = { "Loaded", "Closing", "PreviewKeyDown", "StateChanged", "Click", "SelectionChanged", "KeyDown" };
+        string[] events = { "Loaded", "Closing", "PreviewKeyDown", "StateChanged", "Click", "SelectionChanged", "KeyDown", "DragOver", "Drop", "DragLeave" };
         // Strip handlers only for an offline layout render; no browser/profile is instantiated.
         foreach (var attr in doc.Descendants().Attributes().Where(a =>
             (a.Name.NamespaceName == "http://schemas.microsoft.com/winfx/2006/xaml" && a.Name.LocalName == "Class") ||
@@ -164,6 +170,8 @@ internal static class Program
         var window = (Window)XamlReader.Parse(doc.ToString());
         Equal(width + " borderless", "None", window.WindowStyle.ToString());
         Check(width + " resize border", WindowChrome.GetWindowChrome(window).ResizeBorderThickness.Left == 6);
+        var logo = (Image)window.FindName("HeaderBrandLogo");
+        Check(width + " Beacon header logo loaded", logo != null && logo.Source != null && logo.Source.Width > 0);
         var minimize = (Button)window.FindName("MinimizeWindowButton");
         var maximize = (Button)window.FindName("MaximizeWindowButton");
         var close = (Button)window.FindName("CloseWindowButton");
@@ -194,7 +202,7 @@ internal static class Program
         bitmap.Render(frame);
         var encoder = new PngBitmapEncoder();
         encoder.Frames.Add(BitmapFrame.Create(bitmap));
-        using (var stream = File.Create(Path.Combine(root, "layout-" + width + ".png"))) encoder.Save(stream);
+        using (var stream = File.Create(Path.Combine(root, "layout-" + width + suffix + ".png"))) encoder.Save(stream);
         window.Close();
     }
 }

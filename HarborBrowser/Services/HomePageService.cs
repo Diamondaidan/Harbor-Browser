@@ -45,7 +45,7 @@ namespace HarborBrowser.Services
             return IsHomeUrl(value) ? FriendlyUrl : value;
         }
 
-        public static string CreateState(SearchEngine engine, IEnumerable<Bookmark> bookmarks, bool isPrivate)
+        public static string CreateState(SearchEngine engine, IEnumerable<Bookmark> bookmarks, bool isPrivate, BrowserSettings appearance = null)
         {
             engine = engine ?? SearchEngineService.GetById(null);
             var links = (bookmarks ?? Enumerable.Empty<Bookmark>())
@@ -53,7 +53,7 @@ namespace HarborBrowser.Services
                 .Take(8).Select(b => new { title = b.Title ?? "", url = b.Url }).ToArray();
             return new JavaScriptSerializer().Serialize(new {
                 type = "home-state", engineName = engine.Name, searchTemplate = engine.SearchUrl,
-                isPrivate = isPrivate, bookmarks = links
+                isPrivate = isPrivate, bookmarks = links, appearance = appearance == null ? null : AppearanceService.HomeAppearance(appearance)
             });
         }
 
@@ -62,6 +62,22 @@ namespace HarborBrowser.Services
             Uri uri;
             return Uri.TryCreate(value, UriKind.Absolute, out uri) &&
                 (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
+        }
+
+
+        public static string ReadThemeMessage(string source,string json)
+        {
+            if(!IsHomeUrl(source)||string.IsNullOrEmpty(json)||json.Length>500)return null;
+            try
+            {
+                var message=new JavaScriptSerializer().Deserialize<Dictionary<string,object>>(json);
+                object type,value;
+                if(message!=null&&message.TryGetValue("type",out type)&&(type as string)=="home-theme"&&
+                    message.TryGetValue("value",out value)&&((value as string)=="Light"||(value as string)=="Dark"))
+                    return (string)value;
+            }
+            catch(ArgumentException){}catch(InvalidOperationException){}
+            return null;
         }
 
         public static string ReadSearchMessage(string source, string json)

@@ -2,6 +2,9 @@ namespace HarborBrowser.Models
 {
     public sealed class BrowserSettings
     {
+        public string ThemeMode { get; set; }
+        public AppearanceColors LightColors { get; set; }
+        public AppearanceColors DarkColors { get; set; }
         public string SearchEngineId { get; set; }
         public string HomePage { get; set; }
         public bool HarborHomeIntroduced { get; set; }
@@ -18,6 +21,7 @@ namespace HarborBrowser.Models
 
         public BrowserSettings()
         {
+            ThemeMode = "Light"; LightColors = new AppearanceColors(); DarkColors = new AppearanceColors();
             SearchEngineId = "duckduckgo";
             HomePage = HarborBrowser.Services.HomePageService.Url;
             ShowBookmarksBar = true;
@@ -36,6 +40,9 @@ namespace HarborBrowser.Models
         {
             return new BrowserSettings
             {
+                ThemeMode = ThemeMode,
+                LightColors = LightColors == null ? new AppearanceColors() : LightColors.Copy(),
+                DarkColors = DarkColors == null ? new AppearanceColors() : DarkColors.Copy(),
                 SearchEngineId = SearchEngineId,
                 HomePage = HomePage,
                 HarborHomeIntroduced = HarborHomeIntroduced,

@@ -1,3 +1,16 @@
+## 0.3.4
+
+- Append regular new tabs at the right edge.
+- Add tab dragging, insertion indicators, overflow scrolling and context-menu/keyboard moves.
+- Respect pinned-tab boundaries and group filters; persist reordered sessions.
+- Embed Beacon as a window/app icon and place it beside HARBOR.
+- Add shared dynamic interface palettes, Light/Dark settings, an HSV color wheel, brightness and hex entry.
+- Customize accent, window, panel, input and text colors independently for each mode.
+- Add local Settings preview, save/cancel isolation, per-color/per-mode reset and contrast guidance.
+- Synchronize normal home-page theme changes with app mode and preserve private-tab isolation.
+- Apply WebView2's preferred color scheme.
+- Register home-page message handlers once instead of adding them again on sleep/wake.
+
 ## 0.3.3
 
 - Add Harbor Home at harbor://home with local morning and blue-hour coastal backgrounds.

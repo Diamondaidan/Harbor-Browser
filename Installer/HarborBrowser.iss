@@ -3,7 +3,7 @@
 ; signed offline .NET Framework 4.8 and WebView2 Evergreen installers.
 
 #ifndef AppVersion
-  #define AppVersion "0.3.3"
+  #define AppVersion "0.3.4"
 #endif
 
 #define AppName "Harbor Browser"

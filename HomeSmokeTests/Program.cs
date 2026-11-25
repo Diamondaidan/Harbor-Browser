@@ -45,6 +45,7 @@ internal static class HomeSmoke
                 core.SetVirtualHostNameToFolderMapping(HomePageService.Host, args[0], CoreWebView2HostResourceAccessKind.DenyCors);
                 // Test profiles only; no user cookies/history/settings are loaded.
                 string engineId = "bing";
+                string themeChoice = null;
                 string state = HomePageService.CreateState(SearchEngineService.GetById(engineId), null, false);
                 int externalRequests = 0;
                 core.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.All);
@@ -59,6 +60,8 @@ internal static class HomeSmoke
                 };
                 core.WebMessageReceived += (ss,ee) => {
                     if (!HomePageService.IsHomeUrl(ee.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
+                    string requestedTheme=HomePageService.ReadThemeMessage(ee.Source,ee.WebMessageAsJson);
+                    if(requestedTheme!=null){themeChoice=requestedTheme;return;}
                     string input=HomePageService.ReadSearchMessage(ee.Source,ee.WebMessageAsJson);
                     if(input!=null) destination=SearchEngineService.ResolveInput(input,SearchEngineService.GetById(engineId));
                     else core.PostWebMessageAsJson(state);
@@ -110,6 +113,31 @@ internal static class HomeSmoke
                 await Task.Delay(150);
                 await CheckJs(core,"responsive small-screen layout","document.documentElement.scrollWidth <= innerWidth");
                 await CheckJs(core,"search remains usable at narrow width","document.getElementById('query').getBoundingClientRect().width > 150");
+
+                var appearance=new BrowserSettings {ThemeMode="Dark"};
+                appearance.DarkColors.Accent="#8844CC";
+                appearance.DarkColors.Text="#DDEEFF";
+                state=HomePageService.CreateState(SearchEngineService.GetById(engineId),null,false,appearance);
+                core.PostWebMessageAsJson(state);
+                window.Width=1320;
+                await Task.Delay(200);
+                await CheckJs(core,"app dark mode reaches home","document.body.dataset.theme === 'dark'");
+                await CheckJs(core,"custom accent reaches home","getComputedStyle(document.body).getPropertyValue('--accent').trim() === '#8844CC'");
+                await CheckJs(core,"custom text reaches home","getComputedStyle(document.body).getPropertyValue('--ink').trim() === '#DDEEFF'");
+                await CheckJs(core,"custom accent paints search button","getComputedStyle(document.querySelector('#search button')).backgroundColor === 'rgb(136, 68, 204)'");
+                using(var file=File.Create(Path.Combine(args[1],"home-custom-colors.png"))) await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,file);
+                themeChoice=null;
+                await core.ExecuteScriptAsync("document.querySelector('[data-theme=light]').click()");
+                await Task.Delay(150);
+                Check("home theme choice requests app mode change",themeChoice=="Light");
+                state=HomePageService.CreateState(SearchEngineService.GetById(engineId),null,true,appearance);
+                core.PostWebMessageAsJson(state);
+                await Task.Delay(100);
+                themeChoice=null;
+                await core.ExecuteScriptAsync("document.querySelector('[data-theme=light]').click()");
+                await Task.Delay(150);
+                Check("private theme change leaves app mode untouched",themeChoice==null);
+
                 Check("home loaded without external network requests",externalRequests==0);
                 Console.WriteLine("ALL PASSED: "+checks+" WebView2 browser checks. Captures are from an isolated test host, not the installed Harbor window.");
                 exit=0;

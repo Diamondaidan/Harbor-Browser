@@ -14,6 +14,7 @@ namespace HarborBrowser.Views
             SearchEngineBox.ItemsSource = SearchEngineService.Engines;
 
             BrowserSettings settings = current == null ? new BrowserSettings() : current.Copy();
+            InitializeAppearance(settings);
             SearchEngineBox.SelectedValue = settings.SearchEngineId;
             HomePageBox.Text = HomePageService.DisplayUrl(settings.HomePage);
             ShowBookmarksBarBox.IsChecked = settings.ShowBookmarksBar;
@@ -33,6 +34,7 @@ namespace HarborBrowser.Views
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
+            if (!CommitHex()) { AppearanceHexBox.Focus(); return; }
             string homePage;
             if (!SearchEngineService.TryNormalizeHomePage(HomePageBox.Text, out homePage))
             {
@@ -48,6 +50,9 @@ namespace HarborBrowser.Views
 
             ResultSettings = new BrowserSettings
             {
+                ThemeMode = _appearanceDraft.ThemeMode,
+                LightColors = _appearanceDraft.LightColors.Copy(),
+                DarkColors = _appearanceDraft.DarkColors.Copy(),
                 SearchEngineId = selected == null ? "duckduckgo" : selected.Id,
                 HomePage = homePage,
                 HarborHomeIntroduced = true,

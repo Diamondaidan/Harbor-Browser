@@ -48,6 +48,7 @@ namespace HarborBrowser
             InitializeComponent();
             _store = new BrowserDataStore();
             _settings = _store.LoadSettings();
+            AppearanceService.Normalize(_settings); AppearanceService.ApplyApplication(_settings);
             bool homeDefaultsUpdated = HomePageService.UpgradeDefaults(_settings);
             string safeHomePage;
             if (!SearchEngineService.TryNormalizeHomePage(_settings.HomePage, out safeHomePage))
@@ -179,6 +180,13 @@ namespace HarborBrowser
 
         private void ApplyInterfaceSettings()
         {
+            AppearanceService.ApplyApplication(_settings);
+            foreach (TabItem item in BrowserTabs.Items)
+            {
+                BrowserTab tab = item.Tag as BrowserTab;
+                if (tab != null && tab.Initialized && tab.View.CoreWebView2 != null)
+                    tab.View.CoreWebView2.Profile.PreferredColorScheme = _settings.ThemeMode == "Dark" ? CoreWebView2PreferredColorScheme.Dark : CoreWebView2PreferredColorScheme.Light;
+            }
             BookmarksBar.Visibility = _settings.ShowBookmarksBar ? Visibility.Visible : Visibility.Collapsed;
             BottomStatus.Visibility = _settings.ShowStatusBar ? Visibility.Visible : Visibility.Collapsed;
             SearchEngineBox.SelectedValue = _settings.SearchEngineId;
@@ -297,11 +305,12 @@ namespace HarborBrowser
 
             tab.Item.ContextMenu = BuildTabContextMenu(tab);
             UpdateTabHeader(tab);
-            int insertIndex = GetPinnedCount();
+            tab.Item.PreviewMouseLeftButtonDown += Tab_PreviewMouseDown;
+            tab.Item.PreviewMouseMove += Tab_PreviewMouseMove;
+            int insertIndex = TabOrderService.NewTabIndex(BrowserTabs.Items.Cast<TabItem>().Select(i => ((BrowserTab)i.Tag).IsPinned).ToList(), tab.IsPinned);
             BrowserTabs.Items.Insert(insertIndex, tab.Item);
             ApplyTabGroupFilter();
-            if (select && tab.Item.Visibility == Visibility.Visible)
-                BrowserTabs.SelectedItem = tab.Item;
+            if (select && tab.Item.Visibility == Visibility.Visible) { BrowserTabs.SelectedItem = tab.Item; Dispatcher.BeginInvoke(new Action(() => tab.Item.BringIntoView()), DispatcherPriority.Loaded); }
             SaveSession();
             return tab;
         }
@@ -326,6 +335,8 @@ namespace HarborBrowser
             group.Items.Add(clearGroup);
             menu.Items.Add(group);
             menu.Items.Add(new Separator());
+            AddContextItem(menu, "Move left (Ctrl+Shift+Page Up)", (s, e) => MoveTabRelative(tab, -1));
+            AddContextItem(menu, "Move right (Ctrl+Shift+Page Down)", (s, e) => MoveTabRelative(tab, 1));
             AddContextItem(menu, "Close tab", (s, e) => CloseTab(tab));
             AddContextItem(menu, "Close other tabs", (s, e) => CloseOtherTabs(tab));
             AddContextItem(menu, "Manage groups…", ManageTabGroups_Click);
@@ -408,6 +419,8 @@ namespace HarborBrowser
                 core.WebMessageReceived += (s, args) =>
                 {
                     if (!HomePageService.IsHomeUrl(args.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
+                    string mode = HomePageService.ReadThemeMessage(args.Source, args.WebMessageAsJson);
+                    if (mode != null) { if (!tab.IsPrivate) { _settings.ThemeMode = mode; ApplyInterfaceSettings(); SaveSettings(); } return; }
                     string query = HomePageService.ReadSearchMessage(args.Source, args.WebMessageAsJson);
                     if (query != null)
                         core.Navigate(SearchEngineService.ResolveInput(query, SearchEngineService.GetById(_settings.SearchEngineId)));
@@ -415,6 +428,7 @@ namespace HarborBrowser
                         SendHomePageState(tab);
                 };
 
+                core.Profile.PreferredColorScheme = _settings.ThemeMode == "Dark" ? CoreWebView2PreferredColorScheme.Dark : CoreWebView2PreferredColorScheme.Light;
                 core.Profile.PreferredTrackingPreventionLevel = GetTrackingPreventionLevel();
                 core.Settings.AreDefaultContextMenusEnabled = true;
                 core.Settings.AreDevToolsEnabled = _settings.EnableDeveloperTools;
@@ -858,19 +872,6 @@ namespace HarborBrowser
             {
                 CoreWebView2 core = tab.View.CoreWebView2;
 
-                string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
-                core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
-                    CoreWebView2HostResourceAccessKind.DenyCors);
-                core.WebMessageReceived += (s, args) =>
-                {
-                    if (!HomePageService.IsHomeUrl(args.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
-                    string query = HomePageService.ReadSearchMessage(args.Source, args.WebMessageAsJson);
-                    if (query != null)
-                        core.Navigate(SearchEngineService.ResolveInput(query, SearchEngineService.GetById(_settings.SearchEngineId)));
-                    else
-                        SendHomePageState(tab);
-                };
-
                 if (tab.IsSuspended || core.IsSuspended)
                 {
                     if (core.IsSuspended)
@@ -894,19 +895,6 @@ namespace HarborBrowser
             try
             {
                 CoreWebView2 core = tab.View.CoreWebView2;
-
-                string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
-                core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
-                    CoreWebView2HostResourceAccessKind.DenyCors);
-                core.WebMessageReceived += (s, args) =>
-                {
-                    if (!HomePageService.IsHomeUrl(args.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
-                    string query = HomePageService.ReadSearchMessage(args.Source, args.WebMessageAsJson);
-                    if (query != null)
-                        core.Navigate(SearchEngineService.ResolveInput(query, SearchEngineService.GetById(_settings.SearchEngineId)));
-                    else
-                        SendHomePageState(tab);
-                };
 
                 if (core.IsSuspended)
                 {
@@ -1034,6 +1022,8 @@ namespace HarborBrowser
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == (ModifierKeys.Control | ModifierKeys.Shift) && (e.Key == Key.PageUp || e.Key == Key.PageDown))
+            { MoveTabRelative(SelectedTab, e.Key == Key.PageUp ? -1 : 1); e.Handled = true; return; }
             if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == (ModifierKeys.Control | ModifierKeys.Shift) && e.Key == Key.N)
             {
                 CreateNewTab(_settings.HomePage, true, true, null);
@@ -1088,7 +1078,7 @@ namespace HarborBrowser
             string url = tab != null && tab.View != null && tab.View.Source != null ? tab.View.Source.AbsoluteUri : null;
             bool saved = FindBookmark(url) != null;
             BookmarkToggleButton.Content = saved ? "★" : "☆";
-            BookmarkToggleButton.Foreground = saved ? Brushes.DarkGoldenrod : Brushes.SlateGray;
+            BookmarkToggleButton.SetResourceReference(Control.ForegroundProperty, saved ? "HarborAccent" : "HarborMuted");
             BookmarkToggleButton.ToolTip = saved ? "Remove bookmark" : "Bookmark this page";
             BookmarkToggleButton.IsEnabled = !string.IsNullOrWhiteSpace(url) && IsRestorableUrl(url) && !HomePageService.IsHomeUrl(url);
         }
@@ -1141,7 +1131,7 @@ namespace HarborBrowser
             var dialog = new Window
             {
                 Title = title, Owner = this, Width = 390, Height = 158, ResizeMode = ResizeMode.NoResize,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner, Background = Brushes.White,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner, 
                 FontFamily = new System.Windows.Media.FontFamily("Segoe UI")
             };
             var panel = new StackPanel { Margin = new Thickness(14) };
@@ -1211,7 +1201,7 @@ namespace HarborBrowser
             if (tab == null || !tab.Initialized || tab.View.CoreWebView2 == null ||
                 !HomePageService.IsHomeUrl(tab.View.CoreWebView2.Source)) return;
             tab.View.CoreWebView2.PostWebMessageAsJson(HomePageService.CreateState(
-                SearchEngineService.GetById(_settings.SearchEngineId), _bookmarks, tab.IsPrivate));
+                SearchEngineService.GetById(_settings.SearchEngineId), _bookmarks, tab.IsPrivate, _settings));
         }
 
         private void RefreshHomePages()
@@ -1973,7 +1963,7 @@ namespace HarborBrowser
                 MinWidth = 650,
                 MinHeight = 400,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Background = Brushes.White,
+                
                 FontFamily = new System.Windows.Media.FontFamily("Segoe UI")
             };
 
@@ -1989,7 +1979,7 @@ namespace HarborBrowser
             DockPanel.SetDock(actions, Dock.Bottom);
             layout.Children.Add(actions);
 
-            var list = new ListView { BorderBrush = new SolidColorBrush(Color.FromRgb(210, 220, 228)) };
+            var list = new ListView();
             var columns = new GridView();
             columns.Columns.Add(new GridViewColumn { Header = "Page", Width = 220, DisplayMemberBinding = new System.Windows.Data.Binding("Title") });
             columns.Columns.Add(new GridViewColumn { Header = "Address", Width = 440, DisplayMemberBinding = new System.Windows.Data.Binding("Url") });
@@ -2065,7 +2055,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.3.3\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.3.4\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
