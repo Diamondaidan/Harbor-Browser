@@ -8,4 +8,4 @@ Public inventory: https://github.com/Diamondaidan/Harbor-Browser/blob/archive/fu
 
 The published 0.7.0 signed update record was verified with the production trust root. Public release assets were checked against original size/digest records. Windows installers remain unsigned by the owner's choice.
 
-0.7.1 RC1 is local development. Preparing its source/build does not publish it, change main, or update the stable feed. Private signing keys, profiles and extracted inspection tools are excluded from source/release assets.
+Full 0.7.1 is prepared locally after the owner's RC1 checks. Preparing its source/build does not publish it, change main, or update the stable feed. RC1 packages remain preserved. Private signing keys, profiles and extracted inspection tools are excluded from source/release assets.

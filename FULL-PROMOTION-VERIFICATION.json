@@ -1,0 +1,15 @@
+{
+  "RC1SourceCommit": "8db48920262ce4552cc6a8a5149c8ef6726c7f23",
+  "RuntimeSourceChanged": false,
+  "VersionFileChanged": false,
+  "SourceChannel": "release",
+  "AppProductVersion": "0.7.1",
+  "AppSHA256": "45F8D1700A19C34D013C2492869614573180F7A957D05B5C95B91C4BAA548571",
+  "UpdateLauncherProductVersion": "0.7.1",
+  "UpdateLauncherSHA256": "08305B95314AB133F4AA115008B3967EEE5B50E582E71F12A06C4C192716ACF5",
+  "OfficialProviderFilesVerified": 336,
+  "InstalledRC1UserChecks": "See INSTALLED-RC1-VERIFICATION.json",
+  "InstalledFull": "Pending",
+  "CleanOfflineSparePC": "Pending",
+  "RecordedUtc": "2026-11-25T23:28:46.6557003Z"
+}

@@ -1,9 +1,9 @@
-# Harbor 0.7.1 RC1 automated release verification
+# Harbor 0.7.1 full automated release verification
 
-Application SHA-256: 4AD1CB6B33A43A1C20E6AB262E04283E4CBB2D626FB74ABCDEBAC342CE410EC4
-Update launcher SHA-256: ADCFB10124EA75BFEB2DB167647F6CD47E16A5982358255169667A221E4F1CA2
+Application SHA-256: 45F8D1700A19C34D013C2492869614573180F7A957D05B5C95B91C4BAA548571
+Update launcher SHA-256: 08305B95314AB133F4AA115008B3967EEE5B50E582E71F12A06C4C192716ACF5
 
-All 1656 assertions across 22 suites passed on November 25, 2026 against matching 0.7.1 RC1 app/helper copies.
+All 1656 assertions across 22 suites passed on November 25, 2026 against matching full 0.7.1 app/helper copies.
 
 | Suite | Assertions |
 | --- | ---: |
@@ -30,12 +30,14 @@ All 1656 assertions across 22 suites passed on November 25, 2026 against matchin
 | downloads063 | 17 |
 | unloading070 | 48 |
 
-The update suite includes build parsing, actual RC/stable executable resources, same-version handoff rules, full-release availability in the updater, read-only profile behavior and network gating. Existing download/recovery, themed UI, site loading, Proton lifecycle and unloading checks remain included.
+The full build uses release metadata and plain version labels. Runtime source, Directory.Build.props and VERSION.txt match tested RC1 commit 8db48920262ce4552cc6a8a5149c8ef6726c7f23; only RELEASE-CHANNEL.txt changes the compiled app/helper identity. FULL-PROMOTION-VERIFICATION.json records this comparison.
 
-Native installer fixtures passed 296 checks, including all 25 pinned original application identities. The altered-file case is refused without replacement. Vendor prerequisites are stubbed; real profile data and Windows defaults are preserved. Full staged-payload installation and smoke results are recorded separately after staging in PACKAGED-PAYLOAD-VERIFICATION.json.
+Core installer fixtures passed 296 native checks against the new full binaries, including all 25 pinned original application identities, retained profile canaries, changed-file refusal, backup failures, busy profiles, uninstall and unchanged Windows defaults. Full staged-payload installed-file/application smoke evidence is recorded separately after staging in PACKAGED-PAYLOAD-VERIFICATION.json. Vendor prerequisites are stubbed in these fixtures.
 
-All 336 official Proton asset sizes/hashes remain unchanged. No new vulnerability audit or startup/memory benchmark is claimed. Historical measurements are in PERFORMANCE-0.7.0.md.
+All 336 pinned official Proton assets remain unchanged. Microsoft offline prerequisites are size/hash/signature checked before packaging. No new vulnerability audit or startup/memory benchmark is claimed.
 
-Nine live public updater checks verified signed metadata, a stable paused partial file, exact HTTP 206 resume after service recreation and final signed file size/SHA256. The downloaded installer was never run. PUBLIC-UPDATER-VERIFICATION.json records the public facts without credentials or real profile paths.
+Nine live public updater checks passed with production transport/trust and an owned profile: public signed metadata, pause, updater recreation, exact HTTP 206 resume and final signed package size/hash. The downloaded installer was never executed. See PUBLIC-UPDATER-VERIFICATION.json.
 
-All runtime fixtures use owned injected profiles. Real installed 0.7.1 upgrade, real-account Proton checks, physical network/sleep/wake/reboot/monitor checks and clean/offline spare-PC setup remain manual. LIVE-VERIFICATION.md distinguishes historical 0.7.0 RC1 observations. Local packaging does not publish or activate 0.7.1.
+The owner separately confirmed installed RC1 bookmarks/settings retention, Proton restart without another sign-in, physical network recovery and sleep/wake. Those are user-reported RC1 results, not new installed-full results or independent route measurements. Clean/offline spare-PC installation, missing-prerequisite/admin/reboot behavior and installation of the new full package remain separate checks. See LIVE-VERIFICATION.md.
+
+Local packaging does not publish a GitHub release, change main or replace the public update record. Previous full and RC1 artifacts remain preserved.

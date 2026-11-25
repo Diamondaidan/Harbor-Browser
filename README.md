@@ -1,8 +1,8 @@
-# Harbor Browser 0.7.1 RC1
+# Harbor Browser 0.7.1
 
 A Windows WebView2 browser with tabs, bookmarks, history, downloads, customization, loading diagnostics, optional browser-only Proton protection and verified updates.
 
-This candidate improves older-install upgrades and distinguishes test builds from full releases. Exact original executable hashes identify markerless Harbor installations. The updater can offer a full release to an RC of the same base version, while keeping signature, expiry, profile, routing and installer checks. See RELEASE-NOTES.md and UPDATING.md.
+This version improves older-install upgrades and distinguishes test builds from full releases. Exact original executable hashes identify markerless Harbor installations. The updater can offer a full release to an RC of the same base version, while keeping signature, expiry, profile, routing and installer checks. See RELEASE-NOTES.md and UPDATING.md.
 
 VERSION.txt supplies the numeric version; RELEASE-CHANNEL.txt supplies release or rcN. App and helper resources, visible labels, package manifests and installer names must agree. BUILDING.md explains verification and packaging. The normal installed and portable executables share the established regular profile. Automatic runtime tests inject disposable profiles.
 

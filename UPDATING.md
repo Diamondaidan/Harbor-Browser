@@ -12,7 +12,7 @@ Recovery offers only the previous version approved for the exact installed relea
 
 ## Publisher preparation
 
-Repository: https://github.com/Diamondaidan/Harbor-Browser . The client uses https://github.com/Diamondaidan/Harbor-Browser/releases/latest/download/harbor-update.json and exact versioned installer assets named HarborBrowserSetup-VERSION-release.exe under tag vVERSION. The latest published full release is 0.7.0 as verified November 25, 2026. A failed check reports unavailable; it must not be interpreted as an up-to-date result. Local 0.7.1 RC1 is ahead of that feed and is not offered by it.
+Repository: https://github.com/Diamondaidan/Harbor-Browser . The client uses https://github.com/Diamondaidan/Harbor-Browser/releases/latest/download/harbor-update.json and exact versioned installer assets named HarborBrowserSetup-VERSION-release.exe under tag vVERSION. The latest published full release is 0.7.0 as verified November 25, 2026. A failed check reports unavailable; it must not be interpreted as an up-to-date result. Local full 0.7.1 is ahead of that feed and is not offered by it until separately published with finalized signed metadata.
 
 VERSION.txt and RELEASE-CHANNEL.txt control source build identity. Full releases use plain ProductVersion metadata; candidates use VERSION-rc.N. App, helper, package manifest and installer must match. The stable signing tool rejects RC metadata, even if the candidate file is renamed to a release filename. Stable manifests retain their existing numeric version/schema format for compatibility with older clients. The installation marker HarborStable identifies the established app/profile family, not whether the compiled build is an RC.
 

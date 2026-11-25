@@ -1,4 +1,4 @@
-# Harbor 0.7.1 RC1 installer fixture verification
+# Harbor 0.7.1 installer fixture verification
 
 All 296 core native installer/prerequisite checks passed on November 25, 2026 against the current app and launcher. Tests use disposable workspace folders, unique fixture AppIds and test registry prefixes. Existing installation/profile and HTTP/HTTPS defaults were preserved.
 
@@ -6,4 +6,4 @@ Every one of the 25 pinned original application identities was copied into an ow
 
 INSTALLER-VERIFICATION.json records hashes of the app, launcher, installer template, registry include, legacy catalog and generated hash include. Build-Installer.ps1 refuses stale inputs. Full staged-payload hashes and application smoke checks are recorded separately after staging in PACKAGED-PAYLOAD-VERIFICATION.json; core results alone are not full-payload verification.
 
-Vendor prerequisite programs are stubbed during fixtures. The real offline Microsoft packages are checked for exact size/hash and valid Microsoft signatures before packaging. Actual clean/offline spare-PC installation, missing dependencies, administrator/reboot prompts and a regular installed 0.7.1 upgrade remain manual. Windows installers remain intentionally unsigned.
+Vendor prerequisite programs are stubbed during fixtures. The real offline Microsoft packages are checked for exact size/hash and valid Microsoft signatures before packaging. Actual clean/offline spare-PC installation, missing dependencies, administrator/reboot prompts and actual installation of this new full executable remain separate checks. The owner confirmed RC1 retention/restart/network/sleep checks; see LIVE-VERIFICATION.md. Windows installers remain intentionally unsigned.

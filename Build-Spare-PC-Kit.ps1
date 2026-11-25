@@ -37,7 +37,7 @@ if($RollbackArchive){
  Copy-Item -LiteralPath $rollback -Destination (Join-Path $kit ([IO.Path]::GetFileName($rollback)))
 }
 $files=@(Get-ChildItem -LiteralPath $kit -File -Recurse | ForEach-Object {[pscustomobject]@{Path=$_.FullName.Substring($kit.Length+1).Replace('\','/');SHA256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash;Bytes=$_.Length}})
-[pscustomobject]@{Version='0.7.1-'+$artifact.Candidate;Channel='HarborStable';Files=$files;AutomaticInstallation=$false;AccountAccess=$false} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $kit 'kit-manifest.json') -Encoding utf8
+[pscustomobject]@{Version=$version;BuildIdentity=$artifact.BuildIdentity;Candidate=$artifact.Candidate;Channel='HarborStable';Files=$files;AutomaticInstallation=$false;AccountAccess=$false} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $kit 'kit-manifest.json') -Encoding utf8
 & (Join-Path $kit 'Check-This-PC.ps1')
 if($LASTEXITCODE -ne 0){throw 'Read-only kit preflight failed.'}
 $results=[IO.Path]::GetFullPath((Join-Path $kit 'Results'))

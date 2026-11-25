@@ -1,0 +1,19 @@
+{
+  "Schema": 1,
+  "BuildIdentity": "0.7.1-rc.1",
+  "InstalledSHA256": "4AD1CB6B33A43A1C20E6AB262E04283E4CBB2D626FB74ABCDEBAC342CE410EC4",
+  "IdentityIndependentlyVerified": true,
+  "UserConfirmed": [
+    "Basic use",
+    "Bookmarks and settings retained",
+    "Proton reconnects after browser restart without another sign-in",
+    "Physical network recovery check",
+    "Windows sleep/wake check"
+  ],
+  "EvidenceType": "User reports following the supplied checks; no independent route measurements or traffic counters.",
+  "CleanOfflineSparePC": "Pending",
+  "InstalledFull071": "Pending",
+  "CredentialsOrProfileDataRead": false,
+  "WindowsNetworkOrPowerChangedByAutomation": false,
+  "Date": "2026-11-25"
+}
