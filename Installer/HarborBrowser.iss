@@ -3,7 +3,7 @@
 ; signed offline .NET Framework 4.8 and WebView2 Evergreen installers.
 
 #ifndef AppVersion
-  #define AppVersion "0.4.2"
+  #define AppVersion "0.4.3"
 #endif
 #ifndef BuildRevision
   #define BuildRevision 0
@@ -167,6 +167,8 @@ begin
       not CopyProfileFile(DataDir, BackupDir, 'session-recovery.json.bak') or
       not CopyProfileFile(DataDir, BackupDir, 'modules.json') or
       not CopyProfileFile(DataDir, BackupDir, 'modules.json.bak') or
+      not CopyProfileFile(DataDir, BackupDir, 'module-permissions.json') or
+      not CopyProfileFile(DataDir, BackupDir, 'module-permissions.json.bak') or
      not CopyProfileFile(DataDir, BackupDir, 'data-version.txt') or
      not CopyProfileFile(DataDir, BackupDir, 'data-version.txt.bak') then
   begin

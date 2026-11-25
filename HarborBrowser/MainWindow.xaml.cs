@@ -833,6 +833,11 @@ namespace HarborBrowser
             ShowTabContent();
             UpdateBookmarkButtonState();
 
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (SelectedTab == tab && !tab.IsClosing && tab.Item.Visibility == Visibility.Visible) tab.Item.BringIntoView();
+            }), DispatcherPriority.Loaded);
+
             UpdateTabActivity();
             SaveSession();
             string title = string.IsNullOrWhiteSpace(tab.PageTitle) ? "New tab" : tab.PageTitle;
@@ -1949,7 +1954,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.4.2\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.4.3\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

@@ -20,14 +20,14 @@ namespace HarborBrowser.Services
     // the generated manifest's site scope; Harbor never exposes host objects.
     public static class SiteModuleService
     {
-        public const string HarborVersion="0.4.2";
+        public const string HarborVersion="0.4.3";
         private static readonly JavaScriptSerializer Json=new JavaScriptSerializer{MaxJsonLength=262144,RecursionLimit=30};
         private static readonly HashSet<string> FileTypes=new HashSet<string>(new[]{".json",".js",".css",".png",".jpg",".jpeg",".svg",".ico",".txt",".md",".webp"},StringComparer.OrdinalIgnoreCase);
-        public static SiteModulePackage Inspect(string folder)
+        public static SiteModulePackage Inspect(string folder,string originalManifest=null)
         {
             folder=Path.GetFullPath(folder);CheckTree(folder);
             string path=Path.Combine(folder,"manifest.json");if(!File.Exists(path)||new FileInfo(path).Length>262144)throw new ArgumentException("Choose a module with a manifest.json smaller than 256 KB.");
-            var manifest=Json.DeserializeObject(File.ReadAllText(path)) as Dictionary<string,object>;if(manifest==null)throw new ArgumentException("Invalid module manifest.");
+            var manifest=Json.DeserializeObject(originalManifest??File.ReadAllText(path)) as Dictionary<string,object>;if(manifest==null)throw new ArgumentException("Invalid module manifest.");
             Keys(manifest,"manifest_version","name","version","description","icons","permissions","content_scripts");
             if(Convert.ToString(Value(manifest,"manifest_version"))!="3")throw new ArgumentException("Harbor supports Manifest V3 site modules.");
             string name=Required(manifest,"name",150),version=Required(manifest,"version",40);
@@ -64,6 +64,23 @@ namespace HarborBrowser.Services
             return result;
         }
         private static Version Normalized(Version v){return new Version(v.Major,v.Minor,Math.Max(0,v.Build),Math.Max(0,v.Revision));}
+        public static string Manifest(SiteModulePackage package,IEnumerable<string> allowedSites=null)
+        {
+            var manifest=Json.DeserializeObject(Json.Serialize(package.Manifest)) as Dictionary<string,object>;
+            if(allowedSites!=null)
+            {
+                var allowed=new HashSet<string>(allowedSites,StringComparer.Ordinal);
+                if(allowed.Any(s=>!package.Sites.Contains(s)))throw new ArgumentException("Choose only the sites requested by this module.");
+                var scripts=new List<object>();
+                foreach(var raw in Array(Value(manifest,"content_scripts")))
+                {
+                    var script=(Dictionary<string,object>)raw;var matches=Array(Value(script,"matches")).Select(Convert.ToString).Where(allowed.Contains).ToArray();
+                    if(matches.Length==0)continue;script["matches"]=matches;scripts.Add(script);
+                }
+                if(scripts.Count==0)manifest.Remove("content_scripts");else manifest["content_scripts"]=scripts;
+            }
+            return Json.Serialize(manifest);
+        }
         public static string Stage(SiteModulePackage reviewed,string root)
         {
             // Copy before reviewing again, so the engine never executes the user's

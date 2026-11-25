@@ -35,11 +35,12 @@ internal static partial class Program
         store.SaveSettings(new BrowserSettings{RestorePreviousSession=false,HarborHomeIntroduced=true,ThemeMode="Dark",OnlineSuggestionsEnabled=false});
         store.SaveHistory(Enumerable.Range(1,30).Select(i=>new HistoryEntry{Title="History sample "+i,Url="https://history.test.invalid/page-"+i,VisitedAt=new DateTime(2026,11,12,12,0,0).AddMinutes(-i)}).ToList());
         var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
-        bool interactive=args.Length>2&&args[2]=="--interactive-clicks";
+        bool organization=args.Length>2&&args[2]=="--interactive-organization";
+        bool interactive=organization||(args.Length>2&&args[2]=="--interactive-clicks");
         Func<IntPtr,MonitorLayout> monitors=interactive?null:new Func<IntPtr,MonitorLayout>(h=>layout);
         var main=new MainWindow(store,monitors){WindowStartupLocation=WindowStartupLocation.Manual,Left=interactive?80:-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=interactive,ShowActivated=interactive};
         main.TestBrowserArguments="--use-fake-device-for-media-stream";
-        var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(240)};
+        var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(300)};
         timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL integration timed out");app.Shutdown(1);};
         main.Loaded+=async(s,e)=>{
             try
@@ -47,6 +48,17 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(organization)
+                {
+                    var entries=(System.Collections.Generic.List<Bookmark>)Field(main,"_bookmarks");entries.Clear();
+                    for(int i=0;i<5;i++)entries.Add(new Bookmark{Title="Bookmark "+(char)('A'+i),Url="https://click.test.invalid/performance.html?bookmark="+i});
+                    typeof(MainWindow).GetMethod("RefreshBookmarksBar",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(main,null);
+                    core.SetVirtualHostNameToFolderMapping("click.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
+                    for(int i=0;i<3;i++)AddTab(main,HomePageService.Url);
+                    var journal=new DispatcherTimer{Interval=TimeSpan.FromMilliseconds(300)};
+                    journal.Tick+=(ss,ee)=>{main.Title="Harbor 0.4.3 isolated organization check";File.WriteAllText(Path.Combine(args[0],"interactive-state.json"),Json.Serialize(new{bookmarks=main.BookmarksBarPanel.Children.OfType<Button>().Select(b=>Convert.ToString(b.Content)).ToArray(),tabs=main.BrowserTabs.Items.Cast<TabItem>().Select(i=>((BrowserTab)i.Tag).ResourceId.ToString()).ToArray()}));};journal.Start();
+                    main.Activate();var done=new TaskCompletionSource<bool>();main.Closed+=(ss,ee)=>{journal.Stop();done.TrySetResult(true);};await done.Task;exit=0;return;
+                }
                 if(interactive)
                 {
                     core.SetVirtualHostNameToFolderMapping("click.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
@@ -61,6 +73,10 @@ internal static partial class Program
                 {await SuggestionClickChecks(main);Console.WriteLine("ALL PASSED: "+checks+" focused suggestion-click checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--release042")
                 {await Release042Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.4.2 checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release043")
+                {await Release043Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.4.3 checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--live-sites")
+                {await LiveSiteChecks(main,args[0]);Console.WriteLine("FINISHED: "+checks+" live-site assertions; see any UNVERIFIED results.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--privacy-edge")
                 {await PrivacyEdgeChecks(main,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" focused privacy edge checks.");exit=0;return;}
                 core.SetVirtualHostNameToFolderMapping("media.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
@@ -168,6 +184,7 @@ internal static partial class Program
                 await EverydayChecks(main,tab,store,core,args[0],args[1]);
                 await CustomizationChecks(main,store,args[0]);
                 await Release042Checks(main,store,args[0]);
+                await Release043Checks(main,store,args[0]);
                 await PerformanceChecks(main,args[0],args[1]);
                 await PrivacyChecks(main,store,args[0],args[1]);
                 await PrivacyEdgeChecks(main,args[0],args[1]);

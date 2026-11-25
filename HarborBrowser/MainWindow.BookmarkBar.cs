@@ -19,6 +19,8 @@ namespace HarborBrowser
         private void RefreshBookmarksBar()
         {
             ClearBookmarkDropMarker();BookmarksBarPanel.Children.Clear();
+            BookmarksBarPanel.Background=Brushes.Transparent;
+            BookmarksBarPanel.MinWidth=Math.Max(0,BookmarksBar.ActualWidth-2);
             BookmarksBarPanel.AllowDrop=true;
             BookmarksBarPanel.DragOver-=BookmarkBarDragOver;BookmarksBarPanel.DragOver+=BookmarkBarDragOver;
             BookmarksBarPanel.Drop-=BookmarkBarDrop;BookmarksBarPanel.Drop+=BookmarkBarDrop;

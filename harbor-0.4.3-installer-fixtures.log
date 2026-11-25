@@ -1,0 +1,13 @@
+PASS 0.4.2 fixture installs matching release payload
+PASS 0.4.3 fixture installs matching release payload
+PASS upgrade preserves modules.json
+PASS upgrade preserves module-permissions.json
+PASS upgrade preserves settings.json
+PASS upgrade preserves bookmarks.json
+PASS upgrade preserves data-version.txt
+PASS upgrade creates a profile snapshot
+PASS upgrade snapshot includes site-access metadata
+PASS fixture uninstall removes app executable
+PASS fixture uninstall preserves separate profile
+PASS fixture uninstall removes only its own registration
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.3\IntegrationTests\TestResults\installer-20261113-200540

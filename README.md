@@ -1,16 +1,16 @@
-# Harbor Browser 0.4.2
+# Harbor Browser 0.4.3
 
-This release includes the 0.4.1 suggestion-click hotfix and adds these changes:
+This release improves extension controls and organization while keeping the 0.4.2 fixes:
 
-- Each tab menu has one Pin/Unpin command; New tab retains its own command.
-- Site icons use WebView2's downloaded image and decoder, including PNG, SVG and ICO. The Beacon appears on Harbor Home; sites without an icon keep a fallback.
-- Normal tabs share one width (up to 190 pixels) and shrink together as the strip fills. Pinned tabs stay compact. At 54 pixels, icon tabs use horizontal scrolling to remain usable; the + button remains reachable. Right-click or Ctrl+W closes a crowded icon-only tab.
-- Drag bookmarks or folders left/right on the bookmarks bar. The insertion line shows the destination. Right-click > Move left / Move right offers the same ordering without dragging. Order is saved independently of the bookmark library's folders.
-- Cog > Tools > Site modules adds the first extension foundation, with access review, managed local copies, minimum-version checks, enable/disable/removal and isolated page scripts. See SITE-MODULES.md and Examples/BeaconSiteModule.
+- **Site access:** Cog > Tools > Site modules > Site access lets you choose the module's requested website patterns. Unchecked patterns are removed from its native injection rules. Uncheck everything to stop all site access; Enable cannot override that choice. Overlapping/wildcard patterns are explained in the editor.
+- **Clearer controls:** the module list shows enabled/disabled/blocked status, keeps selection after an action, explains page access, and fits short windows with scrolling and wrapping controls.
+- **Safer permission changes:** disabled modules stay disabled while editing access. Changes persist across restarts; unreadable permission metadata disables managed modules. Changing site access may reset the module's own stored preferences. It does not clear Harbor bookmarks or history.
+- **Bookmark dragging:** empty space on the bar now accepts drops and moves the bookmark to the end. The drop surface follows window resizing. Move left/right commands and saved ordering remain available.
+- **Crowded tabs:** selecting a tab outside the visible strip scrolls it into view. Normal tabs still share equal shrinking widths, with scrolling at the icon-size minimum.
 
-Close Harbor and run `dist/HarborBrowserSetup-0.4.2.exe`. The installer includes .NET Framework 4.8 and WebView2 x64 prerequisites. Your previous releases remain separate. Profile schema 8 adds stable bookmark IDs/order and keeps migration snapshots; older Harbor versions protect newer-schema data by opening it read-only. Neither Harbor nor its installer is code-signed.
+Close Harbor before running `dist/HarborBrowserSetup-0.4.3.exe`. Prerequisites are bundled. The first launch snapshots migration to profile schema 9; earlier builds protect newer-schema data by disabling saves. Previous releases remain separate.
 
-See VERIFICATION.md for this release's executed checks and remaining laptop checks. PERFORMANCE.md, Measurements and Base-0.4.1 contain historical 0.4.1 measurements, not new 0.4.2 benchmarks. Base-0.4.1-hotfix1 retains the previous hotfix report.
+See VERIFICATION.md for executed checks and remaining physical laptop checks, and SITE-MODULES.md for the supported local extension interface. This is not full Chrome Web Store support. PERFORMANCE.md and Measurements retain historical 0.4.1 measurements; no new benchmark claim is made.
 
 ## Performance and resource monitor
 
@@ -76,11 +76,11 @@ Requests are delayed briefly while typing, cancelled when superseded, and stale 
 
 ## Install and data
 
-Close Harbor and run dist/HarborBrowserSetup-0.4.2.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
+Close Harbor and run dist/HarborBrowserSetup-0.4.3.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
 
-Profile schema stays at 7, unchanged from 0.4.0. Older profiles are migrated with a snapshot before changes. Harbor snapshots the existing profile before migration. Earlier builds protect newer-schema data by disabling saves.
+Profile schema 9 adds saved extension site-access grants. Older profiles are migrated with a snapshot before changes. Harbor snapshots the existing profile before migration. Earlier builds protect newer-schema data by disabling saves.
 
-No installation or upgrade was performed during verification. The installed browser and personal profile were not modified.
+Isolated installer fixtures exercised installation, upgrade, profile backup and uninstall using a separate fixture identity and profile. The normal administrator installer and another laptop remain untested. The installed browser and personal profile were not modified.
 
 All 0.3.7 tab restoration, Downloads, fullscreen, picture-in-picture and compatibility fixes are retained.
 

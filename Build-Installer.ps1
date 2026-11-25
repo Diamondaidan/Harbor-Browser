@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.4.2',
+    [string]$Version = '0.4.3',
     [ValidateRange(0,65535)][int]$BuildRevision = 0,
     [string]$ReleaseSuffix = '',
     [switch]$SkipPrerequisiteDownloads,

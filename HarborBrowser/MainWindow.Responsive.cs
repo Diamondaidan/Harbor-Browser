@@ -13,6 +13,7 @@ namespace HarborBrowser
             SizeChanged+=(s,e)=>UpdateResponsiveLayout();
             Loaded+=(s,e)=>UpdateResponsiveLayout();
             BrowserTabs.SizeChanged+=(s,e)=>UpdateTabWidths();
+            BookmarksBar.SizeChanged+=(s,e)=>BookmarksBarPanel.MinWidth=Math.Max(0,e.NewSize.Width-2);
             WindowFitService.Attach(this,_monitorProvider,()=>_presentation==null||!_presentation.IsFullScreen);
         }
         internal void UpdateResponsiveLayout()

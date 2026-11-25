@@ -1,3 +1,15 @@
+## 0.4.3
+
+- Add persisted, native-enforced site-pattern choices for local modules and a deny-all state that Enable cannot bypass.
+- Preserve original requested permissions separately from the active manifest; refuse grants beyond the module's request.
+- Keep disabled modules unregistered after access edits until explicit Enable, avoiding the native API default-enabled interval.
+- Revalidate managed permission state at startup; disable modules when permission metadata is damaged, with actionable status.
+- Show module status in list rows, retain selection after changes, use separate Enable/Disable and Site access controls, and make short dialogs scroll/wrap.
+- Explain that access changes reload pages and may reset a module's own preferences.
+- Accept bookmark drops into empty bar space; keep the drop surface sized to the window.
+- Bring selected overflow tabs into view.
+- Add schema 9 snapshots for module access metadata, isolated installer/upgrade/uninstall fixtures, live website checks, and targeted regressions.
+
 ## 0.4.2
 
 - Fix the duplicate Pin command by tracking the actual menu item instead of a numeric menu position.
