@@ -1,0 +1,117 @@
+<Window x:Class="HarborBrowser.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Harbor Browser" Height="850" Width="1320" MinHeight="560" MinWidth="800"
+        WindowStartupLocation="CenterScreen" Background="#FFFFFF" FontFamily="Segoe UI" FontSize="12.5"
+        Loaded="Window_Loaded" Closing="Window_Closing" PreviewKeyDown="Window_PreviewKeyDown">
+    <DockPanel LastChildFill="True">
+        <StatusBar x:Name="BottomStatus" DockPanel.Dock="Bottom" Height="25" Background="#EEF2F5" BorderBrush="#CBD4DC" BorderThickness="0,1,0,0">
+            <StatusBarItem>
+                <TextBlock x:Name="StatusText" Text="Ready" Foreground="#52616D" />
+            </StatusBarItem>
+            <Separator />
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="Harbor 0.3.1  •  WebView2" Foreground="#71808B" />
+            </StatusBarItem>
+        </StatusBar>
+
+        <Border x:Name="DownloadNotificationBar" DockPanel.Dock="Bottom" Visibility="Collapsed"
+                Background="#F2F7FA" BorderBrush="#C8D7E1" BorderThickness="0,1,0,0" Padding="12,5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="3" />
+                </Grid.RowDefinitions>
+                <TextBlock x:Name="DownloadNotificationText" Text="Download started" Foreground="#29485B"
+                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                <ProgressBar x:Name="DownloadNotificationProgress" Grid.Row="1" Minimum="0" Maximum="100"
+                             Value="0" Height="3" Margin="0,4,0,0" BorderThickness="0" />
+            </Grid>
+        </Border>
+
+        <!-- Compact title/menu strip. All traditional menus live inside the gear menu. -->
+        <Border DockPanel.Dock="Top" Height="35" Background="#F4F6F8" BorderBrush="#D9E0E5" BorderThickness="0,0,0,1">
+            <DockPanel LastChildFill="True" Margin="8,0,7,0">
+                <Button x:Name="GearMenuButton" DockPanel.Dock="Right" Content="⚙" FontSize="19"
+                        Width="34" Height="29" Padding="0" Margin="0,2,0,2" ToolTip="Harbor menu"
+                        Background="Transparent" BorderThickness="0" Click="GearMenuButton_Click" />
+                <TextBlock Text="HARBOR" VerticalAlignment="Center" FontSize="11" FontWeight="Bold"
+                           Foreground="#52738A" Margin="4,0,0,0" />
+            </DockPanel>
+        </Border>
+
+        <!-- Header-only tab strip. WebView content is hosted in BrowserContentHost below. -->
+        <TabControl x:Name="BrowserTabs" DockPanel.Dock="Top" Height="35" Background="#F7F9FA"
+                    BorderBrush="#D9E0E5" BorderThickness="0,0,0,1"
+                    SelectionChanged="BrowserTabs_SelectionChanged">
+            <TabControl.Template>
+                <ControlTemplate TargetType="{x:Type TabControl}">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                                  Background="#F7F9FA" Focusable="False">
+                        <StackPanel Orientation="Horizontal" Background="#F7F9FA">
+                            <TabPanel IsItemsHost="True" KeyboardNavigation.TabIndex="1" Margin="5,2,0,0"
+                                      Background="Transparent" />
+                            <Button Content="＋" Width="29" Height="27" Margin="4,2,7,3"
+                                    Padding="0" FontSize="16" ToolTip="New tab (Ctrl+T)" Click="NewTab_Click"
+                                    Background="#E8EEF2" BorderBrush="#CCD6DD">
+                                <Button.RenderTransform>
+                                    <TranslateTransform Y="-4" />
+                                </Button.RenderTransform>
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </ControlTemplate>
+            </TabControl.Template>
+        </TabControl>
+
+        <Border DockPanel.Dock="Top" Height="34" Background="#F1F4F6" BorderBrush="#D9E0E5" BorderThickness="0,0,0,1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,6,0">
+                <TextBlock Text="Group" Foreground="#52616D" VerticalAlignment="Center" Margin="0,0,7,0" />
+                <ComboBox x:Name="TabGroupFilterBox" Width="165" Height="25" VerticalContentAlignment="Center"
+                          SelectedValuePath="Tag" SelectionChanged="TabGroupFilterBox_SelectionChanged"
+                          ToolTip="Show all tabs or filter by group" />
+                <Button Content="Manage groups…" Margin="7,0,0,0" Padding="8,3" Click="ManageTabGroups_Click" />
+                <TextBlock x:Name="TabGroupFilterStatus" Foreground="#71808B" VerticalAlignment="Center" Margin="10,0,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- Tabs are intentionally above the address/search bar. -->
+        <Border DockPanel.Dock="Top" Height="43" Background="#E8EDF1" BorderBrush="#D3DCE3" BorderThickness="0,0,0,1" Padding="5,3">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="34" />
+                    <ColumnDefinition Width="34" />
+                    <ColumnDefinition Width="34" />
+                    <ColumnDefinition Width="34" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="35" />
+                    <ColumnDefinition Width="46" />
+                    <ColumnDefinition Width="145" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="◀" ToolTip="Back" Click="Back_Click" Margin="1" />
+                <Button Grid.Column="1" Content="▶" ToolTip="Forward" Click="Forward_Click" Margin="1" />
+                <Button Grid.Column="2" Content="↻" ToolTip="Reload" Click="Reload_Click" Margin="1" />
+                <Button Grid.Column="3" Content="⌂" ToolTip="Home" Click="Home_Click" Margin="1" />
+                <TextBox x:Name="AddressBox" Grid.Column="4" Margin="4,1,2,1" Padding="8,3"
+                         VerticalContentAlignment="Center" ToolTip="Enter a web address or search terms"
+                         KeyDown="AddressBox_KeyDown" />
+                <Button x:Name="BookmarkToggleButton" Grid.Column="5" Content="☆" FontSize="20" Padding="0"
+                        Margin="1" ToolTip="Bookmark this page" Click="ToggleCurrentBookmark_Click"
+                        Background="Transparent" BorderThickness="0" Foreground="#52616D" />
+                <Button Grid.Column="6" Content="Go" Click="Go_Click" Margin="2,1" />
+                <ComboBox x:Name="SearchEngineBox" Grid.Column="7" Margin="4,1,1,1" VerticalContentAlignment="Center"
+                          SelectedValuePath="Id" SelectionChanged="SearchEngineBox_SelectionChanged" />
+            </Grid>
+        </Border>
+
+        <Border x:Name="BookmarksBar" DockPanel.Dock="Top" Height="31" Background="#F7F9FA" BorderBrush="#D9E0E5" BorderThickness="0,0,0,1">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                <StackPanel x:Name="BookmarksBarPanel" Orientation="Horizontal" VerticalAlignment="Center" />
+            </ScrollViewer>
+        </Border>
+
+        <!-- The browser now uses the full content width. Bookmarks, history, downloads,
+             and VPN controls are available from the Harbor gear menu. -->
+        <ContentControl x:Name="BrowserContentHost" Background="#FFFFFF" />
+    </DockPanel>
+</Window>
