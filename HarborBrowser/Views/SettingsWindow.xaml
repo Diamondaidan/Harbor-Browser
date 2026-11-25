@@ -36,7 +36,7 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Home page" VerticalAlignment="Center" />
-                    <TextBox x:Name="HomePageBox" Grid.Column="1" Height="30" VerticalContentAlignment="Center" />
+                    <TextBox ToolTip="Use harbor://home for Harbor Home, or enter a website address." x:Name="HomePageBox" Grid.Column="1" Height="30" VerticalContentAlignment="Center" />
                 </Grid>
 
                 <GroupBox Header="Interface" Padding="12" BorderBrush="#C6D0D8" Margin="0,0,0,10">

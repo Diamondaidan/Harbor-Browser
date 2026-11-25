@@ -34,6 +34,10 @@ namespace HarborBrowser.Services
         public static string ResolveInput(string input, SearchEngine engine)
         {
             string value = (input ?? string.Empty).Trim();
+            if (HomePageService.IsHomeAlias(value))
+            {
+                return HomePageService.Url;
+            }
             if (value.Length == 0)
                 return "about:blank";
 
@@ -62,6 +66,10 @@ namespace HarborBrowser.Services
         {
             normalized = null;
             string value = (input ?? string.Empty).Trim();
+            if (HomePageService.IsHomeAlias(value))
+            {
+                normalized = HomePageService.Url; return true;
+            }
             if (value.Length == 0)
                 return false;
 

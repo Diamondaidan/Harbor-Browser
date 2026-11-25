@@ -1,0 +1,130 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
+using System.Web.Script.Serialization;
+using System.Windows;
+using System.Windows.Threading;
+using HarborBrowser.Models;
+using HarborBrowser.Services;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
+
+internal static class HomeSmoke
+{
+    private static int checks;
+    private static string destination;
+    private static readonly JavaScriptSerializer Json = new JavaScriptSerializer();
+    private static void Check(string label, bool value)
+    {
+        if (!value) throw new Exception(label);
+        checks++; Console.WriteLine("PASS " + label);
+    }
+    private static async Task CheckJs(CoreWebView2 core, string label, string js)
+    {
+        Check(label, await core.ExecuteScriptAsync(js) == "true");
+    }
+    [STAThread]
+    private static int Main(string[] args)
+    {
+        int exit = 1;
+        var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
+        var view = new WebView2();
+        var window = new Window { Title="Harbor home page verification", Content=view, Width=1320, Height=850,
+            Left=-10000, Top=-10000, ShowInTaskbar=false, WindowStyle=WindowStyle.None };
+        var timeout = new DispatcherTimer { Interval = TimeSpan.FromSeconds(75) };
+        timeout.Tick += (s,e) => { Console.WriteLine("FAIL: home page smoke test timed out"); view.Dispose(); app.Shutdown(1); };
+        window.Loaded += async (s,e) =>
+        {
+            try
+            {
+                Directory.CreateDirectory(args[1]);
+                var environment = await CoreWebView2Environment.CreateAsync(null, Path.Combine(args[1], "TestProfile"));
+                await view.EnsureCoreWebView2Async(environment);
+                var core = view.CoreWebView2;
+                core.SetVirtualHostNameToFolderMapping(HomePageService.Host, args[0], CoreWebView2HostResourceAccessKind.DenyCors);
+                // Test profiles only; no user cookies/history/settings are loaded.
+                string engineId = "bing";
+                string state = HomePageService.CreateState(SearchEngineService.GetById(engineId), null, false);
+                int externalRequests = 0;
+                core.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.All);
+                core.WebResourceRequested += (ss,ee) => {
+                    Uri uri;
+                    if (Uri.TryCreate(ee.Request.Uri,UriKind.Absolute,out uri) &&
+                        (uri.Scheme=="https" || uri.Scheme=="http") && uri.Host!=HomePageService.Host)
+                    {
+                        externalRequests++;
+                        ee.Response = environment.CreateWebResourceResponse(new MemoryStream(),403,"Blocked in test","");
+                    }
+                };
+                core.WebMessageReceived += (ss,ee) => {
+                    if (!HomePageService.IsHomeUrl(ee.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
+                    string input=HomePageService.ReadSearchMessage(ee.Source,ee.WebMessageAsJson);
+                    if(input!=null) destination=SearchEngineService.ResolveInput(input,SearchEngineService.GetById(engineId));
+                    else core.PostWebMessageAsJson(state);
+                };
+                await Navigate(core);
+                await Task.Delay(400);
+                await CheckJs(core,"actual HTML title", "document.title === 'Harbor Home'");
+                await CheckJs(core,"selected engine delivered", "document.getElementById('engine').textContent === 'Bing'");
+                await CheckJs(core,"logo loaded locally", "document.querySelector('.brand img').complete && document.querySelector('.brand img').naturalWidth > 0");
+                await core.ExecuteScriptAsync("document.querySelector('[data-theme=light]').click()");
+                await CheckJs(core,"morning background applied", "getComputedStyle(document.body).backgroundImage.includes('morning.png')");
+                await CheckJs(core,"search input accessible", "document.querySelector('label[for=query]') !== null");
+                await CheckJs(core,"empty bookmarks explained", "!document.getElementById('empty-state').hidden && document.querySelectorAll('.favorite').length === 0");
+                await CheckJs(core,"no horizontal overflow at desktop size", "document.documentElement.scrollWidth <= innerWidth");
+                using(var file=File.Create(Path.Combine(args[1],"home-morning.png")))
+                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,file);
+                await core.ExecuteScriptAsync("document.querySelector('[data-theme=dark]').click()");
+                await Task.Delay(300);
+                await CheckJs(core,"blue-hour background applied", "getComputedStyle(document.body).backgroundImage.includes('blue-hour.png')");
+                await CheckJs(core,"normal theme choice saved", "localStorage.getItem('harbor.home.theme') === 'dark'");
+                using(var file=File.Create(Path.Combine(args[1],"home-blue-hour.png")))
+                    await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Png,file);
+                await Navigate(core);
+                await Task.Delay(150);
+                await CheckJs(core,"theme survives reload", "document.body.dataset.theme === 'dark'");
+                engineId="google";
+                state=HomePageService.CreateState(SearchEngineService.GetById(engineId),new [] {
+                    new Bookmark {Title="<img src=x onerror=alert(1)>",Url="https://example.com/"},
+                    new Bookmark {Title="Blocked",Url="javascript:alert(1)"}},true);
+                core.PostWebMessageAsJson(state);
+                await Task.Delay(150);
+                await CheckJs(core,"engine change updates page", "document.getElementById('engine').textContent === 'Google'");
+                await CheckJs(core,"private-tab indicator", "!document.querySelector('.private-note').hidden");
+                await CheckJs(core,"unsafe bookmark excluded", "document.querySelectorAll('.favorite').length === 1");
+                await CheckJs(core,"bookmark label treated as text", "document.querySelector('.favorite span:last-child').textContent === '<img src=x onerror=alert(1)>' && document.querySelector('.favorite img') === null");
+                await CheckJs(core,"empty prompt hidden with bookmarks", "document.getElementById('empty-state').hidden");
+                await core.ExecuteScriptAsync("document.querySelector('[data-theme=light]').click()");
+                await CheckJs(core,"private theme change not saved", "localStorage.getItem('harbor.home.theme') === 'dark'");
+                await core.ExecuteScriptAsync("document.getElementById('query').value='birds & sky'; document.getElementById('search').requestSubmit()");
+                await Task.Delay(150);
+                Check("search message uses selected engine encoding",destination=="https://www.google.com/search?q=birds%20%26%20sky");
+                await core.ExecuteScriptAsync("document.getElementById('query').value='example.com'; document.getElementById('search').requestSubmit()");
+                await Task.Delay(150);
+                Check("address entry resolved",destination=="https://example.com");
+                window.Width=800;
+                await Task.Delay(150);
+                await CheckJs(core,"no overflow at minimum Harbor width","document.documentElement.scrollWidth <= innerWidth");
+                window.Width=390;
+                await Task.Delay(150);
+                await CheckJs(core,"responsive small-screen layout","document.documentElement.scrollWidth <= innerWidth");
+                await CheckJs(core,"search remains usable at narrow width","document.getElementById('query').getBoundingClientRect().width > 150");
+                Check("home loaded without external network requests",externalRequests==0);
+                Console.WriteLine("ALL PASSED: "+checks+" WebView2 browser checks. Captures are from an isolated test host, not the installed Harbor window.");
+                exit=0;
+            }
+            catch(Exception ex) { Console.WriteLine("FAIL "+ex); }
+            finally { timeout.Stop(); view.Dispose(); app.Shutdown(exit); }
+        };
+        timeout.Start(); window.Show(); app.Run();
+        return exit;
+    }
+    private static async Task Navigate(CoreWebView2 core)
+    {
+        var done=new TaskCompletionSource<bool>();
+        EventHandler<CoreWebView2NavigationCompletedEventArgs> handler=null;
+        handler=(s,e)=>{core.NavigationCompleted-=handler; if(e.IsSuccess)done.TrySetResult(true);else done.TrySetException(new Exception("Navigation: "+e.WebErrorStatus));};
+        core.NavigationCompleted+=handler; core.Navigate(HomePageService.Url); await done.Task;
+    }
+}

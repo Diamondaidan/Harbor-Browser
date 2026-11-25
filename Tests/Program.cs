@@ -101,12 +101,56 @@ internal static class Program
             Equal("PE executable", ".exe", DownloadFileNameService.DetectExtension(args[2]));
             Equal("PE DLL not executable", null, DownloadFileNameService.DetectExtension(args[3]));
 
+            HomeChecks();
             Layout(args[4], 1320, 850);
             Layout(args[4], 800, 560);
             Console.WriteLine("ALL PASSED: " + count + " checks. Layout PNGs are offline WPF renders, not desktop screenshots.");
             return 0;
         }
         catch (Exception ex) { Console.WriteLine("FAIL " + ex); return 1; }
+    }
+
+
+    private static void HomeChecks()
+    {
+        Equal("home alias resolved", HomePageService.Url, SearchEngineService.ResolveInput("harbor://home", null));
+        string normalized;
+        Check("home settings accepted", SearchEngineService.TryNormalizeHomePage("harbor://home", out normalized));
+        Equal("home settings canonical URL", HomePageService.Url, normalized);
+        Check("custom home settings accepted", SearchEngineService.TryNormalizeHomePage("https://example.com/", out normalized));
+        Equal("custom home preserved", "https://example.com/", normalized);
+        Check("home origin accepted", HomePageService.IsHomeUrl(HomePageService.Url));
+        Check("home lookalike rejected", !HomePageService.IsHomeUrl("https://harbor.invalid.attacker.example/"));
+        Check("home subdomain rejected", !HomePageService.IsHomeUrl("https://evil.harbor.invalid/"));
+        Check("home HTTP rejected", !HomePageService.IsHomeUrl("http://harbor.invalid/"));
+        Check("home port rejected", !HomePageService.IsHomeUrl("https://harbor.invalid:444/"));
+        Check("home script path rejected", !HomePageService.IsHomeUrl("https://harbor.invalid/home.js"));
+        Check("home userinfo rejected", !HomePageService.IsHomeUrl("https://user@harbor.invalid/"));
+        Equal("trusted search message", "birds & sky", HomePageService.ReadSearchMessage(HomePageService.Url, "{\"type\":\"home-search\",\"value\":\" birds & sky \"}"));
+        Equal("external message rejected", null, HomePageService.ReadSearchMessage("https://example.com/", "{\"type\":\"home-search\",\"value\":\"birds\"}"));
+        Equal("malformed message rejected", null, HomePageService.ReadSearchMessage(HomePageService.Url, "not json"));
+        Equal("non-string query rejected", null, HomePageService.ReadSearchMessage(HomePageService.Url, "{\"type\":\"home-search\",\"value\":{}}"));
+        Equal("blank query rejected", null, HomePageService.ReadSearchMessage(HomePageService.Url, "{\"type\":\"home-search\",\"value\":\" \"}"));
+        Equal("large query rejected", null, HomePageService.ReadSearchMessage(HomePageService.Url, "{\"type\":\"home-search\",\"value\":\"" + new string('x',4097) + "\"}"));
+        Equal("default home set", HomePageService.Url, new HarborBrowser.Models.BrowserSettings().HomePage);
+        var legacy = new HarborBrowser.Models.BrowserSettings {HomePage="https://duckduckgo.com/"};
+        Check("legacy default migrated once", HomePageService.UpgradeDefaults(legacy));
+        Equal("legacy default becomes Harbor", HomePageService.Url, legacy.HomePage);
+        legacy.HomePage="https://duckduckgo.com/";
+        Check("later choice not migrated again", !HomePageService.UpgradeDefaults(legacy));
+        Equal("explicit DuckDuckGo choice preserved", "https://duckduckgo.com/", legacy.HomePage);
+        var custom = new HarborBrowser.Models.BrowserSettings {HomePage="https://example.com/"};
+        HomePageService.UpgradeDefaults(custom);
+        Equal("custom upgrade home preserved", "https://example.com/", custom.HomePage);
+        Check("migration marker survives copy", custom.Copy().HarborHomeIntroduced);
+        var list = new System.Collections.Generic.List<HarborBrowser.Models.Bookmark>();
+        list.Add(new HarborBrowser.Models.Bookmark {Title="Invalid",Url="javascript:alert(1)"});
+        for (int i=0;i<10;i++) list.Add(new HarborBrowser.Models.Bookmark {Title="Bookmark " + i,Url="https://example.com/" + i});
+        var json = new System.Web.Script.Serialization.JavaScriptSerializer().DeserializeObject(
+            HomePageService.CreateState(SearchEngineService.GetById("bing"), list, true)) as System.Collections.Generic.Dictionary<string,object>;
+        Equal("selected search engine", "Bing", json["engineName"] as string);
+        Check("private flag conveyed", (bool)json["isPrivate"]);
+        Equal("bookmarks limited to eight", "8", ((object[])json["bookmarks"]).Length.ToString());
     }
 
     private static void Layout(string path, int width, int height)

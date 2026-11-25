@@ -6,9 +6,9 @@
     <LangVersion>7.3</LangVersion>
     <Nullable>disable</Nullable>
     <AssemblyName>HarborBrowser</AssemblyName>
-    <Version>0.3.2</Version>
-    <AssemblyVersion>0.3.2.0</AssemblyVersion>
-    <FileVersion>0.3.2.0</FileVersion>
+    <Version>0.3.3</Version>
+    <AssemblyVersion>0.3.3.0</AssemblyVersion>
+    <FileVersion>0.3.3.0</FileVersion>
     <ApplicationIcon>HarborBrowser.ico</ApplicationIcon>
     <RootNamespace>HarborBrowser</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -27,5 +27,8 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Home\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@ namespace HarborBrowser.Views
 
             BrowserSettings settings = current == null ? new BrowserSettings() : current.Copy();
             SearchEngineBox.SelectedValue = settings.SearchEngineId;
-            HomePageBox.Text = settings.HomePage;
+            HomePageBox.Text = HomePageService.DisplayUrl(settings.HomePage);
             ShowBookmarksBarBox.IsChecked = settings.ShowBookmarksBar;
             ShowStatusBarBox.IsChecked = settings.ShowStatusBar;
             EnableDevToolsBox.IsChecked = settings.EnableDeveloperTools;
@@ -36,7 +36,7 @@ namespace HarborBrowser.Views
             string homePage;
             if (!SearchEngineService.TryNormalizeHomePage(HomePageBox.Text, out homePage))
             {
-                MessageBox.Show(this, "Enter a valid HTTP or HTTPS home page.", "Harbor Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(this, "Enter harbor://home for Harbor Home, or a valid HTTP or HTTPS home page.", "Harbor Settings", MessageBoxButton.OK, MessageBoxImage.Warning);
                 HomePageBox.Focus();
                 return;
             }
@@ -50,6 +50,7 @@ namespace HarborBrowser.Views
             {
                 SearchEngineId = selected == null ? "duckduckgo" : selected.Id,
                 HomePage = homePage,
+                HarborHomeIntroduced = true,
                 ShowBookmarksBar = ShowBookmarksBarBox.IsChecked == true,
                 ShowStatusBar = ShowStatusBarBox.IsChecked == true,
                 EnableDeveloperTools = EnableDevToolsBox.IsChecked == true,

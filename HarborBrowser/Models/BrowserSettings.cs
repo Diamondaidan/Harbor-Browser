@@ -4,6 +4,7 @@ namespace HarborBrowser.Models
     {
         public string SearchEngineId { get; set; }
         public string HomePage { get; set; }
+        public bool HarborHomeIntroduced { get; set; }
         public bool ShowBookmarksBar { get; set; }
         public bool ShowStatusBar { get; set; }
         public bool EnableDeveloperTools { get; set; }
@@ -18,7 +19,7 @@ namespace HarborBrowser.Models
         public BrowserSettings()
         {
             SearchEngineId = "duckduckgo";
-            HomePage = "https://duckduckgo.com/";
+            HomePage = HarborBrowser.Services.HomePageService.Url;
             ShowBookmarksBar = true;
             ShowStatusBar = true;
             EnableDeveloperTools = false;
@@ -37,6 +38,7 @@ namespace HarborBrowser.Models
             {
                 SearchEngineId = SearchEngineId,
                 HomePage = HomePage,
+                HarborHomeIntroduced = HarborHomeIntroduced,
                 ShowBookmarksBar = ShowBookmarksBar,
                 ShowStatusBar = ShowStatusBar,
                 EnableDeveloperTools = EnableDeveloperTools,

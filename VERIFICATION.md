@@ -1,40 +1,28 @@
-# Harbor Browser 0.3.2 verification
+# Harbor Browser 0.3.3 verification
 
-Date: November 12, 2026 (America/Chicago).
+Verified November 12, 2026 (America/Chicago).
 
-## Delivered changes
+## Results
 
-- Window controls replace the cog in Harbor's existing top header.
-- The separate Windows title bar is hidden. WindowChrome provides native caption gestures and resize borders; custom buttons call Windows minimize/maximize/restore/close commands.
-- The cog is at the right end of the address bar.
-- Downloads use Content-Disposition and WebView2 suggestions before falling back to the URL.
-- Known MIME types add missing extensions; completed extensionless/generic downloads can recover their type from their bytes.
-- ZIP container inspection distinguishes common Office, EPUB, JAR and APK files.
-- Windows reserved device names, trailing dots/spaces, invalid characters, long names, and file/directory/reserved-path collisions are handled.
-- Completed-file renaming never overwrites another file. Unknown formats retain their names. If recovery fails, the completed original file remains available.
-- Installer AppId, profile folder and data schema 5 are preserved.
-
-## Executed checks
-
-- Actual Windows .NET Framework 4.8 Release build: PASS, zero warnings and zero errors.
+- Windows .NET Framework 4.8 Release build: PASS, zero warnings and zero errors.
 - Inno Setup installer compilation: PASS.
-- Embedded prerequisites: .NET Framework 4.8 and WebView2 x64 offline installers passed the build script's size and Microsoft Authenticode signature checks. Cached prerequisites were used; downloads were not repeated.
-- Installer payload executable SHA-256 matches the compiled executable.
-- 56 automated regression checks: PASS. See the accompanying test log and Tests/Run-Tests.ps1.
-- The original 93,245-byte 0.3.1 ZIP was copied to an extensionless test file, renamed automatically by the new service, and verified by SHA-256 and a 37-entry archive read.
-- File/header/URL/MIME naming, UTF-8 and language-tagged filename headers, literal percent signs, reserved names, invalid names, path stripping, bounded names, collisions, non-overwrite behavior and idempotent recovery: PASS.
-- File-type checks include ZIP, PDF, PNG, JPEG, common Office ZIP containers, EPUB, PE executable, non-executable DLL and unknown bytes.
-- Offline WPF renders at 1320x850 and 800x560: PASS. Controls fit in the top row and the cog sits in the address row. Caption hit-testing is enabled in the XAML.
-- Layout preview was visually inspected.
+- Bundled .NET Framework and WebView2 x64 offline prerequisites passed the build script's size and Microsoft signature checks.
+- The compiled app executable and staged installer payload executable have identical SHA-256 hashes.
+- 84 regression checks: PASS. These include the previous filename/ZIP recovery and layout checks, trusted home-page URL/message handling, search/address normalization, bookmark filtering, default-home migration, and preservation of custom or later explicit homepage choices.
+- 22 actual WebView2 browser checks against the final staged home-page assets: PASS. These cover local asset loading, search-engine state, address and query handling, bookmark rendering, malicious bookmark labels, private mode, theme persistence/reload, no external network requests on home-page load, and desktop/narrow layouts.
+- Actual WebView2 captures of Morning and Blue hour were visually inspected.
+- Generated Beacon PNG has transparent exterior; standard ICO encoding supplies seven Windows icon sizes.
 
-## Limits and remaining desktop checks
+An early isolated browser test caught a missing explicit local entry filename. The final canonical URL uses /index.html, and the browser checks passed after that correction. Background positioning was then adjusted to preserve the lighthouse at different window aspect ratios; the final assets were retested.
 
-The layout renders parse the production XAML with event handlers removed for offline rendering; they do not launch Harbor or instantiate a real WebView2 browser. Filename regression checks call the production naming service directly. These are not end-to-end download or desktop interaction tests.
+## Meaning and limits
 
-Live desktop capture previously timed out twice. Not verified in a running 0.3.2 browser:
-- Minimize/maximize/restore/close, caption double-click/drag, snap, Alt+Space, taskbar bounds or multiple monitors/DPI settings.
-- Actual network download progress, cancel/resume, simultaneous transfers and completion event timing.
-- Settings save/reopen/scroll behavior or resource-monitor accuracy/refresh.
-- Installer execution, upgrade, prerequisites on a clean machine, or uninstall.
+The 84 regression checks call production services and perform offline WPF layout checks. The 22 browser checks host the packaged home-page HTML/CSS/JavaScript in a separate WebView2 test application, using production URL/state/message services and a dedicated test profile. They verify search destinations by intercepting messages; external search-result pages are not loaded.
 
-No original 0.3.1 source, installed application or synced project reference files were modified. The 0.3.2 installer was built but not installed.
+The installed Harbor application was not upgraded, and the full running Harbor window was not operated. Installer execution/upgrade/uninstall, real desktop caption gestures, full-browser tab lifecycle, network-download events, and Settings/resource-monitor behavior still require live desktop verification. The Beacon icon and new assets are compiled/staged for installation; desktop shortcut icon caching has not been tested.
+
+Original 0.3.1/0.3.2 projects, the installed application and synced sources were not modified. This update is a separate 0.3.3 folder.
+
+## Implementation reference
+
+The local-page integration uses Microsoft's documented [virtual host folder mapping](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/working-with-local-content). The friendly address is harbor://home; only the local mapped home document receives app bookmark/search-engine state.

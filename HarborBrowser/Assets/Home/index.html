@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Harbor Home</title>
+<link rel="icon" href="beacon.png">
+<link rel="stylesheet" href="home.css">
+<script src="home.js" defer></script>
+</head>
+<body>
+<header>
+  <a class="brand" href="index.html" aria-label="Harbor home"><img src="beacon.png" alt="" width="40" height="40"><span>Harbor</span></a>
+  <div class="appearance" role="group" aria-label="Home page appearance">
+    <button type="button" data-theme="light" aria-pressed="true">Morning</button>
+    <button type="button" data-theme="dark" aria-pressed="false">Blue hour</button>
+  </div>
+</header>
+<main>
+  <div class="eyebrow" id="date"></div>
+  <h1>Where to next?</h1>
+  <p class="intro">A little room to think. A whole world to explore.</p>
+  <form id="search" role="search" autocomplete="off">
+    <svg aria-hidden="true" viewBox="0 0 24 24" width="23" height="23"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg>
+    <label class="sr-only" for="query">Search the web or enter an address</label>
+    <input id="query" type="text" placeholder="Search the web or enter an address" maxlength="4096" spellcheck="false" required>
+    <button type="submit" aria-label="Search or go to address" title="Search or go">➜</button>
+  </form>
+  <p class="search-note">Search with <span id="engine">DuckDuckGo</span><span class="private-note" hidden> · Private tab</span></p>
+  <section class="favorites-section" aria-labelledby="favorites-title">
+    <div class="section-heading"><h2 id="favorites-title">Your favorite places</h2><span>Close at hand.</span></div>
+    <nav id="favorites" aria-label="Bookmark shortcuts"></nav>
+    <div id="empty-state"><span class="empty-star" aria-hidden="true">☆</span><div><strong>Make yourself at home.</strong><p>Bookmark a site with the star in the address bar to keep it here.</p></div></div>
+  </section>
+</main>
+<footer><span><i aria-hidden="true"></i><span id="scene-name">Morning harbor</span></span><span>Harbor 0.3.3</span></footer>
+</body>
+</html>

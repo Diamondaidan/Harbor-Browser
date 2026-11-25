@@ -1,0 +1,92 @@
+MSBuild version 17.14.60+43b635718 for .NET Framework
+
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.3\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.3\Tests\bin\Release\net48\HarborRegressionTests.exe
+PASS header wins
+PASS UTF-8 filename
+PASS RFC 5987 language
+PASS literal percent filename
+PASS WebView2 suggested name
+PASS URL fallback
+PASS MIME extension
+PASS generic MIME extension
+PASS explicit extension preserved
+PASS empty fallback
+PASS reserved CON
+PASS reserved COM1
+PASS reserved superscript
+PASS non-device COM10
+PASS trailing dots and spaces
+PASS traversal
+PASS invalid characters
+PASS long name bounded
+PASS long extension retained
+PASS case-insensitive reservation
+PASS directory collision
+PASS existing file collision
+PASS actual downloaded ZIP extension
+PASS actual ZIP bytes preserved
+PASS repair is idempotent
+PASS actual archive still readable
+PASS PDF recovery avoids overwrite
+PASS PDF collision bytes preserved
+PASS PNG signature
+PASS JPEG signature
+PASS unknown data preserved
+PASS MZ alone not executable
+PASS Office docx ZIP
+PASS Office xlsx ZIP
+PASS Office pptx ZIP
+PASS EPUB ZIP
+PASS PE executable
+PASS PE DLL not executable
+PASS home alias resolved
+PASS home settings accepted
+PASS home settings canonical URL
+PASS custom home settings accepted
+PASS custom home preserved
+PASS home origin accepted
+PASS home lookalike rejected
+PASS home subdomain rejected
+PASS home HTTP rejected
+PASS home port rejected
+PASS home script path rejected
+PASS home userinfo rejected
+PASS trusted search message
+PASS external message rejected
+PASS malformed message rejected
+PASS non-string query rejected
+PASS blank query rejected
+PASS large query rejected
+PASS default home set
+PASS legacy default migrated once
+PASS legacy default becomes Harbor
+PASS later choice not migrated again
+PASS explicit DuckDuckGo choice preserved
+PASS custom upgrade home preserved
+PASS migration marker survives copy
+PASS selected search engine
+PASS private flag conveyed
+PASS bookmarks limited to eight
+PASS 1320 borderless
+PASS 1320 resize border
+PASS 1320 caption buttons aligned
+PASS 1320 buttons ordered
+PASS 1320 close inside frame
+PASS 1320 cog moved below caption
+PASS 1320 cog in address row
+PASS 1320 address still usable
+PASS 1320 caption buttons clickable
+PASS 800 borderless
+PASS 800 resize border
+PASS 800 caption buttons aligned
+PASS 800 buttons ordered
+PASS 800 close inside frame
+PASS 800 cog moved below caption
+PASS 800 cog in address row
+PASS 800 address still usable
+PASS 800 caption buttons clickable
+ALL PASSED: 84 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
+Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.3\Tests\TestResults\20261112-092043

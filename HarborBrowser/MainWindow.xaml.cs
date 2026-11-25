@@ -48,14 +48,16 @@ namespace HarborBrowser
             InitializeComponent();
             _store = new BrowserDataStore();
             _settings = _store.LoadSettings();
+            bool homeDefaultsUpdated = HomePageService.UpgradeDefaults(_settings);
             string safeHomePage;
             if (!SearchEngineService.TryNormalizeHomePage(_settings.HomePage, out safeHomePage))
-                safeHomePage = "https://duckduckgo.com/";
+                safeHomePage = HomePageService.Url;
             _settings.HomePage = safeHomePage;
             _settings.SearchEngineId = SearchEngineService.GetById(_settings.SearchEngineId).Id;
             _bookmarks = _store.LoadBookmarks();
             _history = _store.LoadHistory();
             _downloads = new ObservableCollection<DownloadEntry>();
+            if (homeDefaultsUpdated) SaveSettings();
             BrowserTabs.ContextMenu = BuildTabStripContextMenu();
             BookmarksBar.ContextMenu = BuildBookmarksBarContextMenu();
         }
@@ -399,6 +401,20 @@ namespace HarborBrowser
 
                 await tab.View.EnsureCoreWebView2Async(_environment);
                 CoreWebView2 core = tab.View.CoreWebView2;
+
+                string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
+                core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
+                    CoreWebView2HostResourceAccessKind.DenyCors);
+                core.WebMessageReceived += (s, args) =>
+                {
+                    if (!HomePageService.IsHomeUrl(args.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
+                    string query = HomePageService.ReadSearchMessage(args.Source, args.WebMessageAsJson);
+                    if (query != null)
+                        core.Navigate(SearchEngineService.ResolveInput(query, SearchEngineService.GetById(_settings.SearchEngineId)));
+                    else
+                        SendHomePageState(tab);
+                };
+
                 core.Profile.PreferredTrackingPreventionLevel = GetTrackingPreventionLevel();
                 core.Settings.AreDefaultContextMenusEnabled = true;
                 core.Settings.AreDevToolsEnabled = _settings.EnableDeveloperTools;
@@ -412,7 +428,7 @@ namespace HarborBrowser
                 {
                     if (SelectedTab == tab)
                     {
-                        AddressBox.Text = args.Uri;
+                        AddressBox.Text = HomePageService.DisplayUrl(args.Uri);
                         UpdateBookmarkButtonState();
                         SetStatus("Loading " + args.Uri);
                     }
@@ -422,7 +438,7 @@ namespace HarborBrowser
                 {
                     if (SelectedTab == tab && tab.View.Source != null)
                     {
-                        AddressBox.Text = tab.View.Source.AbsoluteUri;
+                        AddressBox.Text = HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri);
                         UpdateBookmarkButtonState();
                     }
                 };
@@ -442,7 +458,7 @@ namespace HarborBrowser
                     {
                         SetStatus(args.IsSuccess ? "Done" : "Page load finished with an error");
                         if (tab.View.Source != null)
-                            AddressBox.Text = tab.View.Source.AbsoluteUri;
+                            AddressBox.Text = HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri);
                         UpdateBookmarkButtonState();
                     }
 
@@ -451,6 +467,7 @@ namespace HarborBrowser
                         RecordHistory(tab, tab.View.Source.AbsoluteUri, core.DocumentTitle);
                         SaveSession();
                     }
+                    SendHomePageState(tab);
                 };
 
                 core.NewWindowRequested += (s, args) =>
@@ -682,7 +699,7 @@ namespace HarborBrowser
 
         private void RecordHistory(BrowserTab tab, string url, string title)
         {
-            if (tab == null || tab.IsPrivate || string.IsNullOrWhiteSpace(url) || url == "about:blank" || url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+            if (tab == null || tab.IsPrivate || string.IsNullOrWhiteSpace(url) || url == "about:blank" || HomePageService.IsHomeUrl(url) || url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 return;
             if (string.Equals(tab.LastRecordedUrl, url, StringComparison.OrdinalIgnoreCase))
                 return;
@@ -731,7 +748,7 @@ namespace HarborBrowser
                 return;
 
             if (tab.View.Source != null)
-                AddressBox.Text = tab.View.Source.AbsoluteUri;
+                AddressBox.Text = HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri);
             else
                 AddressBox.Text = string.Empty;
             BrowserContentHost.Content = tab.View;
@@ -840,6 +857,20 @@ namespace HarborBrowser
             try
             {
                 CoreWebView2 core = tab.View.CoreWebView2;
+
+                string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
+                core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
+                    CoreWebView2HostResourceAccessKind.DenyCors);
+                core.WebMessageReceived += (s, args) =>
+                {
+                    if (!HomePageService.IsHomeUrl(args.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
+                    string query = HomePageService.ReadSearchMessage(args.Source, args.WebMessageAsJson);
+                    if (query != null)
+                        core.Navigate(SearchEngineService.ResolveInput(query, SearchEngineService.GetById(_settings.SearchEngineId)));
+                    else
+                        SendHomePageState(tab);
+                };
+
                 if (tab.IsSuspended || core.IsSuspended)
                 {
                     if (core.IsSuspended)
@@ -863,6 +894,20 @@ namespace HarborBrowser
             try
             {
                 CoreWebView2 core = tab.View.CoreWebView2;
+
+                string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
+                core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
+                    CoreWebView2HostResourceAccessKind.DenyCors);
+                core.WebMessageReceived += (s, args) =>
+                {
+                    if (!HomePageService.IsHomeUrl(args.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
+                    string query = HomePageService.ReadSearchMessage(args.Source, args.WebMessageAsJson);
+                    if (query != null)
+                        core.Navigate(SearchEngineService.ResolveInput(query, SearchEngineService.GetById(_settings.SearchEngineId)));
+                    else
+                        SendHomePageState(tab);
+                };
+
                 if (core.IsSuspended)
                 {
                     tab.IsSuspended = true;
@@ -1045,13 +1090,13 @@ namespace HarborBrowser
             BookmarkToggleButton.Content = saved ? "★" : "☆";
             BookmarkToggleButton.Foreground = saved ? Brushes.DarkGoldenrod : Brushes.SlateGray;
             BookmarkToggleButton.ToolTip = saved ? "Remove bookmark" : "Bookmark this page";
-            BookmarkToggleButton.IsEnabled = !string.IsNullOrWhiteSpace(url) && IsRestorableUrl(url);
+            BookmarkToggleButton.IsEnabled = !string.IsNullOrWhiteSpace(url) && IsRestorableUrl(url) && !HomePageService.IsHomeUrl(url);
         }
 
         private void AddBookmark()
         {
             BrowserTab tab = SelectedTab;
-            if (tab == null || !tab.Initialized || tab.View.Source == null)
+            if (tab == null || !tab.Initialized || tab.View.Source == null || HomePageService.IsHomeUrl(tab.View.Source.AbsoluteUri))
             {
                 SetStatus("Open a page before bookmarking it");
                 return;
@@ -1159,6 +1204,26 @@ namespace HarborBrowser
             Bookmark bookmark = button == null ? null : button.Tag as Bookmark;
             if (bookmark != null) NavigateCurrent(bookmark.Url);
         }
+
+
+        private void SendHomePageState(BrowserTab tab)
+        {
+            if (tab == null || !tab.Initialized || tab.View.CoreWebView2 == null ||
+                !HomePageService.IsHomeUrl(tab.View.CoreWebView2.Source)) return;
+            tab.View.CoreWebView2.PostWebMessageAsJson(HomePageService.CreateState(
+                SearchEngineService.GetById(_settings.SearchEngineId), _bookmarks, tab.IsPrivate));
+        }
+
+        private void RefreshHomePages()
+        {
+            foreach (TabItem item in BrowserTabs.Items)
+            {
+                BrowserTab tab = item.Tag as BrowserTab;
+                try { SendHomePageState(tab); }
+                catch (InvalidOperationException) { }
+            }
+        }
+
 
         private void SearchEngineBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -2000,7 +2065,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.3.2\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.3.3\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2008,13 +2073,13 @@ namespace HarborBrowser
 
         private void SaveSettings()
         {
-            try { _store.SaveSettings(_settings); }
+            try { _store.SaveSettings(_settings); RefreshHomePages(); }
             catch (Exception ex) { SetStatus("Could not save settings: " + ex.Message); }
         }
 
         private void SaveBookmarks()
         {
-            try { _store.SaveBookmarks(_bookmarks); }
+            try { _store.SaveBookmarks(_bookmarks); RefreshHomePages(); }
             catch (Exception ex) { SetStatus("Could not save bookmarks: " + ex.Message); }
         }
 

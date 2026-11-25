@@ -75,7 +75,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock Text="Harbor 0.3.2  •  WebView2" Foreground="#71808B" />
+                <TextBlock Text="Harbor 0.3.3  •  WebView2" Foreground="#71808B" />
             </StatusBarItem>
         </StatusBar>
 

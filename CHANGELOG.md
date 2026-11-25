@@ -1,3 +1,13 @@
+## 0.3.3
+
+- Add Harbor Home at harbor://home with local morning and blue-hour coastal backgrounds.
+- Add search/address entry using the selected search engine and up to eight saved-bookmark shortcuts.
+- Remember the home-page theme in normal tabs without saving private-tab theme changes.
+- Add the selected Beacon lighthouse identity as the application and installer icon.
+- Include the three identity explorations, selected PNG/ICO, wallpapers and release banner in Artwork.
+- Upgrade the former DuckDuckGo default once; preserve custom home URLs and later explicit choices.
+- Carry forward the 0.3.2 download and compact-window fixes.
+
 ## 0.3.2
 
 - Replace the separate Windows title bar with window controls in Harbor's existing top row.
