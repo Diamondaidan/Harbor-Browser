@@ -1,39 +1,47 @@
-# Harbor Browser 0.3.7
+# Harbor Browser 0.3.8
 
-## Reopen closed tabs
+## Bookmarks and folders
 
-Press Ctrl+Shift+T, choose Reopen closed tab from a tab's context menu, or use Cog > History > Reopen closed tab.
+Open Cog > Bookmarks > Manage bookmarks. Add/edit names, addresses and folders, filter/search the library, reorder entries, and create or rename folders. Use / for subfolders, for example Work/Projects. Removing a folder moves its bookmarks to Unfiled.
 
-Harbor remembers up to 20 closed normal tabs for the current browser session and restores the most recently closed first. The URL, title, pinned state, original position and existing group are restored. A removed group falls back to ungrouped. Restoring makes the tab visible even if a different group was selected.
+Folders appear on the bookmarks bar and in the cog menu. Existing bookmarks stay available without needing a folder.
 
-Private tabs are excluded. The closed-tab list is kept in memory and clears when Harbor exits.
+Import browser bookmark HTML in Netscape format or Harbor JSON. Export HTML or Harbor JSON, including folder structure and empty folders. Imports merge into the current draft and skip duplicate folder/address pairs. Unsafe or credential-bearing addresses are excluded. Import files are parsed as data and are not opened as web pages.
 
-## Address suggestions
+Choose Save to apply manager changes. Closing or cancelling leaves the original library unchanged. Export includes the entire current draft library.
 
-Type in the address bar to see matching bookmarks and history. Use Up/Down and Enter, or click a suggestion. Escape dismisses the list; Enter without a selection uses the normal address/search behavior.
+## Home page customization
 
-Suggestions are generated locally. Private tabs suggest bookmarks only and exclude browsing history. Private navigation is not added to history. Page navigation updates preserve text being edited in the address bar.
+Choose Customize on Harbor Home, or open Settings > Home page customization.
 
-## Downloads page
+- Choose the automatic light/dark scene, a fixed Morning or Blue hour scene, or a custom image.
+- Custom pictures are copied into the Harbor profile as PNG; the original image is unchanged. Images are resized to a maximum long edge of 1600 pixels.
+- Show the first 12 bookmarks automatically, or edit an independent list of up to 12 home shortcuts and arrange their order.
 
-Press Ctrl+J, choose Cog > Downloads > Show all downloads, or enter harbor://downloads in the address bar. Harbor opens a Downloads tab and reuses an existing page for the same normal/private context.
+Image input limits are 12 MB and 24 million pixels. Customize is hidden on private Home tabs; private tabs use the saved appearance without making Home-page changes automatically.
 
-The page includes filename search, live progress and sizes, Pause, Resume, Cancel, Open file, Show in folder, Remove and Clear completed. Removing list items keeps completed files on disk. Active/resumable downloads must be cancelled before removal. The page scrolls at small window sizes.
+## Saved appearance presets
 
-The list covers the current browser session and is not saved across restarts. Normal and private download lists are separated. Files downloaded in private tabs remain on the computer.
+Settings > Appearance lets you save, apply and remove up to 20 named presets. Presets store both light/dark color palettes and the selected mode. Changes stay in the Settings draft until Save settings. Background images and shortcuts are configured separately.
 
-Resume is enabled when supported by the download. Resumed transfers retain their original list item and filename, including when the browser raises another download-start event. Source tabs can close while their transfers continue; their retained browser controls are released when no transfer needs them.
+## Search highlight and online completion
 
-## Existing features
+Search/address-bar selection is lighter, with text remaining above the color. Home-page suggestions use a translucent highlight in dark and light mode.
 
-This release includes all 0.3.6 fixes: 1366 × 768 compatibility, compact light/dark cog menus with right-side scrollbars, full-URL selection, Beacon branding, home-page artwork, custom appearance palettes, right-side new tabs, tab reordering/groups, download filename/extension repair, video fullscreen and picture in picture.
+Online suggestions use the selected search engine: DuckDuckGo, Google, Bing, Brave or Startpage. They work in the address bar and Harbor Home. They are enabled for normal tabs and can be turned off in Settings > Search suggestions.
 
-## Install and build
+Online lookup sends search text to the selected provider. It uses separate HTTP requests without browser cookies or default credentials. It is always disabled in private tabs. Full web addresses, IP addresses, localhost, paths and credential-shaped inputs are excluded from online lookup.
 
-Close Harbor, then run dist/HarborBrowserSetup-0.3.7.exe over the existing installation. Installer identity, profile location and schema 5 remain unchanged. The installer bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
+Requests are delayed briefly while typing, cancelled when superseded, and stale replies are ignored. Provider errors fall back to the existing local bookmark/history suggestions and search action. A selected provider completion always performs a search.
 
-The installer was built but not installed during verification. The installed browser and personal profile were not modified.
+## Install and data
 
-For building from source, follow SETUP-README.md. Source archives omit build outputs, test profiles and prerequisite executables.
+Close Harbor and run dist/HarborBrowserSetup-0.3.8.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
 
-See VERIFICATION.md for executed checks and limits, and ROADMAP.md for later milestones. Previews contains rendered interface examples.
+Profile schema advances from 5 to 6 for folders, presets and Home preferences. Harbor snapshots the existing profile before migration. Earlier builds protect newer-schema data by disabling saves.
+
+No installation or upgrade was performed during verification. The installed browser and personal profile were not modified.
+
+All 0.3.7 tab restoration, Downloads, fullscreen, picture-in-picture and compatibility fixes are retained.
+
+For building from source, follow SETUP-README.md. See VERIFICATION.md for executed tests and limits, ROADMAP.md for later milestones, and Previews for interface examples.

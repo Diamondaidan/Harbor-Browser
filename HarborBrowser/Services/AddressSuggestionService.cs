@@ -10,6 +10,8 @@ namespace HarborBrowser.Services
         public string Title { get; set; }
         public string Url { get; set; }
         public string SourceLabel { get; set; }
+        public string Query {get;set;}
+        public string TargetInput {get{return Query??Url;}}
         internal DateTime Visited { get; set; }
         internal int Rank { get; set; }
     }

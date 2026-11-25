@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 namespace HarborBrowser.Models
 {
     public sealed class BrowserSettings
@@ -18,6 +20,13 @@ namespace HarborBrowser.Models
         public string TrackingPreventionLevel { get; set; }
         public bool ClearCookiesOnExit { get; set; }
         public bool ClearCacheOnExit { get; set; }
+        public bool OnlineSuggestionsEnabled {get;set;}
+        public List<string> BookmarkFolders {get;set;}
+        public List<AppearancePreset> AppearancePresets {get;set;}
+        public bool UseCustomHomeShortcuts {get;set;}
+        public List<Bookmark> HomeShortcuts {get;set;}
+        public string HomeScene {get;set;}
+        public string HomeBackgroundFile {get;set;}
 
         public BrowserSettings()
         {
@@ -34,6 +43,8 @@ namespace HarborBrowser.Models
             TrackingPreventionLevel = "Balanced";
             ClearCookiesOnExit = false;
             ClearCacheOnExit = false;
+            OnlineSuggestionsEnabled=true;
+            BookmarkFolders=new List<string>();AppearancePresets=new List<AppearancePreset>();HomeShortcuts=new List<Bookmark>();HomeScene="Auto";
         }
 
         public BrowserSettings Copy()
@@ -55,7 +66,13 @@ namespace HarborBrowser.Models
                 EnableTrackerBlocking = EnableTrackerBlocking,
                 TrackingPreventionLevel = TrackingPreventionLevel,
                 ClearCookiesOnExit = ClearCookiesOnExit,
-                ClearCacheOnExit = ClearCacheOnExit
+                ClearCacheOnExit = ClearCacheOnExit,
+                OnlineSuggestionsEnabled=OnlineSuggestionsEnabled,
+                BookmarkFolders=(BookmarkFolders??new List<string>()).ToList(),
+                AppearancePresets=(AppearancePresets??new List<AppearancePreset>()).Where(p=>p!=null&&!string.IsNullOrWhiteSpace(p.Name)).Take(20).Select(p=>p.Copy()).ToList(),
+                UseCustomHomeShortcuts=UseCustomHomeShortcuts,
+                HomeShortcuts=(HomeShortcuts??new List<Bookmark>()).Where(b=>b!=null).Select(b=>b.Copy()).ToList(),
+                HomeScene=HomeScene,HomeBackgroundFile=HomeBackgroundFile
             };
         }
     }

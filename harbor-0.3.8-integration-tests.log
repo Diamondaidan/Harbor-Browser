@@ -2,8 +2,8 @@ MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
   All projects are up-to-date for restore.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborIntegrationTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\IntegrationTests\bin\Release\net48\HarborIntegrationTests.exe
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborIntegrationTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\IntegrationTests\bin\Release\net48\HarborIntegrationTests.exe
 PASS cross-origin iframe video discovered
 PASS group bar absent
 PASS caption and tabs share same row
@@ -155,10 +155,10 @@ PASS short Downloads page scrolls all content
 PASS download controls reachable on small screen
 INFO before resume: Interrupted UserPaused CanResume=True
 PASS download resume button enabled
-INFO Range: bytes=622592-
-INFO fixture request: GET /archive HTTP/1.1; start=622592
-INFO after resume: InProgress ServerContentLengthMismatch CanResume=False UI=Downloading 30%
-INFO fixture sent 1475005 bytes
+INFO Range: bytes=655360-
+INFO fixture request: GET /archive HTTP/1.1; start=655360
+INFO after resume: InProgress ServerContentLengthMismatch CanResume=False UI=Downloading 31%
+INFO fixture sent 1442237 bytes
 PASS resumed transfer completes
 PASS resume retains one download row and original filename
 PASS resume reconnects after transfer connection closes
@@ -182,5 +182,29 @@ INFO fixture sent 2097597 bytes
 PASS download survives closing its source tab
 PASS closed source is released after download completes
 PASS Downloads tab can navigate back to web content
-ALL PASSED: 167 isolated app/media integration checks.
-Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\IntegrationTests\TestResults\20261112-205523
+PASS bookmark folder filters real grid
+PASS bookmark order moves within filtered folder
+PASS folder rename updates nested bookmark paths
+PASS bookmark editor adds to chosen folder
+PASS bookmark manager imports HTML folder
+PASS bookmark manager search filters grid
+PASS bookmark draft leaves original data unchanged
+PASS bookmark manager Save returns independent result
+PASS preset saved in Settings draft
+PASS preset restores saved color
+PASS closing Settings discards draft preset
+PASS Settings saves shortcut scene and online preferences
+PASS stale online replies cannot replace current suggestions
+PASS provider completion cannot invoke internal page
+PASS Settings toggle prevents online address requests
+PASS private address input makes no online requests
+PASS custom background and shortcut reach real Home
+PASS normal Home exposes customization button
+PASS online suggestions reach Home search field
+PASS Home keyboard selects search completion
+PASS Home Escape dismisses completion list
+PASS online toggle also prevents Home requests
+PASS private Home makes no online requests
+PASS private Home hides customization action
+ALL PASSED: 191 isolated app/media integration checks.
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\IntegrationTests\TestResults\20261112-214806

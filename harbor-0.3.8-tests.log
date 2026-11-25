@@ -1,11 +1,11 @@
 MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
   All projects are up-to-date for restore.
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\bin\Release\net48\HarborRegressionTests.exe
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\Tests\bin\Release\net48\HarborRegressionTests.exe
 PASS header wins
 PASS UTF-8 filename
 PASS RFC 5987 language
@@ -71,7 +71,7 @@ PASS custom upgrade home preserved
 PASS migration marker survives copy
 PASS selected search engine
 PASS private flag conveyed
-PASS bookmarks limited to eight
+PASS home shortcuts limited to twelve
 PASS new ordinary tab appends right
 PASS new pinned tab stays with pinned group
 PASS first tab index
@@ -220,6 +220,33 @@ PASS multiword suggestions match title and URL
 PASS empty query does not expose browsing list
 PASS suggestion count limited
 PASS case-sensitive paths remain distinct
+PASS HTML bookmarks parse nested folders
+PASS HTML bookmark entities decoded
+PASS HTML empty folders retained
+PASS bookmark export escapes HTML
+PASS HTML bookmark roundtrip preserves hierarchy
+PASS JSON bookmark roundtrip preserves empty folders
+PASS legacy JSON bookmark arrays accepted
+PASS bookmark merges skip duplicates
+PASS bookmark credentials and scripts rejected
+PASS invalid folder paths rejected
+PASS customization drafts deep-copy all collections
+PASS custom home shortcuts override bookmark fallback
+PASS home background scene conveyed
+PASS schema 5 profile upgrades to schema 6
+PASS schema upgrade snapshots prior settings
+PASS schema upgrade preserves legacy bookmarks
+PASS new home folders and presets persist
+PASS background import copies valid image into profile
+PASS background import preserves original image
+PASS background lookup cannot escape managed directory
+PASS invalid background file rejected
+PASS online toggle private mode and address guards prevent requests
+PASS online completions deduplicate and use selected provider
+PASS rich suggestion arrays parsed safely
+PASS provider errors preserve local suggestions
+PASS cancelled online lookup returns safely
+PASS oversized online response rejected
 PASS 1320 borderless
 PASS 1320 resize border
 PASS 1320 Beacon header logo loaded
@@ -259,5 +286,5 @@ PASS 1320 cog moved below caption
 PASS 1320 cog in address row
 PASS 1320 address still usable
 PASS 1320 caption buttons clickable
-ALL PASSED: 253 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
-Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\TestResults\20261112-205759
+ALL PASSED: 280 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
+Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.8\Tests\TestResults\20261112-215100

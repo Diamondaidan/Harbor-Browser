@@ -60,6 +60,8 @@ internal static class HomeSmoke
                 };
                 core.WebMessageReceived += (ss,ee) => {
                     if (!HomePageService.IsHomeUrl(ee.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
+                    var message=HomePageService.ReadMessage(ee.Source,ee.WebMessageAsJson);object kind;
+                    if(message!=null&&message.TryGetValue("type",out kind)&&((kind as string)=="home-suggest"||(kind as string)=="home-customize"))return;
                     string requestedTheme=HomePageService.ReadThemeMessage(ee.Source,ee.WebMessageAsJson);
                     if(requestedTheme!=null){themeChoice=requestedTheme;return;}
                     string input=HomePageService.ReadSearchMessage(ee.Source,ee.WebMessageAsJson);
@@ -137,6 +139,33 @@ internal static class HomeSmoke
                 await core.ExecuteScriptAsync("document.querySelector('[data-theme=light]').click()");
                 await Task.Delay(150);
                 Check("private theme change leaves app mode untouched",themeChoice==null);
+
+                var custom=new BrowserSettings{ThemeMode="Dark",HomeScene="Morning",UseCustomHomeShortcuts=true};
+                for(int i=0;i<14;i++)custom.HomeShortcuts.Add(new Bookmark{Title="Custom "+i,Url="https://shortcut.test/"+i});
+                state=HomePageService.CreateState(SearchEngineService.GetById(engineId),null,false,custom);core.PostWebMessageAsJson(state);await Task.Delay(120);
+                await CheckJs(core,"custom Home shortcuts use saved order and limit","document.querySelectorAll('.favorite').length===12&&document.querySelector('.favorite span:last-child').textContent==='Custom 0'");
+                await CheckJs(core,"fixed scene independent of dark mode","document.body.dataset.theme==='dark'&&getComputedStyle(document.body).backgroundImage.includes('morning.png')");
+                await CheckJs(core,"normal Home exposes customization action","!document.getElementById('customize-home').hidden");
+                await core.CallDevToolsProtocolMethodAsync("Emulation.setFocusEmulationEnabled","{\"enabled\":true}");
+                int requestId=0;string requested=null;bool customizeRequested=false,searchOnly=false;
+                core.WebMessageReceived+=(ss,ee)=>{
+                    var message=HomePageService.ReadMessage(ee.Source,ee.WebMessageAsJson);object type,value,id,force;
+                    if(message==null||!message.TryGetValue("type",out type))return;
+                    if((type as string)=="home-suggest"&&message.TryGetValue("id",out id)&&message.TryGetValue("value",out value)&&Convert.ToString(value).Length>0){requestId=Convert.ToInt32(id);requested=Convert.ToString(value);}
+                    if((type as string)=="home-customize")customizeRequested=true;
+                    if((type as string)=="home-search"&&message.TryGetValue("searchOnly",out force))searchOnly=force is bool&&(bool)force;
+                };
+                await core.ExecuteScriptAsync("document.getElementById('customize-home').click();document.getElementById('query').focus();document.getElementById('query').value='weather';document.getElementById('query').dispatchEvent(new Event('input',{bubbles:true}));");await Task.Delay(100);
+                Check("Home customization sends trusted action",customizeRequested);Check("Home input sends suggestion request",requested=="weather"&&requestId>0);
+                core.PostWebMessageAsJson(Json.Serialize(new{type="home-suggestions",value="weather",id=requestId,items=new[]{new{title="<img src=x onerror=alert(1)>",query="weather tomorrow",url=(string)null,source="Test suggestion"}}}));await Task.Delay(100);
+                await CheckJs(core,"suggestions render text without executing markup","document.querySelector('#home-suggestions button span').textContent==='<img src=x onerror=alert(1)>'&&document.querySelector('#home-suggestions img')===null");
+                core.PostWebMessageAsJson(Json.Serialize(new{type="home-suggestions",value="weather",id=requestId-1,items=new[]{new{title="Stale",query="stale",source="Test"}}}));await Task.Delay(50);
+                await CheckJs(core,"stale Home suggestion message ignored","document.querySelector('#home-suggestions button span').textContent.startsWith('<img')");
+                string scroll=await core.ExecuteScriptAsync("window.scrollY");
+                await core.ExecuteScriptAsync("document.getElementById('query').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowDown',bubbles:true}));");
+                Check("Home keyboard navigation does not scroll page",await core.ExecuteScriptAsync("window.scrollY")==scroll);
+                await CheckJs(core,"dark suggestion highlight stays translucent","(()=>{const color=getComputedStyle(document.querySelector('#home-suggestions button')).backgroundColor;const alpha=Number(color.split(',').pop().replace(')',''));return color.startsWith('rgba(')&&alpha>0&&alpha<.4;})()");
+                await core.ExecuteScriptAsync("document.getElementById('query').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',bubbles:true}));");await Task.Delay(80);Check("selected Home completion requests search only",searchOnly&&destination.Contains("weather%20tomorrow"));
 
                 Check("home loaded without external network requests",externalRequests==0);
                 Console.WriteLine("ALL PASSED: "+checks+" WebView2 browser checks. Captures are from an isolated test host, not the installed Harbor window.");

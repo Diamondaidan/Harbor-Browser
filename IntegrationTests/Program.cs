@@ -32,7 +32,7 @@ internal static partial class Program
         var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
         app.Resources.MergedDictionaries.Add(new ResourceDictionary{Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml")});
         var store=new BrowserDataStore(Path.Combine(args[0],"Profile"),Path.Combine(args[0],"Downloads"));
-        store.SaveSettings(new BrowserSettings{RestorePreviousSession=false,HarborHomeIntroduced=true,ThemeMode="Dark"});
+        store.SaveSettings(new BrowserSettings{RestorePreviousSession=false,HarborHomeIntroduced=true,ThemeMode="Dark",OnlineSuggestionsEnabled=false});
         store.SaveHistory(Enumerable.Range(1,30).Select(i=>new HistoryEntry{Title="History sample "+i,Url="https://history.test.invalid/page-"+i,VisitedAt=new DateTime(2026,11,12,12,0,0).AddMinutes(-i)}).ToList());
         var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
         var main=new MainWindow(store,h=>layout){WindowStartupLocation=WindowStartupLocation.Manual,Left=-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=false,ShowActivated=false};
@@ -147,6 +147,7 @@ internal static partial class Program
                 var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));
                 using(var file=File.Create(Path.Combine(args[0],"compact-header.png")))encoder.Save(file);
                 await EverydayChecks(main,tab,store,core,args[0],args[1]);
+                await CustomizationChecks(main,store,args[0]);
                 Console.WriteLine("ALL PASSED: "+checks+" isolated app/media integration checks.");
                 exit=0;
             }

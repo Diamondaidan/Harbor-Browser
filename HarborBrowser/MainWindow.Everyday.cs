@@ -18,6 +18,9 @@ namespace HarborBrowser
         private readonly System.Collections.Generic.Dictionary<DownloadEntry,BrowserTab> _downloadOwners=new System.Collections.Generic.Dictionary<DownloadEntry,BrowserTab>();
         private readonly System.Collections.Generic.HashSet<BrowserTab> _retainedDownloadTabs=new System.Collections.Generic.HashSet<BrowserTab>();
         private bool _settingAddress,_addressEditing;
+        private System.Threading.CancellationTokenSource _suggestionCancellation;
+        private int _suggestionRevision;
+        internal OnlineSuggestionService OnlineSuggestions=new OnlineSuggestionService();
         private static bool IsDownloadsUrl(string value){return string.Equals((value??string.Empty).Trim().TrimEnd('/'),DownloadsUrl,StringComparison.OrdinalIgnoreCase);}
         private void InitializeEverydayFeatures()
         {
@@ -25,6 +28,8 @@ namespace HarborBrowser
             AddressBox.LostKeyboardFocus+=(s,e)=>{if(!AddressSuggestions.IsMouseOver){AddressSuggestions.IsOpen=false;_addressEditing=false;}};
             Deactivated+=(s,e)=>AddressSuggestions.IsOpen=false;
             SizeChanged+=(s,e)=>AddressSuggestions.IsOpen=false;
+            AddressSuggestions.Closed+=(s,e)=>CancelOnlineSuggestions();
+            Closed+=(s,e)=>CancelOnlineSuggestions();
         }
         private void SetAddressText(string value)
         {
@@ -35,16 +40,37 @@ namespace HarborBrowser
         }
         internal void RefreshAddressSuggestions()
         {
+            CancelOnlineSuggestions();
             if(_settingAddress||!AddressBox.IsKeyboardFocusWithin){AddressSuggestions.IsOpen=false;return;}
             _addressEditing=true;
             var suggestions=AddressSuggestionService.Find(AddressBox.Text,_bookmarks,_history,SelectedTab!=null&&SelectedTab.IsPrivate);
+            if(suggestions.Count==0&&OnlineSuggestionService.IsSearchQuery(AddressBox.Text))suggestions.Add(new AddressSuggestion{Title="Search "+SearchEngineService.GetById(_settings.SearchEngineId).Name+" for “"+AddressBox.Text.Trim()+"”",Query=AddressBox.Text.Trim(),SourceLabel="Search the web"});
             AddressSuggestionList.ItemsSource=suggestions;AddressSuggestionList.SelectedIndex=-1;
             AddressSuggestions.IsOpen=suggestions.Count>0;
+            if(_settings.OnlineSuggestionsEnabled&&SelectedTab!=null&&!SelectedTab.IsPrivate&&OnlineSuggestionService.IsSearchQuery(AddressBox.Text))
+            {
+                _suggestionCancellation=new System.Threading.CancellationTokenSource();
+                _ = FillOnlineSuggestions(AddressBox.Text.Trim(),_settings.SearchEngineId,SelectedTab,suggestions,_suggestionRevision,_suggestionCancellation.Token);
+            }
+        }
+        private void CancelOnlineSuggestions(){_suggestionRevision++;if(_suggestionCancellation!=null){_suggestionCancellation.Cancel();_suggestionCancellation.Dispose();_suggestionCancellation=null;}}
+        private async System.Threading.Tasks.Task FillOnlineSuggestions(string query,string engine,BrowserTab tab,System.Collections.Generic.List<AddressSuggestion> local,int revision,System.Threading.CancellationToken cancellation)
+        {
+            try
+            {
+                await System.Threading.Tasks.Task.Delay(280,cancellation);
+                var terms=await OnlineSuggestions.GetAsync(query,engine,_settings.OnlineSuggestionsEnabled,tab.IsPrivate,cancellation);
+                if(cancellation.IsCancellationRequested||revision!=_suggestionRevision||SelectedTab!=tab||tab.IsPrivate||!_settings.OnlineSuggestionsEnabled||_settings.SearchEngineId!=engine||!AddressBox.IsKeyboardFocusWithin||AddressBox.Text.Trim()!=query||!AddressSuggestions.IsOpen||AddressSuggestionList.SelectedIndex>=0)return;
+                if(terms.Count==0)return;
+                var remote=terms.Select(term=>new AddressSuggestion{Title=term,Query=term,SourceLabel=SearchEngineService.GetById(engine).Name+" suggestion"});
+                AddressSuggestionList.ItemsSource=remote.Take(5).Concat(local.Where(s=>s.Query==null)).Take(8).ToList();
+            }
+            catch(OperationCanceledException){}
         }
         private void AddressSuggestion_Click(object sender,MouseButtonEventArgs e)
         {
             var suggestion=AddressSuggestionList.SelectedItem as AddressSuggestion;
-            if(suggestion!=null){AddressSuggestions.IsOpen=false;NavigateCurrent(suggestion.Url);e.Handled=true;}
+            if(suggestion!=null){AddressSuggestions.IsOpen=false;NavigateCurrent(suggestion.Query==null?suggestion.Url:SearchSuggestionTarget(suggestion.Query));e.Handled=true;}
         }
         private bool HandleSuggestionKey(KeyEventArgs e)
         {
@@ -61,7 +87,7 @@ namespace HarborBrowser
             {
                 var suggestion=AddressSuggestionList.SelectedItem as AddressSuggestion;
                 AddressSuggestions.IsOpen=false;
-                NavigateCurrent(suggestion==null?AddressBox.Text:suggestion.Url);e.Handled=true;return true;
+                NavigateCurrent(suggestion==null?AddressBox.Text:suggestion.Query==null?suggestion.Url:SearchSuggestionTarget(suggestion.Query));e.Handled=true;return true;
             }
             return false;
         }

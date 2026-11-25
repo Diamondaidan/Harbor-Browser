@@ -8,7 +8,7 @@ namespace HarborBrowser.Views
     {
         public BrowserSettings ResultSettings { get; private set; }
 
-        public SettingsWindow(BrowserSettings current)
+        public SettingsWindow(BrowserSettings current, System.Collections.Generic.IEnumerable<Bookmark> bookmarks = null)
         {
             InitializeComponent();
             HarborBrowser.Services.WindowFitService.Attach(this);
@@ -16,6 +16,7 @@ namespace HarborBrowser.Views
 
             BrowserSettings settings = current == null ? new BrowserSettings() : current.Copy();
             InitializeAppearance(settings);
+            InitializeCustomization(bookmarks);
             SearchEngineBox.SelectedValue = settings.SearchEngineId;
             HomePageBox.Text = HomePageService.DisplayUrl(settings.HomePage);
             ShowBookmarksBarBox.IsChecked = settings.ShowBookmarksBar;
@@ -36,6 +37,8 @@ namespace HarborBrowser.Views
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             if (!CommitHex()) { AppearanceHexBox.Focus(); return; }
+            if (System.Convert.ToString(HomeSceneBox.SelectedValue) == "Custom" && SelectedBackgroundPath == null && string.IsNullOrEmpty(_appearanceDraft.HomeBackgroundFile))
+            { MessageBox.Show(this, "Choose a custom background image first.", "Home background"); return; }
             string homePage;
             if (!SearchEngineService.TryNormalizeHomePage(HomePageBox.Text, out homePage))
             {
@@ -66,7 +69,14 @@ namespace HarborBrowser.Views
                 EnableTrackerBlocking = EnableTrackerBlockingBox.IsChecked == true,
                 TrackingPreventionLevel = System.Convert.ToString(TrackingPreventionLevelBox.SelectedValue),
                 ClearCookiesOnExit = ClearCookiesOnExitBox.IsChecked == true,
-                ClearCacheOnExit = ClearCacheOnExitBox.IsChecked == true
+                ClearCacheOnExit = ClearCacheOnExitBox.IsChecked == true,
+                OnlineSuggestionsEnabled = OnlineSuggestionsBox.IsChecked == true,
+                BookmarkFolders = _appearanceDraft.Copy().BookmarkFolders,
+                AppearancePresets = _appearanceDraft.Copy().AppearancePresets,
+                HomeShortcuts = _appearanceDraft.Copy().HomeShortcuts,
+                UseCustomHomeShortcuts = UseBookmarkShortcutsBox.IsChecked == false,
+                HomeScene = System.Convert.ToString(HomeSceneBox.SelectedValue),
+                HomeBackgroundFile = _appearanceDraft.HomeBackgroundFile
             };
 
             DialogResult = true;

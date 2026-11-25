@@ -44,6 +44,7 @@ internal static partial class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if(args.Length==1&&args[0]=="--probe-providers")return ProbeProviders();
         try
         {
             var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
@@ -109,6 +110,7 @@ internal static partial class Program
             VideoWindowChecks();
             ResolutionChecks();
             EverydayChecks();
+            CustomizationChecks();
             Layout(args[4], 1320, 850);
             Layout(args[4], 800, 560);
             AppearanceService.ApplyApplication(new HarborBrowser.Models.BrowserSettings {ThemeMode="Dark"});
@@ -154,12 +156,12 @@ internal static partial class Program
         Check("migration marker survives copy", custom.Copy().HarborHomeIntroduced);
         var list = new System.Collections.Generic.List<HarborBrowser.Models.Bookmark>();
         list.Add(new HarborBrowser.Models.Bookmark {Title="Invalid",Url="javascript:alert(1)"});
-        for (int i=0;i<10;i++) list.Add(new HarborBrowser.Models.Bookmark {Title="Bookmark " + i,Url="https://example.com/" + i});
+        for (int i=0;i<20;i++) list.Add(new HarborBrowser.Models.Bookmark {Title="Bookmark " + i,Url="https://example.com/" + i});
         var json = new System.Web.Script.Serialization.JavaScriptSerializer().DeserializeObject(
             HomePageService.CreateState(SearchEngineService.GetById("bing"), list, true)) as System.Collections.Generic.Dictionary<string,object>;
         Equal("selected search engine", "Bing", json["engineName"] as string);
         Check("private flag conveyed", (bool)json["isPrivate"]);
-        Equal("bookmarks limited to eight", "8", ((object[])json["bookmarks"]).Length.ToString());
+        Equal("home shortcuts limited to twelve", "12", ((object[])json["bookmarks"]).Length.ToString());
     }
 
     private static void Layout(string path, int width, int height, string suffix = "")

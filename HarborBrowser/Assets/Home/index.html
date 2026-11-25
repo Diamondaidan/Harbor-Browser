@@ -12,10 +12,10 @@
 <body>
 <header>
   <a class="brand" href="index.html" aria-label="Harbor home"><img src="beacon.png" alt="" width="40" height="40"><span>Harbor</span></a>
-  <div class="appearance" role="group" aria-label="Home page appearance">
+  <div class="home-actions"><button id="customize-home" type="button" hidden>Customize</button><div class="appearance" role="group" aria-label="Home page appearance">
     <button type="button" data-theme="light" aria-pressed="true">Morning</button>
     <button type="button" data-theme="dark" aria-pressed="false">Blue hour</button>
-  </div>
+  </div></div>
 </header>
 <main>
   <div class="eyebrow" id="date"></div>
@@ -24,8 +24,9 @@
   <form id="search" role="search" autocomplete="off">
     <svg aria-hidden="true" viewBox="0 0 24 24" width="23" height="23"><circle cx="10.5" cy="10.5" r="6.5"></circle><path d="m16 16 5 5"></path></svg>
     <label class="sr-only" for="query">Search the web or enter an address</label>
-    <input id="query" type="text" placeholder="Search the web or enter an address" maxlength="4096" spellcheck="false" required>
+    <input id="query" type="text" placeholder="Search the web or enter an address" maxlength="4096" spellcheck="false" required role="combobox" aria-autocomplete="list" aria-controls="home-suggestions" aria-expanded="false">
     <button type="submit" aria-label="Search or go to address" title="Search or go">➜</button>
+    <ul id="home-suggestions" role="listbox" aria-label="Search suggestions" hidden></ul>
   </form>
   <p class="search-note">Search with <span id="engine">DuckDuckGo</span><span class="private-note" hidden> · Private tab</span></p>
   <section class="favorites-section" aria-labelledby="favorites-title">
@@ -34,6 +35,6 @@
     <div id="empty-state"><span class="empty-star" aria-hidden="true">☆</span><div><strong>Make yourself at home.</strong><p>Bookmark a site with the star in the address bar to keep it here.</p></div></div>
   </section>
 </main>
-<footer><span><i aria-hidden="true"></i><span id="scene-name">Morning harbor</span></span><span>Harbor 0.3.7</span></footer>
+<footer><span><i aria-hidden="true"></i><span id="scene-name">Morning harbor</span></span><span>Harbor 0.3.8</span></footer>
 </body>
 </html>

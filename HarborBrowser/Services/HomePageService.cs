@@ -45,15 +45,19 @@ namespace HarborBrowser.Services
             return IsHomeUrl(value) ? FriendlyUrl : value;
         }
 
-        public static string CreateState(SearchEngine engine, IEnumerable<Bookmark> bookmarks, bool isPrivate, BrowserSettings appearance = null)
+        public static string CreateState(SearchEngine engine, IEnumerable<Bookmark> bookmarks, bool isPrivate, BrowserSettings appearance = null, string backgroundData = null)
         {
             engine = engine ?? SearchEngineService.GetById(null);
-            var links = (bookmarks ?? Enumerable.Empty<Bookmark>())
+            var source = appearance != null && appearance.UseCustomHomeShortcuts ? appearance.HomeShortcuts : bookmarks;
+            var links = (source ?? Enumerable.Empty<Bookmark>())
                 .Where(b => b != null && IsWebLink(b.Url) && !IsHomeUrl(b.Url))
-                .Take(8).Select(b => new { title = b.Title ?? "", url = b.Url }).ToArray();
-            return new JavaScriptSerializer().Serialize(new {
+                .Take(12).Select(b => new { title = b.Title ?? "", url = b.Url }).ToArray();
+            return new JavaScriptSerializer { MaxJsonLength = 16 * 1024 * 1024 }.Serialize(new {
                 type = "home-state", engineName = engine.Name, searchTemplate = engine.SearchUrl,
-                isPrivate = isPrivate, bookmarks = links, appearance = appearance == null ? null : AppearanceService.HomeAppearance(appearance)
+                isPrivate = isPrivate, bookmarks = links, appearance = appearance == null ? null : AppearanceService.HomeAppearance(appearance),
+                scene = appearance == null ? "Auto" : appearance.HomeScene,
+                customShortcuts = appearance != null && appearance.UseCustomHomeShortcuts,
+                backgroundData = backgroundData != null && backgroundData.StartsWith("data:image/png;base64,", StringComparison.Ordinal) ? backgroundData : null
             });
         }
 
@@ -61,7 +65,13 @@ namespace HarborBrowser.Services
         {
             Uri uri;
             return Uri.TryCreate(value, UriKind.Absolute, out uri) &&
-                (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp);
+                (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp) && string.IsNullOrEmpty(uri.UserInfo);
+        }
+
+        public static Dictionary<string,object> ReadMessage(string source,string json)
+        {
+            if(!IsHomeUrl(source)||string.IsNullOrEmpty(json)||json.Length>12000)return null;
+            try{return new JavaScriptSerializer{MaxJsonLength=12000,RecursionLimit=8}.Deserialize<Dictionary<string,object>>(json);}catch(ArgumentException){return null;}catch(InvalidOperationException){return null;}
         }
 
 

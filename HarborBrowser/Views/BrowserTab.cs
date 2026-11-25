@@ -19,6 +19,7 @@ namespace HarborBrowser.Views
         public TabItem Item { get; set; }
         public WebView2 View { get; set; }
         public System.Windows.FrameworkElement NativeContent { get; set; }
+        public System.Threading.CancellationTokenSource HomeSuggestionCancellation {get;set;}
         public TextBlock HeaderText { get; set; }
         public Image HeaderIcon { get; set; }
         public TextBlock FallbackIcon { get; set; }

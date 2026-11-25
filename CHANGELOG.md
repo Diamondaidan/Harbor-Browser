@@ -1,3 +1,17 @@
+## 0.3.8
+
+- Add a bookmark manager with folder hierarchy, search, editing, ordering and HTML/JSON import/export.
+- Show bookmark folders in the bar and cog menu; retain empty folders and support safe folder renaming/removal.
+- Add independent editable Home shortcuts, automatic bookmark shortcuts and a 12-shortcut limit.
+- Add fixed/built-in Home scenes and validated profile-managed custom background images.
+- Add named light/dark appearance presets with draft save/cancel isolation.
+- Lighten search/address text selection and Home suggestion highlights.
+- Add optional online completion from the selected provider in the address bar and Home.
+- Block online lookup in private tabs and for address-shaped inputs; cancel stale requests and avoid browser cookies.
+- Keep provider completions search-only.
+- Migrate profile schema 5 to 6 with a backup before writing new preferences.
+- Retain all 0.3.7 everyday-browsing, download, media and compatibility behavior.
+
 ## 0.3.7
 
 - Reopen up to 20 closed normal tabs with Ctrl+Shift+T and menu commands, preserving position, pin state and existing group.

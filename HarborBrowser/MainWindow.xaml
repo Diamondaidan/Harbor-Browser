@@ -67,7 +67,7 @@
         </StatusBarItem>
         <Separator />
         <StatusBarItem HorizontalAlignment="Right">
-          <TextBlock Text="Harbor 0.3.7  •  WebView2" Foreground="{DynamicResource HarborMuted}" />
+          <TextBlock Text="Harbor 0.3.8  •  WebView2" Foreground="{DynamicResource HarborMuted}" />
         </StatusBarItem>
       </StatusBar>
       <Border x:Name="DownloadNotificationBar" DockPanel.Dock="Bottom" Visibility="Collapsed" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,1,0,0" Padding="12,5">
@@ -141,7 +141,7 @@
               <Border Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="1" CornerRadius="4" Width="{Binding ActualWidth,ElementName=AddressBox}" Padding="3">
                 <ListBox x:Name="AddressSuggestionList" Background="Transparent" BorderThickness="0" MaxHeight="270" Focusable="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" PreviewMouseLeftButtonUp="AddressSuggestion_Click">
                   <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Focusable" Value="False"/><Setter Property="Padding" Value="7,5"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="SuggestionSurface" Background="Transparent" CornerRadius="3" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SuggestionSurface" Property="Background" Value="{DynamicResource HarborHover}"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="SuggestionSurface" Property="Background" Value="{DynamicResource HarborSelected}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style></ListBox.ItemContainerStyle>
-                  <ListBox.ItemTemplate><DataTemplate><StackPanel><TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Url}" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource HarborMuted}"/><TextBlock Text="{Binding SourceLabel}" FontSize="10" Foreground="{DynamicResource HarborMuted}"/></StackPanel></DataTemplate></ListBox.ItemTemplate>
+                  <ListBox.ItemTemplate><DataTemplate><StackPanel><TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Url}" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource HarborMuted}"><TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding Url}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock><TextBlock Text="{Binding SourceLabel}" FontSize="10" Foreground="{DynamicResource HarborMuted}"/></StackPanel></DataTemplate></ListBox.ItemTemplate>
                 </ListBox>
               </Border>
             </Popup>

@@ -14,6 +14,10 @@ namespace HarborBrowser.Services
             settings.ThemeMode = settings.ThemeMode == "Dark" ? "Dark" : "Light";
             if(settings.LightColors==null)settings.LightColors=new AppearanceColors();
             if(settings.DarkColors==null)settings.DarkColors=new AppearanceColors();
+            if(settings.BookmarkFolders==null)settings.BookmarkFolders=new List<string>();
+            if(settings.AppearancePresets==null)settings.AppearancePresets=new List<AppearancePreset>();
+            if(settings.HomeShortcuts==null)settings.HomeShortcuts=new List<Bookmark>();
+            if(settings.HomeScene!="Morning"&&settings.HomeScene!="BlueHour"&&settings.HomeScene!="Custom")settings.HomeScene="Auto";
         }
 
         public static AppearanceColors Colors(BrowserSettings settings, string mode)
@@ -103,7 +107,7 @@ namespace HarborBrowser.Services
             var p=Palette(settings,mode);
             return new { ink=Hex(p["HarborText"]),muted=Hex(p["HarborMuted"]),surface=Hex(p["HarborInput"]),
                 soft=Hex(p["HarborPanel"]),accent=Hex(p["HarborAccent"]),accentText=Hex(p["HarborAccentText"]),
-                background=Hex(p["HarborWindow"]),line=Hex(p["HarborLine"]) };
+                background=Hex(p["HarborWindow"]),line=Hex(p["HarborLine"]),selection=Hex(p["HarborAccent"])+"47" };
         }
 
         public static Color FromHsv(double hue,double saturation,double value)

@@ -1,69 +1,67 @@
-# Harbor Browser 0.3.7 verification
+# Harbor Browser 0.3.8 verification
 
 Verified November 12, 2026 (America/Chicago).
 
-## Executed results
+## Results
 
-- Windows .NET Framework 4.8 Release build: passed, zero warnings and zero errors.
-- Inno Setup installer compilation: passed.
-- Compiled app and installer file versions: 0.3.7.0.
-- Compiled application and staged installer application SHA-256 hashes: identical.
-- Bundled .NET Framework 4.8 and WebView2 x64 offline prerequisite size and Microsoft signature validation: passed.
-- 253 regression/service/settings/offline-layout checks: passed.
-- 167 isolated real-app/interface/media/download checks: passed.
-- 28 isolated WebView2 home-page checks: passed.
-- Total: 448 passed checks.
+- .NET Framework 4.8 Release build: passed; zero warnings and zero errors.
+- Inno Setup compilation: passed; application and installer versions are 0.3.8.0.
+- Bundled .NET Framework 4.8 and WebView2 x64 prerequisites: size and Microsoft signature checks passed.
+- Tested executable and staged executable SHA-256: identical.
+- Compiled and staged Home assets: identical.
+- 280 regression/service/settings/layout checks: passed.
+- 191 isolated real-app/interface/media checks: passed.
+- 38 isolated Home-page browser checks: passed.
+- 509 automated checks in total.
+- Five additional live provider checks: DuckDuckGo, Google, Bing, Brave and Startpage each returned six suggestions for the generic query weather.
+- Total successful checks including provider connectivity: 514.
 
-## New behavior verified
+## New features exercised
 
-Closed tabs:
-- Private tabs and unsafe URLs are excluded.
-- The list is bounded to 20 entries and restores newest first.
-- Snapshot copying preserves title, pin, group and original position.
-- The real app restores the selected tab with its pin/group/position and makes it visible.
+Bookmarks:
+- Nested Netscape-format HTML folders, HTML entities, empty folders, Harbor JSON and legacy JSON arrays.
+- HTML/JSON export/import roundtrips and duplicate merging.
+- Script/credential-bearing bookmark rejection and invalid folder paths.
+- Real manager filtering, ordering within a filtered folder, parent-folder renaming, adding/editing, import and search.
+- Draft isolation when closing and independent results when saving.
+- Folder dropdown labels and manager layout were visually inspected.
 
-Address suggestions:
-- Bookmarks/history match locally, duplicates are removed, unsafe and credential-bearing URLs are excluded, and case-sensitive paths remain distinct.
-- Empty queries do not expose the browsing list.
-- Private tabs use bookmark-only suggestions and private navigation is excluded from saved history.
-- Routed Up/Down, Enter and Escape events select/navigate/dismiss correctly.
-- A routed mouse-selection event opens the selected result.
-- The selected suggestion uses the current interface palette.
+Preferences and Home:
+- Deep copying and storage of folders, custom shortcuts and appearance presets.
+- Schema 5 to 6 migration, preservation of legacy bookmarks and a snapshot before migration.
+- Background import into the profile, preservation of the original picture, invalid-image rejection and managed-directory traversal protection.
+- Saved presets restoring colors; closing Settings discarding the draft; Save returning Home/online preferences.
+- Fixed scenes independent of mode, custom background and ordered custom shortcuts reaching the actual Home page, and a 12-shortcut limit.
+- Home customization action messages, normal/private action visibility and selected search completion behavior.
+- Light/dark search text selection, preset names, manager labels and Home suggestion translucency were visually inspected.
 
-Downloads:
-- A native Downloads tab opens without starting a WebView for that page and reuses the page within the same normal/private context.
-- The page participates in normal session saving and can navigate to a normal web page afterward.
-- A real local HTTP server supplies a valid roughly 2 MB ZIP using an extensionless attachment filename.
-- Live bytes/progress appear in the page.
-- Pause stops progress; Resume succeeds after the test server deliberately closes the transfer connection.
-- The resumed request uses an HTTP byte range, completes with one original list entry/filename, matches the source byte-for-byte and opens as a ZIP.
-- Cancellation and subsequent row removal work.
-- Search filters rows; clearing completed rows retains their disk files.
-- Normal and private pages show only their respective entries.
-- Closing the source tab does not stop the transfer. The retained source is released after completion.
-- At a 659×320 logical window size, all page content scrolls and transfer controls remain reachable.
-- Light/dark page previews and suggestion previews were inspected.
+Online suggestions:
+- The Settings toggle prevents requests in both address-bar and Home flows.
+- Private tabs prevent online requests in both flows, with the service also enforcing privacy policy.
+- Common web/local-address and credential-shaped input guards prevent lookup.
+- Provider responses are bounded, parsed as data, deduplicated and never rendered as HTML.
+- Cancellation and malformed responses return safely; stale replies cannot replace current results.
+- Provider completions cannot invoke internal browser pages; selection performs a search.
+- Home arrows select results without scrolling the whole page, Escape dismisses the list, and stale IDs are ignored.
+- The selected Home highlight is translucent in dark mode.
+- The separate Home test host made no external page-resource requests.
 
-The forced interruption test exposed a second download-start event during resume. The implementation now binds that event back to the original entry and path instead of allocating a duplicate filename. The source-tab closure test also exposed lost lifecycle updates; source controls now remain alive for active/resumable transfers and are released afterward.
+The live probes used only a synthetic public query. App privacy/cancellation tests used an injected deterministic transport rather than real personal queries. Suggestion requests use a separate HTTP client with cookies and default credentials disabled, no automatic redirects, bounded responses and cancellation/time limits.
 
-## Previous behavior rechecked
+## Existing behavior retained
 
-The suites retain filename/extension recovery, collision protection, settings save/cancel, light/dark/custom appearance, tab ordering, local home behavior, 1366×768 logical-layout coverage, themed right-side menu scrollbars, window geometry, fullscreen video, picture-in-picture controls/restoration, tab groups and saved tab order.
+The suites also rechecked filename/extension handling, download collisions, real local HTTP pause/range-resume/cancellation, source-tab closure, ZIP byte integrity, tab restoration/reordering/groups, Downloads privacy separation, fullscreen video, picture-in-picture, compact right-side menu scrollbars, Settings actions and small-screen layouts.
 
-## Environment and limits
+## Limits and user-system checks
 
-All app tests used an isolated profile and synthetic fixtures. Download HTTP traffic stayed on loopback; home-page tests confirmed no external requests from Harbor Home. The user's installed browser and personal profile were not changed.
+No installation, upgrade or uninstall was run. The installed browser and personal browsing profile were not modified. All app tests used isolated profiles, synthetic bookmarks/images and local media/download fixtures.
 
-No installation, upgrade or uninstall was performed. The available desktop reports 1920×1080; Windows resolution/scale settings were not changed. Resolution/scale-specific checks used corresponding logical layouts and injected monitor/work-area rectangles.
+Physical mouse/trackpad actions and keyboard chords, file-picker interaction, real browser-export files, installation on the target laptop, live Windows display/DPI transitions and additional real-world websites remain user-system checks. The 1366×768 coverage uses logical layouts and injected monitor/work-area bounds; Windows display settings were not changed.
 
-Remaining user-system checks:
-- Installer/upgrade/uninstall on the target Windows laptop.
-- Physical Ctrl+Shift+T and Ctrl+J input, keyboard focus transitions, real mouse/trackpad scrolling, dragging and taskbar-edge interaction.
-- Opening downloaded files in their external handlers and showing them in Explorer; availability/guards were checked without launching those applications.
-- Actual display/DPI transitions and additional real-world websites, download servers and protected video players.
+Provider connectivity is a point-in-time check. Provider availability, throttling and response formats can change; local suggestions and normal search remain available when online completion fails.
 
-Closed-tab restoration and download lists are intentionally limited to the current browser session. Completed files remain on disk. Resume availability depends on the browser engine and server.
+The profile schema is now 6. Installer identity and profile location are unchanged. Migration snapshots and newer-schema save protection remain in place.
 
-API references: [WebView2 download operation](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2downloadoperation) and [WebView2 download integration](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/overview-features-apis#downloads).
+Endpoint references were checked against [Chromium's current search-engine definitions](https://chromium.googlesource.com/external/search_engines_data/+/refs/heads/main/definitions/prepopulated_engines.json). Suggestions remain a provider feature; see [DuckDuckGo's autocomplete control](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/turn-off-autocomplete) and [Startpage's suggestion explanation](https://support.startpage.com/hc/en-us/articles/5141960270228-Search-Suggestions).
 
-The source archive excludes build outputs, test profiles and prerequisite executables. Installer/source hashes are in HarborBrowser-0.3.7-SHA256.txt.
+Source archives omit build outputs, test profiles and prerequisite executables. Installer/source hashes are in HarborBrowser-0.3.8-SHA256.txt.

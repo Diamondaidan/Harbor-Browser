@@ -24,6 +24,11 @@
                 <ComboBoxItem Content="Dark" Tag="Dark" />
               </ComboBox>
             </Grid>
+            <TextBlock Text="Saved appearance presets" FontWeight="SemiBold" Margin="0,0,0,5"/>
+            <ComboBox x:Name="PresetBox" DisplayMemberPath="Name" AutomationProperties.Name="Appearance preset"/>
+            <WrapPanel Margin="0,5,0,8"><Button Content="Apply preset" Click="ApplyPreset_Click"/><Button Content="Remove preset" Click="RemovePreset_Click"/></WrapPanel>
+            <TextBlock Text="Preset name" Margin="0,0,0,4"/><TextBox x:Name="PresetNameBox" ToolTip="Preset name" AutomationProperties.Name="New appearance preset name"/>
+            <Button Content="Save current colors as preset" Click="SavePreset_Click" HorizontalAlignment="Left" Margin="0,5,0,12"/>
             <TextBlock Text="Make Harbor your own" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,5" />
             <TextBlock Text="Choose a color target, then use the wheel, brightness slider or a hex color. Light and dark palettes are saved separately. Preview changes here; Save settings applies them throughout Harbor." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="0,0,0,12" />
             <ComboBox x:Name="ColorTargetBox" SelectedValuePath="Tag" SelectionChanged="ColorTarget_Changed" Margin="0,0,0,12">
@@ -52,6 +57,22 @@
             <Button x:Name="ResetAppearanceButton" Content="Reset this mode to default colors" Click="ResetAppearance_Click" HorizontalAlignment="Left" Margin="0,10,0,0" />
             <TextBlock Text="Applies to Harbor's interface and home page. Websites keep their own designs." FontSize="11" Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="0,10,0,0" />
           </StackPanel>
+        </GroupBox>
+        <GroupBox x:Name="HomeCustomizationGroup" Header="Home page customization" Padding="12" Margin="0,0,0,14">
+          <StackPanel>
+            <TextBlock Text="Background scene" Margin="0,0,0,5"/>
+            <ComboBox x:Name="HomeSceneBox" SelectedValuePath="Tag">
+              <ComboBoxItem Content="Follow light / dark mode" Tag="Auto"/><ComboBoxItem Content="Morning coast" Tag="Morning"/><ComboBoxItem Content="Blue hour coast" Tag="BlueHour"/><ComboBoxItem Content="Custom image" Tag="Custom"/>
+            </ComboBox>
+            <WrapPanel Margin="0,6,0,3"><Button Content="Choose image…" Click="BrowseBackground_Click"/><Button Content="Reset background" Click="ResetBackground_Click"/></WrapPanel>
+            <TextBlock x:Name="BackgroundSummary" TextWrapping="Wrap" Foreground="{DynamicResource HarborMuted}" Margin="0,0,0,12"/>
+            <CheckBox x:Name="UseBookmarkShortcutsBox" Content="Use bookmarks automatically for home shortcuts" Checked="ShortcutMode_Changed" Unchecked="ShortcutMode_Changed"/>
+            <Button Content="Edit home shortcuts…" Click="EditShortcuts_Click" HorizontalAlignment="Left" Margin="0,6,0,3"/>
+            <TextBlock x:Name="ShortcutSummary" TextWrapping="Wrap" Foreground="{DynamicResource HarborMuted}"/>
+          </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Search suggestions" Padding="12" Margin="0,0,0,14">
+          <StackPanel><CheckBox x:Name="OnlineSuggestionsBox" Content="Show online search suggestions as I type"/><TextBlock Text="Sends search text to your selected search provider. Always off in private tabs. Web addresses and local addresses stay on this computer." TextWrapping="Wrap" Foreground="{DynamicResource HarborMuted}" Margin="18,5,0,0"/></StackPanel>
         </GroupBox>
         <Grid Margin="0,0,0,10">
           <Grid.ColumnDefinitions>
