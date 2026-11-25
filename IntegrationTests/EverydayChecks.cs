@@ -109,9 +109,10 @@ internal static partial class Program
             var privateEntry=new DownloadEntry{FileName="private-sample.zip",IsPrivate=true,Status="Complete"};downloads.Insert(0,privateEntry);
             Check("normal Downloads excludes private entries",!page.DownloadList.Items.Contains(privateEntry));
             var privateOwner=AddTab(main,HomePageService.Url,true);main.BrowserTabs.SelectedItem=privateOwner.Item;
+            privateEntry.PrivateSessionId=privateOwner.PrivateSessionId;
             var privatePageTab=main.OpenDownloadsPage();var privatePage=(DownloadsPage)privatePageTab.NativeContent;await Task.Delay(50);
             Check("private Downloads contains only private entries",privatePageTab.IsPrivate&&privatePage.DownloadList.Items.Contains(privateEntry)&&!privatePage.DownloadList.Items.Contains(entry));
-            CloseTab(main,privateOwner);CloseTab(main,privatePageTab);main.BrowserTabs.SelectedItem=pageTab.Item;
+            main.BrowserTabs.SelectedItem=pageTab.Item;
             AppearanceService.ApplyApplication(new BrowserSettings{ThemeMode="Light"});await Task.Delay(80);Capture(page,Path.Combine(output,"downloads-light.png"));AppearanceService.ApplyApplication(new BrowserSettings{ThemeMode="Dark"});
             var completedPath=entry.FilePath;
             page.GetType().GetMethod("Clear_Click",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(page,new object[]{page,new RoutedEventArgs()});
@@ -119,7 +120,8 @@ internal static partial class Program
             core.Navigate(server.Url+"/cancel");await Wait(()=>downloads.Any(d=>d.IsActive&&d.BytesReceived>0));
             var cancel=downloads.First(d=>d.IsActive);await Task.Delay(70);DownloadButton(page,cancel,"cancel");await Wait(()=>!cancel.IsActive&&!cancel.CanResume);
             Check("cancelled row allows removal",cancel.Status=="Cancelled"&&cancel.CanRemove);DownloadButton(page,cancel,"remove");Check("remove deletes only row",!downloads.Contains(cancel));
-            downloads.Remove(privateEntry);
+            CloseTab(main,privateOwner);CloseTab(main,privatePageTab);await main.WaitForPrivateCleanup();
+            Check("last private tab clears its download records",!downloads.Contains(privateEntry));
             var owner=AddTab(main,HomePageService.Url);main.BrowserTabs.SelectedItem=owner.Item;await Wait(()=>owner.Initialized);
             owner.View.CoreWebView2.Navigate(server.Url+"/background");await Wait(()=>downloads.Any(d=>d.IsActive&&d.BytesReceived>0));
             var background=downloads.First(d=>d.IsActive);CloseTab(main,owner);

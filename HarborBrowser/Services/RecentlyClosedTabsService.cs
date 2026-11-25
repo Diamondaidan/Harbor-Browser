@@ -16,6 +16,7 @@ namespace HarborBrowser.Services
     {
         private readonly List<ClosedTabSnapshot> _tabs = new List<ClosedTabSnapshot>();
         public int Count { get { return _tabs.Count; } }
+        public void Clear(){_tabs.Clear();}
         public void Remember(ClosedTabSnapshot tab, bool isPrivate)
         {
             Uri uri;

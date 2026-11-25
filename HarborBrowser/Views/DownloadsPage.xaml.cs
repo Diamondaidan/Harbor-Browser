@@ -13,11 +13,12 @@ namespace HarborBrowser.Views
         private readonly Action<DownloadEntry,string> _action;
         private readonly Action _folder,_clear;
         public bool IsPrivate {get;private set;}
-        public DownloadsPage(ObservableCollection<DownloadEntry> entries,bool isPrivate,Action<DownloadEntry,string> action,Action folder,Action clear)
+        public string PrivateSessionId {get;private set;}
+        public DownloadsPage(ObservableCollection<DownloadEntry> entries,bool isPrivate,Action<DownloadEntry,string> action,Action folder,Action clear,string session=null)
         {
-            InitializeComponent();IsPrivate=isPrivate;_action=action;_folder=folder;_clear=clear;
+            InitializeComponent();IsPrivate=isPrivate;PrivateSessionId=session;_action=action;_folder=folder;_clear=clear;
             _view=new ListCollectionView(entries);
-            _view.Filter=value=>{var entry=value as DownloadEntry;return entry!=null&&entry.IsPrivate==IsPrivate&&(string.IsNullOrWhiteSpace(DownloadSearch.Text)||(entry.FileName??string.Empty).IndexOf(DownloadSearch.Text.Trim(),StringComparison.OrdinalIgnoreCase)>=0);};
+            _view.Filter=value=>{var entry=value as DownloadEntry;return entry!=null&&entry.IsPrivate==IsPrivate&&(!IsPrivate||entry.PrivateSessionId==PrivateSessionId)&&(string.IsNullOrWhiteSpace(DownloadSearch.Text)||(entry.FileName??string.Empty).IndexOf(DownloadSearch.Text.Trim(),StringComparison.OrdinalIgnoreCase)>=0);};
             DownloadList.ItemsSource=_view;
             if(isPrivate){PageHeading.Text="Private downloads";PageDescription.Text="Files downloaded in private tabs still remain on this computer. This list lasts for the current browser session.";}
         }

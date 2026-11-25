@@ -33,6 +33,7 @@ namespace HarborBrowser
         private CoreWebView2Environment _environment;
         private Task<CoreWebView2Environment> _environmentTask;
         private bool _ready;
+        private readonly bool _homeDefaultsUpdated;
         private bool _reorderingTabs;
         private bool _restoringSession;
         private bool _closingAfterPrivacyCleanup;
@@ -54,7 +55,7 @@ namespace HarborBrowser
             InitializeResponsiveLayout();
             _settings = _store.LoadSettings();
             AppearanceService.Normalize(_settings); AppearanceService.ApplyApplication(_settings);
-            bool homeDefaultsUpdated = HomePageService.UpgradeDefaults(_settings);
+            _homeDefaultsUpdated = HomePageService.UpgradeDefaults(_settings);
             string safeHomePage;
             if (!SearchEngineService.TryNormalizeHomePage(_settings.HomePage, out safeHomePage))
                 safeHomePage = HomePageService.Url;
@@ -63,8 +64,9 @@ namespace HarborBrowser
             _bookmarks = _store.LoadBookmarks();
             _history = _store.LoadHistory();
             _downloads = new ObservableCollection<DownloadEntry>();
+            InitializePrivacy();
+            InitializeRecovery();
             InitializeEverydayFeatures();
-            if (homeDefaultsUpdated) SaveSettings();
             BrowserTabs.ContextMenu = BuildTabStripContextMenu();
             BookmarksBar.ContextMenu = BuildBookmarksBarContextMenu();
         }
@@ -120,6 +122,8 @@ namespace HarborBrowser
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            if (!BeginSessionRun()) { Close(); return; }
+            if (_homeDefaultsUpdated && _sessionWritesAllowed) SaveSettings();
             SearchEngineBox.ItemsSource = SearchEngineService.Engines;
             SearchEngineBox.SelectedValue = _settings.SearchEngineId;
             ApplyInterfaceSettings();
@@ -148,6 +152,7 @@ namespace HarborBrowser
             }
 
             bool shouldRestorePreviousSession = _settings.RestorePreviousSession;
+            if (_sessionRecovery.HasPending) { shouldRestorePreviousSession = false; RecoveryBanner.Visibility = Visibility.Visible; }
             BrowserSession session = _store.LoadSession();
             LoadTabGroups(session);
             RefreshGroupFilterBox("*");
@@ -254,12 +259,7 @@ namespace HarborBrowser
             };
             if (tab.IsPrivate)
             {
-                // WebView2 creates an off-the-record profile for this control.
-                tab.View.CreationProperties = new CoreWebView2CreationProperties
-                {
-                    IsInPrivateModeEnabled = true,
-                    ProfileName = "Default"
-                };
+                ConfigurePrivateView(tab);
             }
 
             if (IsDownloadsUrl(initialUrl)) ConfigureDownloadsTab(tab);
@@ -389,39 +389,34 @@ namespace HarborBrowser
 
         private async Task EnsureTabInitializedAsync(BrowserTab tab)
         {
-            if (tab == null || tab.NativeContent != null || tab.Initialized || tab.Initializing || tab.IsClosing)
+            if (tab == null || tab.NativeContent != null || tab.Initialized || tab.Initializing || tab.IsClosing || tab.FailureMessage != null || tab.NeedsNewView)
                 return;
 
             tab.Initializing = true;
+            int generation = _browserGeneration;
+            var view = tab.View;
+            Func<bool> current = () => !tab.IsClosing && generation == _browserGeneration && ReferenceEquals(view, tab.View);
             SetStatus("Starting browser engine…");
             try
             {
-                if (_environment == null)
-                {
-                    if (_environmentTask == null)
-                    {
-                        string userDataFolder = Path.Combine(_store.RootFolder, "WebView2");
-                        Directory.CreateDirectory(userDataFolder);
-                        var environmentOptions = new CoreWebView2EnvironmentOptions
-                        {
-                            EnableTrackingPrevention = true
-                        };
-                        _environmentTask = CoreWebView2Environment.CreateAsync(null, userDataFolder, environmentOptions);
-                    }
-                    _environment = await _environmentTask;
-                }
+                await EnsureEnvironmentAsync();
 
-                if (tab.IsClosing) return;
-                await tab.View.EnsureCoreWebView2Async(_environment);
-                if (tab.IsClosing) return;
-                CoreWebView2 core = tab.View.CoreWebView2;
+                if (!current()) return;
+                await view.EnsureCoreWebView2Async(_environment);
+                if (!current()) return;
+                CoreWebView2 core = view.CoreWebView2;
+                await InitializePermissionProfile(core.Profile);
+                if (!current()) return;
+                core.PermissionRequested += (s, args) => { if (current()) CorePermissionRequested(tab, args); else { args.Handled = true; args.State = CoreWebView2PermissionState.Deny; args.SavesInProfile = false; } };
                 await InitializeVideoFeatures(tab, core);
+                if (!current()) return;
 
                 string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
                 core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
                     CoreWebView2HostResourceAccessKind.DenyCors);
                 core.WebMessageReceived += (s, args) =>
                 {
+                    if (!current()) return;
                     if (!HomePageService.IsHomeUrl(args.Source) || !HomePageService.IsHomeUrl(core.Source)) return;
                     if (HandleHomeCustomization(tab, args.Source, args.WebMessageAsJson)) return;
                     string mode = HomePageService.ReadThemeMessage(args.Source, args.WebMessageAsJson);
@@ -440,11 +435,17 @@ namespace HarborBrowser
                 core.Settings.IsStatusBarEnabled = false;
                 core.Settings.IsZoomControlEnabled = true;
                 ConfigureTrackerProtection(tab);
-                core.FaviconChanged += (s, args) => UpdateTabFavicon(tab);
+                core.FaviconChanged += (s, args) => { if (current()) UpdateTabFavicon(tab); };
                 UpdateTabFavicon(tab);
 
                 core.NavigationStarting += (s, args) =>
                 {
+                    if (!current()) return;
+                    tab.NavigationGeneration++;
+                    bool wasFailed = tab.FailureMessage != null;
+                    tab.FailureMessage = null;
+                    if (wasFailed && SelectedTab == tab) ShowTabContent();
+                    CancelPermissions(tab);
                     CancelHomeSuggestions(tab);
                     if (tab.VideoPopout != null) tab.VideoPopout.Close();
                     if (SelectedTab == tab)
@@ -457,6 +458,8 @@ namespace HarborBrowser
 
                 core.SourceChanged += (s, args) =>
                 {
+                    if (!current()) return;
+                    tab.LastKnownUrl = core.Source;
                     if (SelectedTab == tab && tab.View.Source != null)
                     {
                         SetAddressText(HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri));
@@ -466,6 +469,7 @@ namespace HarborBrowser
 
                 core.DocumentTitleChanged += (s, args) =>
                 {
+                    if (!current()) return;
                     string title = string.IsNullOrWhiteSpace(core.DocumentTitle) ? "Untitled" : core.DocumentTitle;
                     tab.PageTitle = title;
                     UpdateTabHeader(tab);
@@ -475,6 +479,7 @@ namespace HarborBrowser
 
                 core.NavigationCompleted += (s, args) =>
                 {
+                    if (!current()) return;
                     if (SelectedTab == tab)
                     {
                         SetStatus(args.IsSuccess ? "Done" : "Page load finished with an error");
@@ -494,15 +499,15 @@ namespace HarborBrowser
                 core.NewWindowRequested += (s, args) =>
                 {
                     args.Handled = true;
+                    if (!current()) return;
                     if (!string.IsNullOrWhiteSpace(args.Uri))
                         CreateNewTab(args.Uri, true, tab.IsPrivate, null);
                 };
 
-                core.DownloadStarting += (sender, args) => Core_DownloadStarting(tab, sender, args);
+                core.DownloadStarting += (sender, args) => { if (current()) Core_DownloadStarting(tab, sender, args); else args.Cancel = true; };
                 core.ProcessFailed += (s, args) =>
                 {
-                    if (SelectedTab == tab)
-                        SetStatus("A browser process stopped unexpectedly. Try reloading the tab.");
+                    if (current()) HandleProcessFailure(tab, args.ProcessFailedKind);
                 };
 
                 tab.Initialized = true;
@@ -517,7 +522,7 @@ namespace HarborBrowser
             }
             catch (Exception ex)
             {
-                if (tab.IsClosing) return;
+                if (!current()) return;
                 SetStatus("Browser engine could not start");
                 MessageBox.Show(this,
                     "Harbor could not initialize the WebView2 browser engine.\n\n" + ex.Message +
@@ -526,7 +531,7 @@ namespace HarborBrowser
             }
             finally
             {
-                tab.Initializing = false;
+                if (ReferenceEquals(view, tab.View)) tab.Initializing = false;
             }
         }
 
@@ -571,6 +576,7 @@ namespace HarborBrowser
                     Status = "Starting",
                     IsActive = true,
                     IsPrivate = tab != null && tab.IsPrivate,
+                    PrivateSessionId = tab == null ? null : tab.PrivateSessionId,
                     Operation = operation
                 };
                 entry.SourceUrl = operation.Uri;
@@ -757,6 +763,7 @@ namespace HarborBrowser
         private void NavigateCurrent(string input)
         {
             _addressEditing = false;
+
             AddressSuggestions.IsOpen = false;
             if (IsDownloadsUrl(input)) { OpenDownloadsPage(); return; }
             BrowserTab tab = SelectedTab;
@@ -775,6 +782,7 @@ namespace HarborBrowser
             }
             tab.PendingUrl = destination;
             SaveSession();
+            if (tab.FailureMessage != null || tab.NeedsNewView) { _ = RecoverTab(tab); return; }
 
             if (tab.Initialized && tab.View.CoreWebView2 != null)
             {
@@ -798,6 +806,7 @@ namespace HarborBrowser
 
             _addressEditing = false;
             foreach (TabItem item in BrowserTabs.Items) if (!ReferenceEquals(item.Tag, tab)) CancelHomeSuggestions(item.Tag as BrowserTab);
+            foreach (TabItem item in BrowserTabs.Items) if (!ReferenceEquals(item.Tag, tab)) CancelPermissions(item.Tag as BrowserTab);
             if (tab.NativeContent != null)
                 SetAddressText(DownloadsUrl);
             else if (tab.View.Source != null)
@@ -1014,6 +1023,7 @@ namespace HarborBrowser
         private void Reload_Click(object sender, RoutedEventArgs e)
         {
             BrowserTab tab = SelectedTab;
+            if (tab != null && tab.FailureMessage != null) { _ = RecoverTab(tab); return; }
             if (tab != null && tab.Initialized)
                 tab.View.CoreWebView2.Reload();
         }
@@ -1043,6 +1053,8 @@ namespace HarborBrowser
         {
             if (tab == null || tab.IsClosing)
                 return;
+            if (!PreparePrivateClose(tab)) return;
+            CancelPermissions(tab);
             RememberClosedTab(tab);
             CancelHomeSuggestions(tab);
             tab.IsClosing = true;
@@ -1051,6 +1063,7 @@ namespace HarborBrowser
             if (tab.SuspendTimer != null)
                 tab.SuspendTimer.Stop();
             BrowserTabs.Items.Remove(tab.Item);
+            PrivateTabClosed(tab);
             ApplyTabGroupFilter();
             SaveSession();
             try
@@ -1066,6 +1079,7 @@ namespace HarborBrowser
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Delete && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift)) { ClearBrowsingData_Click(sender, e); e.Handled = true; return; }
             if (AddressSuggestions.IsOpen && e.Key == Key.Escape) { AddressSuggestions.IsOpen = false; e.Handled = true; return; }
             if (e.Key == Key.T && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift)) { ReopenClosedTab(); e.Handled = true; return; }
             if (e.Key == Key.J && Keyboard.Modifiers == ModifierKeys.Control) { OpenDownloadsPage(); e.Handled = true; return; }
@@ -1559,7 +1573,8 @@ namespace HarborBrowser
 
         private void SaveSession()
         {
-            if (_store == null || _store.IsReadOnlyForNewerDataVersion || _restoringSession) return;
+            if (_store == null || !_sessionWritesAllowed || _store.IsReadOnlyForNewerDataVersion || _restoringSession) return;
+            _lastSessionSaveSucceeded = false;
             try
             {
                 var session = new BrowserSession { SavedAt = DateTime.Now, SelectedTabIndex = 0, Groups = new List<string>(_tabGroups), GroupsConfigured = true };
@@ -1568,13 +1583,14 @@ namespace HarborBrowser
                 {
                     BrowserTab tab = item.Tag as BrowserTab;
                     if (tab == null || tab.IsPrivate || tab.IsClosing) continue;
-                    string url = tab.View != null && tab.View.Source != null ? tab.View.Source.AbsoluteUri : tab.PendingUrl;
+                    string url = SafeTabUrl(tab);
                     if (!IsRestorableUrl(url)) continue;
                     if (tab == SelectedTab) selectedSavedIndex = session.Tabs.Count;
                     session.Tabs.Add(new BrowserSessionTab { Url = url, IsPinned = tab.IsPinned, GroupName = tab.GroupName });
                 }
                 if (selectedSavedIndex >= 0) session.SelectedTabIndex = selectedSavedIndex;
                 _store.SaveSession(session);
+                _lastSessionSaveSucceeded = true;
             }
             catch (Exception ex) { Debug.WriteLine("Could not save the tab session: " + ex.Message); }
         }
@@ -1818,7 +1834,7 @@ namespace HarborBrowser
             }
             menu.Items.Add(history);
 
-            var visibleDownloads = _downloads.Where(d => d.IsPrivate == (SelectedTab != null && SelectedTab.IsPrivate)).ToList();
+            var visibleDownloads = _downloads.Where(d => d.IsPrivate == (SelectedTab != null && SelectedTab.IsPrivate) && (!d.IsPrivate || d.PrivateSessionId == SelectedTab.PrivateSessionId)).ToList();
             MenuItem downloads = CreateGearSubmenu("Downloads (" + visibleDownloads.Count + ")");
             AddGearCommand(downloads, "Show all downloads (Ctrl+J)", ShowDownloads_Click);
             AddGearCommand(downloads, "Open downloads folder", OpenDownloads_Click);
@@ -1884,6 +1900,9 @@ namespace HarborBrowser
             menu.Items.Add(vpn);
 
             MenuItem tools = CreateGearSubmenu("Tools");
+            AddGearCommand(tools, "Site permissions…", SitePermissions_Click);
+            AddGearCommand(tools, "Clear browsing data… (Ctrl+Shift+Delete)", ClearBrowsingData_Click);
+            AddGearCommand(tools, "Restore recovery snapshot", RestoreRecovery_Click, _sessionRecovery != null && _sessionRecovery.Snapshot != null && _sessionRecovery.Snapshot.Session != null);
             AddGearCommand(tools, "Browser full screen (F11)", FullScreen_Click);
             AddGearCommand(tools, "Picture in picture (Ctrl+Shift+P)", PictureInPicture_Click);
             AddGearCommand(tools, "Resource monitor", ResourceMonitor_Click);
@@ -1934,7 +1953,7 @@ namespace HarborBrowser
 
         private void ClearCompletedDownloads()
         {
-            ClearCompletedDownloads(SelectedTab != null && SelectedTab.IsPrivate);
+            ClearCompletedDownloads(SelectedTab != null && SelectedTab.IsPrivate, SelectedTab == null ? null : SelectedTab.PrivateSessionId);
         }
 
         private void CancelDownload(DownloadEntry download)
@@ -2105,19 +2124,13 @@ namespace HarborBrowser
 
         private void ClearHistory()
         {
-            MessageBoxResult result = MessageBox.Show(this, "Delete the saved browsing history? This does not clear cookies or website data.",
-                "Clear browsing history", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (result != MessageBoxResult.Yes)
-                return;
-            _history.Clear();
-            SaveHistory();
-            SetStatus("Browsing history cleared");
+            ClearBrowsingData_Click(this, new RoutedEventArgs());
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.3.8\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.4.0\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2170,34 +2183,30 @@ namespace HarborBrowser
                 }
             }
 
-            if (!_closingAfterPrivacyCleanup && (_settings.ClearCookiesOnExit || _settings.ClearCacheOnExit))
+            if (!_closingAfterPrivacyCleanup && (_privatePermissions.Count > 0 || _privateCleanupTasks.Count > 0 || _privateCleanupFailures.Count > 0 || _settings.ClearCookiesOnExit || _settings.ClearCacheOnExit))
             {
                 e.Cancel = true;
-                try
+                if (_shuttingDown) return;
+                _shuttingDown = true;
+                try { await FinishPrivacyBeforeClose(); }
+                catch (Exception ex)
                 {
-                    BrowserTab regularTab = BrowserTabs.Items.Cast<TabItem>().Select(i => i.Tag as BrowserTab)
-                        .FirstOrDefault(t => t != null && !t.IsPrivate && t.Initialized && t.View.CoreWebView2 != null);
-                    if (regularTab != null)
-                    {
-                        CoreWebView2BrowsingDataKinds kinds = 0;
-                        if (_settings.ClearCookiesOnExit) kinds |= CoreWebView2BrowsingDataKinds.Cookies;
-                        if (_settings.ClearCacheOnExit) kinds |= CoreWebView2BrowsingDataKinds.DiskCache;
-                        if (kinds != 0) await regularTab.View.CoreWebView2.Profile.ClearBrowsingDataAsync(kinds);
-                    }
+                    if (MessageBox.Show(this, "Cleanup did not finish. Close anyway?\n\n" + ex.Message, "Privacy cleanup", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) { _shuttingDown = false; return; }
                 }
-                catch (Exception ex) { Debug.WriteLine("Privacy cleanup on exit failed: " + ex.Message); }
                 _closingAfterPrivacyCleanup = true;
                 Close();
                 return;
             }
-
+            _shuttingDown = true;
+            CancelPermissions();
             if (_downloadNotificationTimer != null)
                 _downloadNotificationTimer.Stop();
 
-            SaveSession();
-            SaveSettings();
-            SaveBookmarks();
-            SaveHistory();
+            if (_sessionWritesAllowed)
+            {
+                SaveSession(); SaveSettings(); SaveBookmarks(); SaveHistory();
+                try { if (_lastSessionSaveSucceeded) _sessionRecovery.MarkClean(); } catch (Exception ex) { System.Diagnostics.Debug.WriteLine(ex.Message); }
+            }
             foreach (TabItem item in BrowserTabs.Items)
             {
                 BrowserTab tab = item.Tag as BrowserTab;

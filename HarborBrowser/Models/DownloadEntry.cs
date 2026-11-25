@@ -20,6 +20,7 @@ namespace HarborBrowser.Models
         public bool IsActive { get {return _active;} set {_active=value;Changed();} }
         public bool CanResume { get {return _resume;} set {_resume=value;Changed();} }
         public bool IsPrivate { get; set; }
+        public string PrivateSessionId {get;set;}
         public string SourceUrl { get; set; }
         public bool CanCancel { get {return IsActive || CanResume;} }
         public bool CanRemove { get {return !IsActive&&!CanResume;} }

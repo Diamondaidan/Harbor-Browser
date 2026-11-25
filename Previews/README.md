@@ -1,0 +1,1 @@
+These previews are rendered WPF components and WebView2 captures from the isolated 0.4.0 tests. They are not screenshots of the installed browser. See ../VERIFICATION.md for test scope and limitations.

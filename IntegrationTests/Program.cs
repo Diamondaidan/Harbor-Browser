@@ -36,7 +36,8 @@ internal static partial class Program
         store.SaveHistory(Enumerable.Range(1,30).Select(i=>new HistoryEntry{Title="History sample "+i,Url="https://history.test.invalid/page-"+i,VisitedAt=new DateTime(2026,11,12,12,0,0).AddMinutes(-i)}).ToList());
         var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
         var main=new MainWindow(store,h=>layout){WindowStartupLocation=WindowStartupLocation.Manual,Left=-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=false,ShowActivated=false};
-        var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(100)};
+        main.TestBrowserArguments="--use-fake-device-for-media-stream";
+        var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(240)};
         timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL integration timed out");app.Shutdown(1);};
         main.Loaded+=async(s,e)=>{
             try
@@ -148,6 +149,7 @@ internal static partial class Program
                 using(var file=File.Create(Path.Combine(args[0],"compact-header.png")))encoder.Save(file);
                 await EverydayChecks(main,tab,store,core,args[0],args[1]);
                 await CustomizationChecks(main,store,args[0]);
+                await PrivacyChecks(main,store,args[0],args[1]);
                 Console.WriteLine("ALL PASSED: "+checks+" isolated app/media integration checks.");
                 exit=0;
             }
@@ -157,6 +159,7 @@ internal static partial class Program
                 timeout.Stop();
                 typeof(MainWindow).GetField("_confirmedCloseWithActiveDownloads",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(main,true);
                 // Close only the isolated test app and its test browser controls.
+                try{await (Task)typeof(MainWindow).GetMethod("FinishPrivacyBeforeClose",BindingFlags.Instance|BindingFlags.NonPublic).Invoke(main,null);typeof(MainWindow).GetField("_closingAfterPrivacyCleanup",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(main,true);}catch(Exception ex){Console.WriteLine("FAIL test cleanup "+ex);exit=1;}
                 try{main.Close();}catch{}
                 app.Shutdown(exit);
             }

@@ -137,9 +137,9 @@
               </ComboBox>
             </Grid>
             <TextBlock Text="WebView2 tracking prevention applies at the browser-profile level. Strict mode blocks more cross-site tracking but may affect some websites. Changes apply on the next navigation; reload open pages to apply immediately." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="18,0,0,8" />
-            <CheckBox x:Name="ClearCookiesOnExitBox" Content="Clear website cookies when Harbor closes" Margin="0,3,0,7" />
+            <CheckBox x:Name="ClearCookiesOnExitBox" Content="Clear cookies and site storage when Harbor closes" Margin="0,3,0,7" />
             <CheckBox x:Name="ClearCacheOnExitBox" Content="Clear cached website files when Harbor closes" Margin="0,3,0,7" />
-            <TextBlock Text="Private tabs use WebView2 InPrivate profiles and are not saved to session restore or Harbor history. Downloads and bookmarks you explicitly create can still remain on this computer." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="18,0,0,2" />
+            <TextBlock Text="Private tabs share a temporary session. Closing its last tab clears site data and the private download list; downloaded files and saved bookmarks remain on this computer. Use Cog > Tools for site permissions and Clear browsing data." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="18,0,0,2" />
           </StackPanel>
         </GroupBox>
       </StackPanel>

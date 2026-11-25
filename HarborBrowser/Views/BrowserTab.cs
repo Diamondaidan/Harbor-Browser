@@ -32,6 +32,11 @@ namespace HarborBrowser.Views
         public bool IsSuspended { get; set; }
         public bool IsClosing { get; set; }
         public bool IsPrivate { get; set; }
+        public string PrivateSessionId {get;set;}
+        public int NavigationGeneration {get;set;}
+        public string LastKnownUrl {get;set;}
+        public string FailureMessage {get;set;}
+        public bool NeedsNewView {get;set;}
         public bool IsPinned { get; set; }
         public bool TrackerFilterRegistered { get; set; }
         public string GroupName { get; set; }

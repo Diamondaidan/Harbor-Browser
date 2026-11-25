@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.3.8',
+    [string]$Version = '0.4.0',
     [switch]$SkipPrerequisiteDownloads,
     [switch]$SkipCompile
 )
@@ -177,6 +177,10 @@ if (!$BuildOutput) {
 $exe = Join-Path $BuildOutput 'HarborBrowser.exe'
 
 Write-Step 'Preparing application payload'
+$absoluteProject = [System.IO.Path]::GetFullPath($ProjectRoot).TrimEnd('\')
+$absolutePayload = [System.IO.Path]::GetFullPath($PayloadDir)
+if (!$absolutePayload.StartsWith($absoluteProject + '\dist\', [System.StringComparison]::OrdinalIgnoreCase)) { throw 'Payload path must stay within this project dist folder.' }
+if ((Test-Path -LiteralPath $PayloadDir) -and ((Get-Item -LiteralPath $PayloadDir -Force).Attributes -band [System.IO.FileAttributes]::ReparsePoint)) { throw 'Payload folder must not be a link.' }
 if (Test-Path $PayloadDir) { Remove-Item -LiteralPath $PayloadDir -Recurse -Force }
 New-Item -ItemType Directory -Path $PayloadDir -Force | Out-Null
 Get-ChildItem -LiteralPath $BuildOutput -Force | Where-Object {

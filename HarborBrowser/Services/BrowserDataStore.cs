@@ -10,7 +10,7 @@ namespace HarborBrowser.Services
 {
     public sealed class BrowserDataStore
     {
-        private const int CurrentDataSchemaVersion = 6;
+        private const int CurrentDataSchemaVersion = 7;
         private const int MaximumAutomaticBackups = 5;
 
         public string RootFolder { get; private set; }
@@ -54,6 +54,54 @@ namespace HarborBrowser.Services
         public void SaveSettings(BrowserSettings settings) { Save("settings.json", settings); }
         public void SaveBookmarks(List<Bookmark> bookmarks) { Save("bookmarks.json", bookmarks); }
         public void SaveHistory(List<HistoryEntry> history) { Save("history.json", history); }
+        public List<SitePermissionRule> LoadPermissions(){List<SitePermissionRule> rules;return TryDeserialize(Path.Combine(RootFolder,"permissions.json"),out rules)?rules:new List<SitePermissionRule>();}
+        public void SavePermissions(List<SitePermissionRule> rules){Save("permissions.json",rules);}
+        public SessionRunState LoadRunState(){string path=Path.Combine(RootFolder,"run-state.json");SessionRunState state;if(!File.Exists(path))return new SessionRunState();return TryDeserialize(path,out state)&&state.StartedUtc!=default(DateTime)?state:new SessionRunState{Running=true};}
+        public void SaveRunState(SessionRunState state){Save("run-state.json",state);}
+        public SessionRecoverySnapshot LoadRecovery(){return Load("session-recovery.json",new SessionRecoverySnapshot());}
+        public void SaveRecovery(SessionRecoverySnapshot snapshot){Save("session-recovery.json",snapshot);}
+        public void ClearHistoryRange(BrowsingDataRequest request)
+        {
+            if(IsReadOnlyForNewerDataVersion)throw new InvalidOperationException("This profile is read-only.");
+            SaveHistory(LoadHistory().Where(h=>h!=null&&!request.Contains(h.VisitedAt)).ToList());
+            var files=new List<string>{Path.Combine(RootFolder,"history.json.bak")};
+            foreach(var directory in ManagedBackupDirectories())
+                    foreach(string name in new[]{"history.json","history.json.bak"})files.Add(Path.Combine(directory.FullName,name));
+            foreach(string path in files)
+            {
+                if(!File.Exists(path)||(File.GetAttributes(path)&FileAttributes.ReparsePoint)!=0)continue;
+                List<HistoryEntry> history;
+                if(!TryDeserialize(path,out history))File.WriteAllText(path,"[]",new UTF8Encoding(false));
+                else File.WriteAllText(path,new JavaScriptSerializer{MaxJsonLength=int.MaxValue}.Serialize(history.Where(h=>h!=null&&!request.Contains(h.VisitedAt)).ToList()),new UTF8Encoding(false));
+            }
+        }
+        public void ResetRecoveryFiles()
+        {
+            SaveRecovery(new SessionRecoverySnapshot());
+            string backup=Path.Combine(RootFolder,"session-recovery.json.bak");
+            if(File.Exists(backup))File.WriteAllText(backup,"{}",new UTF8Encoding(false));
+        }
+        public void SanitizeRecoveryCopies()
+        {
+            var paths=new List<string>{Path.Combine(RootFolder,"session.json.bak")};
+            foreach(var directory in ManagedBackupDirectories())
+                    foreach(string name in new[]{"session.json","session.json.bak","session-recovery.json","session-recovery.json.bak"})paths.Add(Path.Combine(directory.FullName,name));
+            foreach(string path in paths)if(File.Exists(path)&&(File.GetAttributes(path)&FileAttributes.ReparsePoint)==0)File.WriteAllText(path,"{}",new UTF8Encoding(false));
+        }
+        public void SanitizePermissionCopies(BrowsingDataRequest request)
+        {
+            var paths=new List<string>{Path.Combine(RootFolder,"permissions.json.bak")};
+            foreach(var directory in ManagedBackupDirectories())foreach(string name in new[]{"permissions.json","permissions.json.bak"})paths.Add(Path.Combine(directory.FullName,name));
+            foreach(string path in paths)
+            {if(!File.Exists(path)||(File.GetAttributes(path)&FileAttributes.ReparsePoint)!=0)continue;List<SitePermissionRule> rules;File.WriteAllText(path,TryDeserialize(path,out rules)?new System.Web.Script.Serialization.JavaScriptSerializer{MaxJsonLength=int.MaxValue}.Serialize(rules.Where(r=>r!=null&&!request.Contains(r.UpdatedUtc)).ToList()):"[]",new UTF8Encoding(false));}
+        }
+
+        private IEnumerable<DirectoryInfo> ManagedBackupDirectories()
+        {
+            foreach(string folder in new[]{BackupsFolder,Path.Combine(RootFolder,"UpgradeBackups")})
+                if(Directory.Exists(folder)&&(new DirectoryInfo(folder).Attributes&FileAttributes.ReparsePoint)==0)
+                    foreach(var directory in new DirectoryInfo(folder).GetDirectories().Where(d=>(d.Attributes&FileAttributes.ReparsePoint)==0))yield return directory;
+        }
 
         private void EnsureDataSchema()
         {
@@ -80,11 +128,11 @@ namespace HarborBrowser.Services
 
             if (storedVersion < CurrentDataSchemaVersion)
             {
-                // Schema 6 adds bookmark folders, home customization and appearance presets.
+                // Schema 7 adds site permission rules and crash-recovery metadata.
                 // Existing bookmarks, history, settings, and tab data remain readable.
                 // Snapshot the profile before migration.
                 if (!backupAlreadyCreated)
-                    CreateBackupSnapshot("before-schema-6");
+                    CreateBackupSnapshot("before-schema-7");
                 WriteTextAtomically(versionPath, CurrentDataSchemaVersion.ToString());
             }
         }
@@ -97,6 +145,7 @@ namespace HarborBrowser.Services
                 "bookmarks.json", "bookmarks.json.bak",
                 "history.json", "history.json.bak",
                 "session.json", "session.json.bak",
+                "permissions.json", "permissions.json.bak", "session-recovery.json", "session-recovery.json.bak",
                 "data-version.txt", "data-version.txt.bak"
             };
 

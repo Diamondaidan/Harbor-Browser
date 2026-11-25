@@ -1,4 +1,4 @@
-# Harbor Browser 0.3.8 archive
+# Harbor Browser 0.4.0 archive
 
 The original full Windows installer and matching source are attached. Original files are preserved byte for byte; this is an archival publication, not a new build or a fresh Windows validation.
 
@@ -8,6 +8,6 @@ Harbor-authored code is released under GPL-3.0-only under the owner's public-sou
 
 Archive checks: source ZIP decompression/CRC, source-version identity, installer file-version identity when available, existing release receipts/sidecars where available, and SHA-256/size verification. Checksums are in ARCHIVE-SHA256SUMS.txt. Publication prepared November 24, 2026 (America/Chicago).
 
-Original source asset: HarborBrowser-0.3.8-source.zip
-SHA-256: 5999CE1A53F23221E0C19AFFE15A153C1F1C251D29D9CE9AFBA4456A5B3476FA
+Original source asset: HarborBrowser-0.4.0-source.zip
+SHA-256: 5A8A21AA88ABB845E7B27039A21F982E93BF484A12D38D23FB5887BB2E81C179
 This Git mirror retains original source file bytes. Supplemental archive/license files are separate from the unchanged attached ZIP.

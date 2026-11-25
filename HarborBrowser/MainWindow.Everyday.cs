@@ -125,7 +125,8 @@ namespace HarborBrowser
         {
             _addressEditing=false;
             bool isPrivate=SelectedTab!=null&&SelectedTab.IsPrivate;
-            var existing=BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).FirstOrDefault(t=>t!=null&&t.NativeContent is DownloadsPage&&t.IsPrivate==isPrivate);
+            string session=isPrivate?SelectedTab.PrivateSessionId:null;
+            var existing=BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).FirstOrDefault(t=>t!=null&&t.NativeContent is DownloadsPage&&t.IsPrivate==isPrivate&&(!isPrivate||t.PrivateSessionId==session));
             var tab=existing??CreateNewTab(DownloadsUrl,false,isPrivate,null);
             _activeGroupFilter="*";ApplyTabGroupFilter();BrowserTabs.SelectedItem=tab.Item;SetAddressText(DownloadsUrl);return tab;
         }
@@ -133,7 +134,7 @@ namespace HarborBrowser
         private void ConfigureDownloadsTab(BrowserTab tab)
         {
             tab.PendingUrl=DownloadsUrl;tab.PageTitle=tab.IsPrivate?"Private downloads":"Downloads";
-            tab.NativeContent=new DownloadsPage(_downloads,tab.IsPrivate,DownloadAction,OpenDownloadsFolder,()=>ClearCompletedDownloads(tab.IsPrivate));
+            tab.NativeContent=new DownloadsPage(_downloads,tab.IsPrivate,DownloadAction,OpenDownloadsFolder,()=>ClearCompletedDownloads(tab.IsPrivate,tab.PrivateSessionId),tab.PrivateSessionId);
         }
         private bool RebindResumedDownload(BrowserTab tab,CoreWebView2DownloadStartingEventArgs args)
         {
@@ -187,9 +188,9 @@ namespace HarborBrowser
             }
             catch(Exception ex){SetStatus("Could not complete download action: "+ex.Message);}
         }
-        private void ClearCompletedDownloads(bool isPrivate)
+        private void ClearCompletedDownloads(bool isPrivate,string session=null)
         {
-            foreach(var entry in _downloads.Where(d=>d.IsPrivate==isPrivate&&d.Status=="Complete").ToList())_downloads.Remove(entry);
+            foreach(var entry in _downloads.Where(d=>d.IsPrivate==isPrivate&&(!isPrivate||d.PrivateSessionId==session)&&d.Status=="Complete").ToList())_downloads.Remove(entry);
             SetStatus("Completed downloads removed from the list; files are kept");
         }
     }

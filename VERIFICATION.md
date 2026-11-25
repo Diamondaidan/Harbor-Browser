@@ -1,67 +1,69 @@
-# Harbor Browser 0.3.8 verification
+# Harbor Browser 0.4.0 verification
 
-Verified November 12, 2026 (America/Chicago).
+Verified November 12, 2026 (America/Chicago). No installation, upgrade or uninstall was performed. The installed browser, personal profile and synced project sources were not modified.
 
-## Results
+## Executed checks
 
-- .NET Framework 4.8 Release build: passed; zero warnings and zero errors.
-- Inno Setup compilation: passed; application and installer versions are 0.3.8.0.
-- Bundled .NET Framework 4.8 and WebView2 x64 prerequisites: size and Microsoft signature checks passed.
-- Tested executable and staged executable SHA-256: identical.
-- Compiled and staged Home assets: identical.
-- 280 regression/service/settings/layout checks: passed.
-- 191 isolated real-app/interface/media checks: passed.
-- 38 isolated Home-page browser checks: passed.
-- 509 automated checks in total.
-- Five additional live provider checks: DuckDuckGo, Google, Bing, Brave and Startpage each returned six suggestions for the generic query weather.
-- Total successful checks including provider connectivity: 514.
+| Check | Result |
+| --- | --- |
+| .NET Framework 4.8 Release build | Passed, zero errors. NuGet reported NU1900 because its vulnerability feed was unreachable; an online package vulnerability audit was not completed. |
+| Inno Setup compilation | Passed. App and setup file versions: 0.4.0.0. |
+| Embedded .NET Framework 4.8 and WebView2 x64 installers | Size checks and Microsoft Authenticode signature verification passed. |
+| Tested, compiled and staged Harbor executable | SHA-256 identical across regression/integration copies and installer payload. |
+| Compiled and staged Home assets | All file hashes match. |
+| Regression, service, settings and logical-layout checks | 310 passed. |
+| Isolated actual-app, native-window, media and privacy checks | 242 passed. |
+| Packaged Home-page WebView2 checks | 38 passed. |
+| Total automated checks | 590 passed. |
 
-## New features exercised
+Logs included beside this report: harbor-0.4.0-regression.log, harbor-0.4.0-integration.log, harbor-0.4.0-home.log and harbor-0.4.0-build.log. Source and installer hashes are distributed separately in HarborBrowser-0.4.0-SHA256.txt.
 
-Bookmarks:
-- Nested Netscape-format HTML folders, HTML entities, empty folders, Harbor JSON and legacy JSON arrays.
-- HTML/JSON export/import roundtrips and duplicate merging.
-- Script/credential-bearing bookmark rejection and invalid folder paths.
-- Real manager filtering, ordering within a filtered folder, parent-folder renaming, adding/editing, import and search.
-- Draft isolation when closing and independent results when saving.
-- Folder dropdown labels and manager layout were visually inspected.
+## Privacy tests exercised
 
-Preferences and Home:
-- Deep copying and storage of folders, custom shortcuts and appearance presets.
-- Schema 5 to 6 migration, preservation of legacy bookmarks and a snapshot before migration.
-- Background import into the profile, preservation of the original picture, invalid-image rejection and managed-directory traversal protection.
-- Saved presets restoring colors; closing Settings discarding the draft; Save returning Home/online preferences.
-- Fixed scenes independent of mode, custom background and ordered custom shortcuts reaching the actual Home page, and a 12-shortcut limit.
-- Home customization action messages, normal/private action visibility and selected search completion behavior.
-- Light/dark search text selection, preset names, manager labels and Home suggestion translucency were visually inspected.
+Permission service checks covered URL normalization, rejection of credentials/unsafe schemes, protocol/port/requesting-site/embedding-site separation, independent snapshots, Ask removing a stored rule, unsupported kinds failing closed, date filtering and ignoring a corrupt permission primary rather than restoring old backup grants.
 
-Online suggestions:
-- The Settings toggle prevents requests in both address-bar and Home flows.
-- Private tabs prevent online requests in both flows, with the service also enforcing privacy policy.
-- Common web/local-address and credential-shaped input guards prevent lookup.
-- Provider responses are bounded, parsed as data, deduplicated and never rendered as HTML.
-- Cancellation and malformed responses return safely; stale replies cannot replace current results.
-- Provider completions cannot invoke internal browser pages; selection performs a search.
-- Home arrows select results without scrolling the whole page, Escape dismisses the list, and stale IDs are ignored.
-- The selected Home highlight is translucent in dark mode.
-- The separate Home test host made no external page-resource requests.
+Actual WebView2 requests exercised camera denial once, remembered microphone denial, notification permission granted once, denial when switching away from a pending prompt, remembered camera allowance, and native-profile grant-cache inspection. Camera allowance used Chromium's fake-device test option; no physical camera or microphone was accessed. Notification testing checked the JavaScript permission result, not Windows toast delivery.
 
-The live probes used only a synthetic public query. App privacy/cancellation tests used an injected deterministic transport rather than real personal queries. Suggestion requests use a separate HTTP client with cookies and default credentials disabled, no automatic redirects, bounded responses and cancellation/time limits.
+Two simultaneous private tabs shared private cookies, local storage and in-memory permission choices. They could not see normal storage. Private choices did not overwrite normal saved permission rules. Normal cleanup cleared normal cookies/local storage while leaving private storage intact; private-scoped cleanup did the reverse. Closing the last private tab removed its rules/download rows and the next session received a new identity with empty data.
 
-## Existing behavior retained
+The private last-tab download confirmation was tested with a synthetic active download row. Real pause, range-resume, cancellation, source-tab closure, filename preservation and ZIP byte integrity were tested separately with normal downloads from a loopback HTTP fixture.
 
-The suites also rechecked filename/extension handling, download collisions, real local HTTP pause/range-resume/cancellation, source-tab closure, ZIP byte integrity, tab restoration/reordering/groups, Downloads privacy separation, fullscreen video, picture-in-picture, compact right-side menu scrollbars, Settings actions and small-screen layouts.
+History cleanup was checked against recent/old entries, atomic backup fallback, automatic snapshots and installer UpgradeBackups. Recovery copies and closed-tab lists were reset while current open tabs and bookmarks remained. Permission-backup sanitation was also checked. Cookie/site-storage/cache clearing calls ran against real profiles; individual disk-cache files were not measured for secure erasure.
 
-## Limits and user-system checks
+Both new dialogs were exercised in light and dark mode, including core permission rows, resetting while a grid cell was being edited, chosen cleanup categories/time range, palette and Beacon icon. The resulting rendered previews were visually inspected.
 
-No installation, upgrade or uninstall was run. The installed browser and personal browsing profile were not modified. All app tests used isolated profiles, synthetic bookmarks/images and local media/download fixtures.
+Existing private-history exclusion and address/Home online-suggestion suppression checks also passed. Online tests used an injected deterministic transport; no live provider-connectivity probes were repeated for this release.
 
-Physical mouse/trackpad actions and keyboard chords, file-picker interaction, real browser-export files, installation on the target laptop, live Windows display/DPI transitions and additional real-world websites remain user-system checks. The 1366×768 coverage uses logical layouts and injected monitor/work-area bounds; Windows display settings were not changed.
+## Recovery and resource monitor
 
-Provider connectivity is a point-in-time check. Provider availability, throttling and response formats can change; local suggestions and normal search remain available when online completion fails.
+An isolated child process wrote a normal session and was abruptly terminated. The next session detected the unclean journal and retained URL, pin, group and selection. Exclusive writer locking, clean shutdown, dismissal, corrupt-journal fallback and corrupt-session backup recovery were checked.
 
-The profile schema is now 6. Installer identity and profile location are unchanged. Migration snapshots and newer-schema save protection remain in place.
+The actual app was opened with an unclean test profile. It showed recovery before reopening saved pages, restored the saved tab/group/pin on request, retained the dismissed checkpoint for Tools, and marked a subsequent close clean. Preference migration was verified to save only after the writer lock was obtained.
 
-Endpoint references were checked against [Chromium's current search-engine definitions](https://chromium.googlesource.com/external/search_engines_data/+/refs/heads/main/definitions/prepopulated_engines.json). Suggestions remain a provider feature; see [DuckDuckGo's autocomplete control](https://duckduckgo.com/duckduckgo-help-pages/privacy-pro/turn-off-autocomplete) and [Startpage's suggestion explanation](https://support.startpage.com/hc/en-us/articles/5141960270228-Search-Suggestions).
+The isolated app's renderer was deliberately crashed through DevTools. Reload restored the original tab and address; entering a new address also recovered the page. A separate browser-engine crash preserved normal session URLs, marked broken controls for recreation, created a fresh control after the browser-exit event and successfully navigated again.
 
-Source archives omit build outputs, test profiles and prerequisite executables. Installer/source hashes are in HarborBrowser-0.3.8-SHA256.txt.
+The resource monitor displayed actual Harbor/WebView2 process information and tab counts, refreshed on demand and remained usable after engine recovery. These are functionality checks, not repeatable memory/performance benchmarks.
+
+## Earlier behavior rechecked
+
+The suites retained download extension/collision handling; real HTTP transfer controls and byte integrity; tab ordering, reordering, groups and restoration; Downloads filtering; compact menus/right-side scrollbars; Settings; bookmark folders/import/export; Home shortcuts/backgrounds/presets; address selection and online-result cancellation; fullscreen video and picture in picture.
+
+The Home suite ran against the staged Home assets and blocked external page-resource requests. It verified light/dark/custom scenes, search actions, keyboard navigation, private behavior and suggestion rendering.
+
+## User-system checks still needed
+
+- Fresh installation, upgrading an existing installation, missing-prerequisite installation, offline setup, restart handling and uninstall on the target Windows laptop.
+- Actual Windows display scaling/monitor transitions, physical tab dragging, mouse/trackpad scrolling, taskbar/auto-hide behavior and hardware video playback. Resolution checks used logical layouts and injected monitor/work-area bounds; Windows display settings were unchanged.
+- Physical camera/microphone and Windows location/privacy settings, location service results, delivered notifications, embedded-site requests on real websites and accessibility with keyboard/screen reader.
+- The full one-minute permission timeout, actual private transfer cancellation on last-tab closure, clear-on-exit behavior across forced OS shutdowns, power loss and disk-full failures.
+- Broad website compatibility, third-party auditing, measured memory optimization and extension permission enforcement.
+
+Private browsing is not anonymous networking or secure disk erasure. Open pages may recreate data after clearing. Exported/manual copies outside Harbor-managed backups are not removed. Unsaved forms and in-page state are not crash-restored. Unsupported permission kinds are denied.
+
+The installer and Harbor application are not code-signed. Target packaging is x64 Windows 10/11; the configured minimum Windows build is 16299, not a guarantee of compatibility with every old Windows installation or runtime. Schema 7 preserves older data through snapshots; older Harbor builds protect newer-schema data by disabling saves. Close Harbor before upgrading.
+
+Extension architecture/permission enforcement, broader security review, installation validation and memory benchmarking remain unfinished roadmap work. This release does not mark the complete security milestone or 1.0.0 readiness.
+
+## API references
+
+[WebView2 request-only permission decisions](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2permissionrequestedeventargs.savesinprofile), [profile browsing-data cleanup](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2profile.clearbrowsingdataasync), [process failure/recovery guidance](https://learn.microsoft.com/en-us/microsoft-edge/webview2/concepts/process-related-events), and [browser-process exit event](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environment.browserprocessexited) informed the implementation. Isolated crash fixtures use the documented [Page](https://chromedevtools.github.io/devtools-protocol/tot/Page/) and [Browser](https://chromedevtools.github.io/devtools-protocol/tot/Browser/) DevTools crash commands.

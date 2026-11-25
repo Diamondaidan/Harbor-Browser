@@ -45,6 +45,7 @@ internal static partial class Program
     private static int Main(string[] args)
     {
         if(args.Length==1&&args[0]=="--probe-providers")return ProbeProviders();
+        if(args.Length==2&&args[0]=="--crash-profile")return CrashProfile(args[1]);
         try
         {
             var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
@@ -111,6 +112,7 @@ internal static partial class Program
             ResolutionChecks();
             EverydayChecks();
             CustomizationChecks();
+            PrivacyChecks();
             Layout(args[4], 1320, 850);
             Layout(args[4], 800, 560);
             AppearanceService.ApplyApplication(new HarborBrowser.Models.BrowserSettings {ThemeMode="Dark"});

@@ -1,3 +1,16 @@
+## 0.4.0
+
+- Add a site-permission banner with one-time and remembered Allow/Block choices, exact requesting/embedding-site scopes and cancellation on navigation, tab changes, closing and timeout.
+- Add an editor for camera, microphone, location and notification rules; reset native cached permissions and reload matching sites when rules change.
+- Add time-scoped Clear browsing data for history, cookies/site storage, cache and remembered permissions, separately scoped to normal browsing or the current private session.
+- Sanitize removed history/permission data and obsolete recovery copies in Harbor-managed automatic and installer upgrade backups.
+- Rotate private-session profile identities, keep private choices in memory, clear private site data/download rows on last-tab closure, and confirm cancellation of unfinished private downloads.
+- Include site storage with the clear-cookies-on-exit preference.
+- Add an exclusive profile writer lock, an unclean-shutdown journal, a retained recovery checkpoint and explicit restoration controls.
+- Recover from renderer failures and recreate WebView2 controls after browser-engine termination.
+- Advance profile schema 6 to 7 with a snapshot before migration; preserve earlier features.
+- Keep extension permission enforcement and measured memory optimization on the roadmap; they are not completed by this release.
+
 ## 0.3.8
 
 - Add a bookmark manager with folder hierarchy, search, editing, ordering and HTML/JSON import/export.

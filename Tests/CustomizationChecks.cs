@@ -38,7 +38,7 @@ internal static partial class Program
         Check("home background scene conveyed",Convert.ToString(state["scene"])=="Morning");
         string profile=Path.Combine(root,"Schema6Profile");Directory.CreateDirectory(profile);File.WriteAllText(Path.Combine(profile,"data-version.txt"),"5");File.WriteAllText(Path.Combine(profile,"settings.json"),"{\"ThemeMode\":\"Dark\"}");File.WriteAllText(Path.Combine(profile,"bookmarks.json"),"[{\"Title\":\"Existing\",\"Url\":\"https://existing.test/\"}]");
         var store=new BrowserDataStore(profile,Path.Combine(profile,"Downloads"));
-        Check("schema 5 profile upgrades to schema 6",File.ReadAllText(Path.Combine(profile,"data-version.txt")).Trim()=="6");
+        Check("schema 5 profile upgrades to schema 7",File.ReadAllText(Path.Combine(profile,"data-version.txt")).Trim()=="7");
         Check("schema upgrade snapshots prior settings",Directory.GetDirectories(store.BackupsFolder).Any(p=>File.Exists(Path.Combine(p,"settings.json"))));
         Check("schema upgrade preserves legacy bookmarks",store.LoadBookmarks().Single().Title=="Existing");
         store.SaveSettings(settings);var loaded=store.LoadSettings();Check("new home folders and presets persist",loaded.HomeShortcuts[0].Title=="Custom"&&loaded.AppearancePresets[0].Name=="Warm"&&loaded.BookmarkFolders[0]=="Work");
