@@ -15,7 +15,7 @@ using System.Windows.Media.Imaging;
 using HarborBrowser.Updates;
 using HarborBrowser.Views;
 
-internal static class Program
+internal static partial class Program
 {
     private static int _checks;private static string _root;private static RSACryptoServiceProvider _key;private static UpdateTrust _trust;
     private static readonly JavaScriptSerializer Json=new JavaScriptSerializer();
@@ -35,6 +35,7 @@ internal static class Program
     {
         try
         {
+            if(args.Length==2&&args[0]=="--public-updater")return PublicUpdater(args[1]).GetAwaiter().GetResult();
             if(args.Length>=3&&args[0]=="--verify-record")
             {
                 var prepared=UpdateTrustRoot.Create().Verify(File.ReadAllText(args[1]),DateTime.UtcNow);
@@ -44,7 +45,7 @@ internal static class Program
             }
             _root=Path.GetFullPath(args[0]);if(Directory.Exists(_root))throw new IOException("Use a new owned result directory.");Directory.CreateDirectory(_root);
             _key=new RSACryptoServiceProvider(2048){PersistKeyInCsp=false};_trust=new UpdateTrust("fixture-owner","fixture-repo","fixture",_key.ToXmlString(false));
-            Metadata();Downloads().GetAwaiter().GetResult();Recovery();Transport().GetAwaiter().GetResult();NativeHandoff().GetAwaiter().GetResult();Layout();
+            Metadata();BuildIdentityChecks();Downloads().GetAwaiter().GetResult();Recovery();Transport().GetAwaiter().GetResult();NativeHandoff().GetAwaiter().GetResult();Layout();
             Console.WriteLine("ALL PASSED: "+_checks+" update signature, download, recovery, transport and layout checks. Synthetic owned profiles only.");return 0;
         }
         catch(Exception ex){Console.WriteLine("FAIL "+ex);return 1;}
@@ -224,6 +225,6 @@ internal static class Program
             Check("compact updater layout renders "+network,content.ActualWidth==560&&content.ActualHeight==580);
             window.Close();
         }
-        app.Shutdown();
+        IdentityLayout();app.Shutdown();
     }
 }

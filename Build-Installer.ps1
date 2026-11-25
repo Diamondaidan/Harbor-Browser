@@ -1,9 +1,10 @@
 [CmdletBinding()]
-param([ValidatePattern('^(release|rc[0-9]+)$')][string]$Candidate='release',[switch]$StageOnly,[switch]$SkipBuild,[string]$SigningThumbprint='', [uri]$TimestampUrl)
+param([ValidatePattern('^$|^(release|rc[1-9][0-9]*)$')][string]$Candidate='',[switch]$StageOnly,[switch]$SkipBuild,[string]$SigningThumbprint='', [uri]$TimestampUrl)
 $ErrorActionPreference='Stop'
 $root=$PSScriptRoot
+. (Join-Path $root 'ReleaseTools\Build-Identity.ps1')
 $version=(Get-Content -LiteralPath (Join-Path $root 'VERSION.txt') -Raw).Trim()
-if($version -ne '0.7.0'){throw 'Unexpected release version.'}
+if($version -notmatch '^\d+\.\d+\.\d+$'){throw 'Invalid release version.'}
 if(!$SkipBuild){
  $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
  $builder=& $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
@@ -12,13 +13,16 @@ if(!$SkipBuild){
  if($LASTEXITCODE -ne 0){throw 'Release build failed.'}
 }
 $record=Get-Content -LiteralPath (Join-Path $root 'RELEASE-VERIFICATION.json') -Raw | ConvertFrom-Json
+$identity=Get-HarborBuildIdentity $root -VerifyCompiled
+if(!$Candidate){$Candidate=$identity.Channel}
+if($Candidate -ne $identity.Channel){throw 'Installer candidate does not match the compiled app and launcher build identity.'}
 $app=Join-Path $root 'HarborBrowser\bin\Release\net48\HarborBrowser.exe'
 $appHash=(Get-FileHash -LiteralPath $app -Algorithm SHA256).Hash
-if(!$record.ReadyToPackage -or $record.AppSHA256 -ne $appHash){throw 'Run and record the complete current release tests before packaging.'}
+if(!$record.ReadyToPackage -or $record.BuildIdentity -ne $identity.InformationalVersion -or $record.UpdateLauncherSHA256 -ne (Get-FileHash -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\HarborUpdateLauncher.exe')).Hash -or $record.AppSHA256 -ne $appHash){throw 'Run and record the complete current release tests before packaging.'}
 $stage=Join-Path $root ('dist\Harbor-'+$version+'-'+$Candidate)
 if(!(Test-Path -LiteralPath $stage)){& (Join-Path $root 'Build-Release.ps1') -SkipBuild -BuildSuffix ('-'+$Candidate);if($LASTEXITCODE -ne 0){throw 'Payload staging failed.'}}
 $manifest=Get-Content -LiteralPath (Join-Path $stage 'package-manifest.json') -Raw | ConvertFrom-Json
-if($manifest.Channel -ne 'HarborStable' -or $manifest.AppSHA256 -ne $appHash){throw 'Existing candidate payload does not match. Use a new candidate name.'}
+if($manifest.Channel -ne 'HarborStable' -or $manifest.BuildIdentity -ne $identity.InformationalVersion -or $manifest.AppSHA256 -ne $appHash){throw 'Existing candidate payload does not match. Use a new candidate name.'}
 foreach($entry in $manifest.Files){
  $file=Join-Path $stage $entry.Path
  if((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash -ne $entry.SHA256){throw ('Staged payload changed: '+$entry.Path)}
@@ -38,16 +42,16 @@ if(!(Test-Path -LiteralPath $fixtureRecord)){throw 'Run the native installer/pre
 $fixtures=Get-Content -LiteralPath $fixtureRecord -Raw | ConvertFrom-Json
 $templateHash=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\HarborBrowser.iss')).Hash
 $registryHash=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\BrowserRegistry.iss')).Hash
-if(!$fixtures.Passed -or $fixtures.TemplateSHA256 -ne $templateHash -or $fixtures.RegistrySHA256 -ne $registryHash -or $fixtures.AppSHA256 -ne $appHash -or $fixtures.UpdateLauncherSHA256 -ne (Get-FileHash -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\HarborUpdateLauncher.exe')).Hash){throw 'Installer fixtures are stale or failed.'}
+if($fixtures.LegacyHashesSHA256 -ne (Get-FileHash -LiteralPath (Join-Path $root 'Installer\LegacyReleaseHashes.iss')).Hash -or $fixtures.LegacyCatalogSHA256 -ne (Get-FileHash -LiteralPath (Join-Path $root 'Installer\LegacyReleases.json')).Hash -or !$fixtures.Passed -or $fixtures.TemplateSHA256 -ne $templateHash -or $fixtures.RegistrySHA256 -ne $registryHash -or $fixtures.AppSHA256 -ne $appHash -or $fixtures.UpdateLauncherSHA256 -ne (Get-FileHash -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\HarborUpdateLauncher.exe')).Hash){throw 'Installer fixtures are stale or failed.'}
 $compiler=Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 7\ISCC.exe'
 if(!(Test-Path -LiteralPath $compiler)){throw 'Inno Setup 7 is required.'}
 $output=Join-Path $root ('dist\HarborBrowserSetup-'+$version+'-'+$Candidate+'.exe')
 if(Test-Path -LiteralPath $output){throw 'Candidate installer already exists; preserve it and use a fresh candidate.'}
-& $compiler /Qp ('/DAppVersion='+$version) ('/DCandidate='+$Candidate) ('/DPayloadDir='+$stage) (Join-Path $root 'Installer\HarborBrowser.iss')
+& $compiler /Qp ('/DAppVersion='+$version) ('/DAppBuildIdentity='+$identity.InformationalVersion) ('/DCandidate='+$Candidate) ('/DPayloadDir='+$stage) (Join-Path $root 'Installer\HarborBrowser.iss')
 if($LASTEXITCODE -ne 0 -or !(Test-Path -LiteralPath $output)){throw 'Installer compilation failed.'}
 if($SigningThumbprint){
  if(!$TimestampUrl){throw 'Provide the certificate issuer timestamp URL when signing.'}
  & (Join-Path $root 'ReleaseTools\Sign-Release.ps1') -Files @($output) -CertificateThumbprint $SigningThumbprint -TimestampUrl $TimestampUrl
 }
-[pscustomobject]@{Version=$version;Candidate=$Candidate;AppSHA256=$appHash;InstallerSHA256=(Get-FileHash -LiteralPath $output -Algorithm SHA256).Hash;InstallerBytes=(Get-Item -LiteralPath $output).Length;Installer=$output;OfflinePrerequisites=$expected;NativeFixturesPassed=$true;LiveProtonValidation='Pending';CleanWindowsInstall='Pending';Profile='HarborBrowser'} | ConvertTo-Json -Depth 5 | Tee-Object -FilePath (Join-Path $root 'INSTALLER-ARTIFACT.json')
+[pscustomobject]@{Version=$version;BuildIdentity=$identity.InformationalVersion;Candidate=$Candidate;AppSHA256=$appHash;InstallerSHA256=(Get-FileHash -LiteralPath $output -Algorithm SHA256).Hash;InstallerBytes=(Get-Item -LiteralPath $output).Length;Installer=$output;OfflinePrerequisites=$expected;NativeFixturesPassed=$true;LiveProtonValidation='Pending';CleanWindowsInstall='Pending';Profile='HarborBrowser'} | ConvertTo-Json -Depth 5 | Tee-Object -FilePath (Join-Path $root 'INSTALLER-ARTIFACT.json')
 

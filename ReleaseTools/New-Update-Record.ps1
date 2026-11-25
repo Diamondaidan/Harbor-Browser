@@ -15,6 +15,7 @@ function Package([string]$Path){
  $version=$file.VersionInfo.FileVersion.Trim()
  if($version -notmatch '^(\d+\.\d+\.\d+)\.0$'){throw 'Installer file version is invalid.'}
  $number=$Matches[1]
+ if($file.VersionInfo.ProductVersion.Trim() -ne $number -or $file.Name -ne ('HarborBrowserSetup-'+$number+'-release.exe')){throw 'Only a full-release installer with matching stable build metadata can be signed into the stable feed.'}
  if($file.VersionInfo.ProductName.Trim() -ne 'Harbor Browser'){throw 'This is not a Harbor Browser installer.'}
  $signature=Get-AuthenticodeSignature -LiteralPath $file.FullName
  $certificateHash=$null

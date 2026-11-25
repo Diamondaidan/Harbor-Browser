@@ -1,13 +1,11 @@
-# Harbor Browser 0.7.0
+# Harbor Browser 0.7.1 RC1
 
-- Add optional inactive-tab unloading, off by default. Choose 5, 15 or 30 minutes, or one hour, in Settings > Performance and memory. Unloaded tabs release their view and reload their saved address when selected.
-- Check detected unsaved input in documents, frames and open shadow roots before unloading. Active/private/pinned tabs, kept-awake tabs, provider sign-in, submitted pages, playing media and active or paused downloads stay loaded. Unavailable activity checks retain the page.
-- Show separate sleeping, unloaded and not-yet-loaded states in Resource Monitor, with unload eligibility/reasons and an explicit Reload action. Process memory reporting explains shared renderers and private committed memory.
-- Avoid an unused background controller startup while restoring the saved selected tab; other restored tabs remain deferred until selected.
-- Size the VPN status button to its text so Disconnected and the other connection labels fit, including compact layouts and both color modes.
+- Recognize 25 exact original application builds during markerless upgrades, from 0.3.2 through 0.7.0, including the preserved 0.7.0 RC1. Unknown or altered applications are refused. Already marked regular installations retain their existing upgrade path.
+- Display RC1 in the browser and updater. Keep the build channel in executable metadata and package manifests, separate from the regular installation/profile identity.
+- Offer an authenticated full release of the same base version to an RC. A full release still cannot offer itself or an older version as a normal update. The launch helper checks the actual running browser's executable identity.
+- Require matching source, app, launcher and package channel identities. Refuse candidate installers when preparing the stable signed update feed.
+- Exercise public GitHub update verification, pause and ranged resume with a disposable updater profile. No downloaded public installer is executed by that test.
 
-Unloading loses page state, scroll position and that tab's Back/Forward history. Some website state cannot be detected; keep important tabs awake. Turning the option off stops future unloading without reloading all discarded tabs at once. Private tabs remain protected from unloading in this version.
+This is a local release candidate. Windows installers remain intentionally unsigned. RC1 uses the established regular installation and browser profile; the portable executable also uses that profile. Close Harbor and save work before installing. It is not a separate signed-in test channel.
 
-Proton's browser-only private-tab limit and explicit recovery behavior remain unchanged. Windows installers remain intentionally unsigned. This full 0.7.0 package supersedes RC1 for new installations; preparing it does not automatically upgrade an installed browser or activate the public update feed.
-
-Installed RC1 checks confirmed upgrade retention, Proton restart/off/on and disconnected-page blocking, clean-tab unload/reload, detected draft/media retention and exact-content download pause/resume. The final application adds only the VPN label layout correction. Physical internet interruption, sleep/wake/reboot and clean/offline spare-PC installation remain untested. Live IPv6 protection was inconclusive. See LIVE-VERIFICATION.md for scope and remaining checks.
+The published full 0.7.0 and earlier packages remain preserved. This candidate does not publish a release, replace the public update feed, or upgrade the installed browser automatically. Physical network loss/recovery, sleep/wake/reboot, actual installed upgrade, and clean/offline spare-PC installation remain manual checks. Previous 0.7.0 RC1 observations are historical and are not claimed as 0.7.1 results.

@@ -15,7 +15,7 @@ namespace HarborBrowser.Updates {
             if(!planPath.StartsWith(launchRoot+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase)||Path.GetFileName(planPath)!="plan.json")return 2;
             string folder=Path.GetDirectoryName(planPath);UpdateState.SafeDirectory(folder);result=Path.Combine(folder,"result.json");
             var plan=UpdateInstallPlan.Read(planPath);var package=UpdateInstallPlan.Validate(plan,trust,profile);
-            string app=Path.GetFullPath(plan.AppPath);
+            string app=BuildIdentity.LocalPath(plan.AppPath);
             if(Path.GetFileName(app)!="HarborBrowser.exe"||FileVersionInfo.GetVersionInfo(app).FileVersion!=plan.CurrentVersion+".0")throw new InvalidDataException("The update launcher does not match the installed browser.");
             UpdateState.SafeDirectory(Path.GetDirectoryName(plan.PackagePath));
             using(var parent=Process.GetProcessById(plan.ParentPid))

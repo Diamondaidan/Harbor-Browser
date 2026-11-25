@@ -1,6 +1,10 @@
-# Harbor 0.7.0 installed checks and remaining coverage
+# Harbor 0.7.1 RC1 live-test scope and historical checks
 
-Updated November 24, 2026 (America/Chicago). The owner authorized the full unsigned 0.7.0 package with outstanding physical tests disclosed. The final application changes only the VPN status button layout from RC1; its new executable has separate automatic verification. Final installation over RC1 is not claimed here.
+Updated November 25, 2026 (America/Chicago). No installed 0.7.1 upgrade or real-account Proton test is claimed. The historical installed 0.7.0 RC1 checks below remain relevant background only.
+
+## Public updater check on 0.7.1 code
+
+Production update-service and transport code verified public 0.7.0 metadata (sequence 7), paused its real installer download at 20,805,982 bytes, and recreated the updater using a disposable profile. The partial file stayed unchanged while paused. The next request sent that exact offset and received HTTP 206. The completed 352,941,844-byte file matched the signed SHA-256 DAAEDB4736FF4459B34116BC2E06E80882E843B0FC9C16E83B0F87BFB6A5D8D1. All nine checks passed. The downloaded installer was never executed; no regular profile, browser cookies, account credentials or Windows network settings were used/changed. This is a live public download/recovery result, not proof of a complete installed update, rollback or physical connection-loss recovery.
 
 ## Installed RC1 checks
 
@@ -36,6 +40,6 @@ The final VPN label check renders VPN Off, Connecting, Protected and Disconnecte
 - Actual clean/offline spare-PC setup, including real missing-prerequisite/admin/restart flows. A matching kit is prepared; current-PC preflight is not a clean install.
 - Physical monitor/DPI/input combinations, broad real-site challenges, and a complete DNS/background-traffic/anonymity audit.
 - Protected IPv6. Private tabs retain the explained browser-only Proton limitation.
-- Hosted update/rollback until an approved public release is available; draft assets do not activate the public feed.
+- Complete installed update/rollback and administrator-prompt behavior on 0.7.1. Public metadata/download/resume was tested separately as described above.
 
 Windows installers are intentionally unsigned. Harbor's signed update record is separate. Source/build copies and automated fixtures do not replace the installed browser. The regular portable EXE uses the regular profile when launched normally; owned test hosts are required for isolated testing.

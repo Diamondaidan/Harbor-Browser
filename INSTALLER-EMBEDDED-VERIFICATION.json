@@ -1,0 +1,32 @@
+{
+  "Passed": true,
+  "Files": [
+    {
+      "Name": "HarborBrowser.exe",
+      "SHA256": "4AD1CB6B33A43A1C20E6AB262E04283E4CBB2D626FB74ABCDEBAC342CE410EC4",
+      "Bytes": 2017280
+    },
+    {
+      "Name": "HarborUpdateLauncher.exe",
+      "SHA256": "ADCFB10124EA75BFEB2DB167647F6CD47E16A5982358255169667A221E4F1CA2",
+      "Bytes": 50688
+    },
+    {
+      "Name": "package-manifest.json",
+      "SHA256": "278691616CC96C6EC4DC180FB8A8C478FC65CBE0001D5C89361074162BA64DBF",
+      "Bytes": 72433
+    },
+    {
+      "Name": "ndp48-x86-x64-allos-enu.exe",
+      "SHA256": "0A3A390C47E639D0F7FC65B21195FEE6B7F65B066F80F70C60FAB191D14B7E40",
+      "Bytes": 121346568
+    },
+    {
+      "Name": "MicrosoftEdgeWebView2RuntimeInstallerX64.exe",
+      "SHA256": "1BE9D2926954D99DD62653A22EFE813160FE0C40F1E422B44E6AAF5473F68EEC",
+      "Bytes": 214990032
+    }
+  ],
+  "InstallerExecuted": false,
+  "Evidence": "Evidence/Installer071-af1d3c27"
+}

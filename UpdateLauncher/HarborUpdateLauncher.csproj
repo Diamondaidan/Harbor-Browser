@@ -5,7 +5,7 @@
   <Copyright>Copyright (C) 2026 Harbor Browser contributors</Copyright>
   <HarborVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\VERSION.txt').Trim())</HarborVersion>
   <Version>$(HarborVersion)</Version><AssemblyVersion>$(HarborVersion).0</AssemblyVersion>
-  <FileVersion>$(HarborVersion).0</FileVersion><InformationalVersion>$(HarborVersion)</InformationalVersion>
+  <FileVersion>$(HarborVersion).0</FileVersion><InformationalVersion>$(HarborInformationalVersion)</InformationalVersion>
   <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   <PlatformTarget>x64</PlatformTarget>
  </PropertyGroup>

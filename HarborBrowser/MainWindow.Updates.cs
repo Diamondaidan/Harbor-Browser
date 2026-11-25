@@ -26,7 +26,7 @@ namespace HarborBrowser
                 try
                 {
                     var service=new UpdateService(_store.RootFolder,()=>UpdateNetworkAllowed);
-                    var window=new UpdatesWindow(service,AppVersion.Number,traffic.Token,_store.IsReadOnlyForNewerDataVersion){Owner=this};
+                    var window=new UpdatesWindow(service,AppVersion.Number,traffic.Token,_store.IsReadOnlyForNewerDataVersion,AppVersion.InformationalVersion){Owner=this};
                     if(window.ShowDialog()!=true||window.InstallChoice==null)return;
                     if(_downloads.Any(d=>d.IsActive))throw new InvalidOperationException("Finish or cancel active downloads before closing Harbor for setup.");
                     var choice=window.InstallChoice;

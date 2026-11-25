@@ -13,7 +13,7 @@
     <Version>$(HarborVersion)</Version>
     <AssemblyVersion>$(HarborVersion).0</AssemblyVersion>
     <FileVersion>$(HarborVersion).0</FileVersion>
-    <InformationalVersion>$(HarborVersion)</InformationalVersion>
+    <InformationalVersion>$(HarborInformationalVersion)</InformationalVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>HarborBrowser.ico</ApplicationIcon>
     <RootNamespace>HarborBrowser</RootNamespace>

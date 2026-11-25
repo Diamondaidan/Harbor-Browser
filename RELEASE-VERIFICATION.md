@@ -1,9 +1,9 @@
-# Harbor 0.7.0 automated release verification
+# Harbor 0.7.1 RC1 automated release verification
 
-Application SHA-256: 2E955A82B7A015BD277EF53B89B1EE61BBCCD87530DAD06E0E57D37223F2819B
-Update launcher SHA-256: 7B43E61623BC4500B6E1C88AD8A265A582DDD0E19BB8472F742D9C5A8020D047
+Application SHA-256: 4AD1CB6B33A43A1C20E6AB262E04283E4CBB2D626FB74ABCDEBAC342CE410EC4
+Update launcher SHA-256: ADCFB10124EA75BFEB2DB167647F6CD47E16A5982358255169667A221E4F1CA2
 
-All 1,612 assertions across 22 suites passed against matching final application/helper copies on November 24, 2026 (America/Chicago). This includes 48 new VPN label layout checks across four statuses, six logical widths and both themes. The unloading suite contributes 48 native checks covering actual disposal/reload, form/frame/media/download protection, lifecycle races, settings, resource controls and deferred restoration.
+All 1656 assertions across 22 suites passed on November 25, 2026 against matching 0.7.1 RC1 app/helper copies.
 
 | Suite | Assertions |
 | --- | ---: |
@@ -20,7 +20,7 @@ All 1,612 assertions across 22 suites passed against matching final application/
 | proton-guard-handoff | 12 |
 | proton-r4 | 34 |
 | release057 | 9 |
-| updates | 120 |
+| updates | 164 |
 | updates-ui | 8 |
 | environment061 | 69 |
 | ui061 | 94 |
@@ -30,12 +30,12 @@ All 1,612 assertions across 22 suites passed against matching final application/
 | downloads063 | 17 |
 | unloading070 | 48 |
 
-The final full matrix passed without failed suites. The preserved RC1 fixture correction controls UTC and monotonic clocks in its synthetic lease test; application lease/timeouts were not changed.
+The update suite includes build parsing, actual RC/stable executable resources, same-version handoff rules, full-release availability in the updater, read-only profile behavior and network gating. Existing download/recovery, themed UI, site loading, Proton lifecycle and unloading checks remain included.
 
-Native installer core fixtures passed 94 checks. Full staged-payload installation and smoke evidence is recorded separately after staging in PACKAGED-PAYLOAD-VERIFICATION.json. Microsoft prerequisite packages are hash/signature verified; vendor installers are stubbed in automatic fixture flows.
+Native installer fixtures passed 296 checks, including all 25 pinned original application identities. The altered-file case is refused without replacement. Vendor prerequisites are stubbed; real profile data and Windows defaults are preserved. Full staged-payload installation and smoke results are recorded separately after staging in PACKAGED-PAYLOAD-VERIFICATION.json.
 
-All 336 official Proton asset sizes/hashes remain unchanged. Restore/build completed; no separate fresh online vulnerability audit is claimed.
+All 336 official Proton asset sizes/hashes remain unchanged. No new vulnerability audit or startup/memory benchmark is claimed. Historical measurements are in PERFORMANCE-0.7.0.md.
 
-Performance results for RC1 and their scope are in PERFORMANCE-0.7.0.md. These automatic tests use owned injected profiles and synthetic state, not the installed profile or a signed-in provider account. Installed RC1 upgrade, Proton lifecycle, unloading and download results are in LIVE-VERIFICATION.md. Final installed upgrade, physical network/sleep/wake/monitor and clean/offline spare-PC checks remain unperformed. Local checks do not publish a release, activate the public feed or replace the installed browser.
+Nine live public updater checks verified signed metadata, a stable paused partial file, exact HTTP 206 resume after service recreation and final signed file size/SHA256. The downloaded installer was never run. PUBLIC-UPDATER-VERIFICATION.json records the public facts without credentials or real profile paths.
 
-Additional request-counter tests verify that selecting an unloaded tab while Proton is unverified sends no requests, fresh synthetic proof does not replay the address, and explicit Retry restores the recreated page. The suspected stuck-view path did not reproduce under this normal lifecycle; no product change was needed.
+All runtime fixtures use owned injected profiles. Real installed 0.7.1 upgrade, real-account Proton checks, physical network/sleep/wake/reboot/monitor checks and clean/offline spare-PC setup remain manual. LIVE-VERIFICATION.md distinguishes historical 0.7.0 RC1 observations. Local packaging does not publish or activate 0.7.1.

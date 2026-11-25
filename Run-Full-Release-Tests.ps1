@@ -7,7 +7,7 @@ New-Item -ItemType Directory -Path $output -Force | Out-Null
 function Run-Check([string]$name,[string]$exe,[string[]]$arguments){
     if($Suites -notcontains $name){return}
     Write-Output ('Running '+$name)
-    $log=Join-Path $releaseRoot ($name+'-release070.log')
+    $log=Join-Path $releaseRoot ($name+'-release071.log')
     & $exe @arguments *> $log
     if($LASTEXITCODE -ne 0){Get-Content -LiteralPath $log -Tail 25;throw ($name+' failed: '+$LASTEXITCODE)}
     Get-Content -LiteralPath $log -Tail 2
@@ -44,6 +44,6 @@ Run-Check 'ui061' $integration @((Join-Path $output 'ui061'),$fixtures,'--ui061'
 Run-Check 'proton-off061' $integration @((Join-Path $output 'proton-off061'),$fixtures,'--proton-off061')
 Run-Check 'site062' $integration @((Join-Path $output 'site062'),$fixtures,'--site062')
 Run-Check 'route063' $integration @((Join-Path $output 'route063'),$fixtures,'--route063')
-Run-Check 'downloads063' $integration @((Join-Path $output 'downloads063','unloading070'),$fixtures,'--downloads063')
+Run-Check 'downloads063' $integration @((Join-Path $output 'downloads063'),$fixtures,'--downloads063')
 
 Run-Check 'unloading070' $integration @((Join-Path $output 'unloading070'),$fixtures,'--unloading070')

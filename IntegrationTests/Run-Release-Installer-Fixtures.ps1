@@ -2,6 +2,8 @@
 param([string]$PayloadDirectory='')
 $ErrorActionPreference='Stop'
 $root=[IO.Path]::GetFullPath((Split-Path $PSScriptRoot))
+$version=(Get-Content -LiteralPath (Join-Path $root 'VERSION.txt') -Raw).Trim()
+$buildIdentity=(Get-Item -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\HarborBrowser.exe')).VersionInfo.ProductVersion.Trim()
 $owned=Join-Path $root ('T\installer057-'+[guid]::NewGuid().ToString('N').Substring(0,10))
 $install=Join-Path $owned 'App'
 $profile=Join-Path $owned 'Profile'
@@ -22,7 +24,7 @@ if($PayloadDirectory){
  $inputRoot=[IO.Path]::GetFullPath($PayloadDirectory)
  if(!$inputRoot.StartsWith((Join-Path $root 'dist')+'\',[StringComparison]::OrdinalIgnoreCase)){throw 'Use a staged payload inside this checkout dist folder.'}
  $fullManifest=Get-Content -LiteralPath (Join-Path $inputRoot 'package-manifest.json') -Raw | ConvertFrom-Json
- if($fullManifest.Version -ne '0.7.0' -or $fullManifest.Channel -ne 'HarborStable'){throw 'Unexpected full payload identity.'}
+ if($fullManifest.Version -ne $version -or $fullManifest.BuildIdentity -ne $buildIdentity -or $fullManifest.Channel -ne 'HarborStable'){throw 'Unexpected full payload identity.'}
  foreach($entry in $fullManifest.Files){
   $inputFile=[IO.Path]::GetFullPath((Join-Path $inputRoot $entry.Path))
   if(!$inputFile.StartsWith($inputRoot+'\',[StringComparison]::OrdinalIgnoreCase)-or(Get-FileHash -LiteralPath $inputFile).Hash -ne $entry.SHA256){throw 'Full payload input failed verification.'}
@@ -100,10 +102,10 @@ function Choices {
  $values | ConvertTo-Json -Compress
 }
 function Compile([string]$candidate,[int]$revision){
- $args=@('/Qp','/DFixtureBuild=1','/DBrowserRegistryRoot=HKCU',('/DFixtureInstallDir='+$install),('/DFixtureProfileDir='+$profile.Replace("'","''")),('/DPayloadDir='+$payload),('/DRedistDir='+$redist),('/DOutputFolder='+$owned),('/DCandidate='+$candidate),('/DBuildRevision='+$revision),('/DReleaseAppId='+$appId),('/DAppName=Harbor057Fixture'),('/DRegistryPrefix='+$regPrefix),(Join-Path $root 'Installer\HarborBrowser.iss'))
+ $args=@('/Qp','/DFixtureBuild=1',('/DAppVersion='+$version),('/DAppBuildIdentity='+$buildIdentity),'/DBrowserRegistryRoot=HKCU',('/DFixtureInstallDir='+$install),('/DFixtureProfileDir='+$profile.Replace("'","''")),('/DPayloadDir='+$payload),('/DRedistDir='+$redist),('/DOutputFolder='+$owned),('/DCandidate='+$candidate),('/DBuildRevision='+$revision),('/DReleaseAppId='+$appId),('/DAppName=Harbor057Fixture'),('/DRegistryPrefix='+$regPrefix),(Join-Path $root 'Installer\HarborBrowser.iss'))
  & $compiler @args *> (Join-Path $owned ($candidate+'-compile.txt'))
  if($LASTEXITCODE -ne 0){Get-Content (Join-Path $owned ($candidate+'-compile.txt')) -Tail 12;throw 'Fixture compile failed.'}
- Join-Path $owned ('HarborBrowserSetup-0.7.0-'+$candidate+'.exe')
+ Join-Path $owned ('HarborBrowserSetup-'+$version+'-'+$candidate+'.exe')
 }
 $vars=@('HARBOR057_TRACE','HARBOR057_NET_CODE','HARBOR057_WEB_CODE','HARBOR057_PRESENT','HARBOR057_NET_AFTER','HARBOR057_WEB_AFTER')
 $saved=@{};foreach($key in $vars){$saved[$key]=[Environment]::GetEnvironmentVariable($key)}
@@ -156,7 +158,7 @@ try{
  Check 'legacy upgrade fixture matches the archived 0.5.3 release' ((Get-FileHash -LiteralPath $legacyApp).Hash -eq 'BF36D03382CA42EF331F400768DE354DA88928EABDD5AD7073372E48E6121EF6')
  Copy-Item -LiteralPath $legacyApp -Destination (Join-Path $legacy 'HarborBrowser.exe')
  Check 'stable installer recognizes markerless verified 0.5.3' ((Run-Setup $first $legacy 'legacy-upgrade') -eq 0)
- Check 'legacy upgrade installs the tested 0.7.0 executable' ((Get-FileHash -LiteralPath (Join-Path $legacy 'HarborBrowser.exe')).Hash -eq $appHash)
+ Check 'legacy upgrade installs the tested 0.7.1 executable' ((Get-FileHash -LiteralPath (Join-Path $legacy 'HarborBrowser.exe')).Hash -eq $appHash)
  Check 'legacy upgrade adds the stable channel marker' ((Get-Content -LiteralPath (Join-Path $legacy 'harbor-release-channel.txt') -Raw).Trim() -eq 'HarborStable')
  foreach($name in $before.Keys){Check ('legacy upgrade preserves '+$name) ((Get-FileHash -LiteralPath (Join-Path $profile $name)).Hash -eq $before[$name])}
  Check 'legacy fixture uninstall succeeds' ((Run-Setup (Join-Path $legacy 'unins000.exe') $legacy 'legacy-remove') -eq 0)
@@ -165,10 +167,29 @@ try{
  Check 'stable upgrade fixture matches verified 0.5.7' ((Get-FileHash -LiteralPath $previousApp).Hash -eq '349A49B8B835C9F6BE206312EE19BDDF859EEDFB1360FDEAB7373C9ACB4A122B')
  Copy-Item -LiteralPath $previousApp -Destination (Join-Path $stable 'HarborBrowser.exe')
  Set-Content -LiteralPath (Join-Path $stable 'harbor-release-channel.txt') -Value 'HarborStable' -Encoding ascii
- Check 'native setup upgrades stable 0.5.7 to 0.7.0' ((Run-Setup $first $stable 'stable057-upgrade') -eq 0)
- Check 'stable 0.5.7 upgrade installs tested 0.7.0 payload' ((Get-FileHash -LiteralPath (Join-Path $stable 'HarborBrowser.exe')).Hash -eq $appHash)
+ Check 'native setup upgrades stable 0.5.7 to 0.7.1' ((Run-Setup $first $stable 'stable057-upgrade') -eq 0)
+ Check 'stable 0.5.7 upgrade installs tested 0.7.1 payload' ((Get-FileHash -LiteralPath (Join-Path $stable 'HarborBrowser.exe')).Hash -eq $appHash)
  foreach($name in $before.Keys){Check ('stable 0.5.7 upgrade preserves '+$name) ((Get-FileHash -LiteralPath (Join-Path $profile $name)).Hash -eq $before[$name])}
  Check 'stable upgrade fixture uninstall succeeds' ((Run-Setup (Join-Path $stable 'unins000.exe') $stable 'stable057-remove') -eq 0)
+ $legacyCatalog=Get-Content -LiteralPath (Join-Path $root 'Installer\LegacyReleases.json') -Raw | ConvertFrom-Json
+ $legacyInclude=Get-Content -LiteralPath (Join-Path $root 'Installer\LegacyReleaseHashes.iss') -Raw
+ foreach($entry in $legacyCatalog.Records){
+  $source=Join-Path $root $entry.Fixture
+  Check ('approved original app identity '+$entry.Name) ((Get-FileHash -LiteralPath $source).Hash -eq $entry.AppSHA256 -and $legacyInclude.Contains($entry.AppSHA256))
+  $destination=Join-Path $owned ('Legacy-'+$entry.Name)
+  New-Item -ItemType Directory -Path $destination | Out-Null
+  Copy-Item -LiteralPath $source -Destination (Join-Path $destination 'HarborBrowser.exe')
+  Check ('native markerless upgrade accepts '+$entry.Name) ((Run-Setup $first $destination ('legacy-'+$entry.Name)) -eq 0)
+  Check ('legacy '+$entry.Name+' installs current app and marker') ((Get-FileHash -LiteralPath (Join-Path $destination 'HarborBrowser.exe')).Hash -eq $appHash -and (Get-Content -LiteralPath (Join-Path $destination 'harbor-release-channel.txt') -Raw).Trim() -eq 'HarborStable')
+  foreach($name in $before.Keys){Check ('legacy '+$entry.Name+' keeps '+$name) ((Get-FileHash -LiteralPath (Join-Path $profile $name)).Hash -eq $before[$name])}
+  Check ('legacy '+$entry.Name+' fixture cleanup') ((Run-Setup (Join-Path $destination 'unins000.exe') $destination ('remove-'+$entry.Name)) -eq 0)
+ }
+ $altered=Join-Path $owned 'AlteredLegacy';New-Item -ItemType Directory -Path $altered | Out-Null
+ $alteredApp=Join-Path $altered 'HarborBrowser.exe';Copy-Item -LiteralPath $legacyApp -Destination $alteredApp
+ $stream=[IO.File]::Open($alteredApp,[IO.FileMode]::Append);try{$stream.WriteByte(0)}finally{$stream.Dispose()}
+ $alteredHash=(Get-FileHash -LiteralPath $alteredApp).Hash
+ Check 'altered legacy binary is refused despite valid name/version' ((Run-Setup $first $altered 'altered-legacy') -ne 0)
+ Check 'rejected altered legacy binary stays unchanged' ((Get-FileHash -LiteralPath $alteredApp).Hash -eq $alteredHash)
  foreach($case in @(
   @{Name='Present';Net=0;Web=0;After='1';Expect=0;Calls=0;Files=$true},
   @{Name='Success';Net=0;Web=0;After='1';Expect=0;Calls=2;Files=$true},
@@ -199,6 +220,6 @@ try{
  if(Test-Path -LiteralPath $uninstall){[void](Run-Setup $uninstall $install 'cleanup')}
 }
 $receipt=if($fullManifest){'PACKAGED-PAYLOAD-VERIFICATION.json'}else{'INSTALLER-VERIFICATION.json'}
-[pscustomobject]@{UpdateLauncherSHA256=(Get-FileHash -LiteralPath (Join-Path $payload 'HarborUpdateLauncher.exe')).Hash;Passed=$passed;Checks=$checks;FullPayloadFiles=$fullPayloadFiles;PackagedSmokeAssertions=$smokeAssertions;AppSHA256=(Get-FileHash -LiteralPath (Join-Path $payload 'HarborBrowser.exe')).Hash;TemplateSHA256=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\HarborBrowser.iss')).Hash;RegistrySHA256=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\BrowserRegistry.iss')).Hash;Evidence=$owned.Substring($root.Length+1).Replace('\','/');RealVendorPackagesExecuted=$false;UserProfilesAccessed=$false;DefaultsUnchanged=$true;RecordedUtc=[datetime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root $receipt) -Encoding utf8
+[pscustomobject]@{UpdateLauncherSHA256=(Get-FileHash -LiteralPath (Join-Path $payload 'HarborUpdateLauncher.exe')).Hash;Passed=$passed;Checks=$checks;FullPayloadFiles=$fullPayloadFiles;PackagedSmokeAssertions=$smokeAssertions;AppSHA256=(Get-FileHash -LiteralPath (Join-Path $payload 'HarborBrowser.exe')).Hash;LegacyHashesSHA256=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\LegacyReleaseHashes.iss')).Hash;LegacyCatalogSHA256=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\LegacyReleases.json')).Hash;TemplateSHA256=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\HarborBrowser.iss')).Hash;RegistrySHA256=(Get-FileHash -LiteralPath (Join-Path $root 'Installer\BrowserRegistry.iss')).Hash;Evidence=$owned.Substring($root.Length+1).Replace('\','/');RealVendorPackagesExecuted=$false;UserProfilesAccessed=$false;DefaultsUnchanged=$true;RecordedUtc=[datetime]::UtcNow.ToString('o')} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root $receipt) -Encoding utf8
 Write-Output ('ALL PASSED: '+$checks+' isolated native stable installer/prerequisite checks.')
 

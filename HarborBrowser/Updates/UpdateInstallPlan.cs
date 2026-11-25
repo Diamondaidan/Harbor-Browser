@@ -19,7 +19,16 @@ namespace HarborBrowser.Updates
             {
                 if(verified.Manifest.Previous!=package||verified.Manifest.RollbackFrom!=plan.CurrentVersion||to>=from)throw new InvalidDataException("This recovery version is not approved for the installed release.");
             }
-            else if(package!=verified.Manifest.Latest||to<=from)throw new InvalidDataException("Only a newer stable release can be installed as an update.");
+            else
+            {
+                if(package!=verified.Manifest.Latest||to<from)throw new InvalidDataException("Only an approved stable release can be installed as an update.");
+                if(to==from)
+                {
+                    // Read the actual browser resource, never an editable plan flag.
+                    var build=BuildIdentity.FromFile(plan.AppPath);
+                    if(build.Number!=plan.CurrentVersion||!build.IsCandidate)throw new InvalidDataException("A full release cannot reinstall the same version through the updater.");
+                }
+            }
             string expected=Path.Combine(profile,"Updates","Downloads",package.Sha256.ToUpperInvariant()+".exe");
             if(!Path.GetFullPath(plan.PackagePath).Equals(Path.GetFullPath(expected),StringComparison.OrdinalIgnoreCase))throw new InvalidDataException("The installer is outside Harbor's verified update folder.");
             if((File.GetAttributes(plan.PackagePath)&FileAttributes.ReparsePoint)!=0)throw new InvalidDataException("A redirected installer was refused.");

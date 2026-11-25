@@ -18,17 +18,18 @@ namespace HarborBrowser.Views
         internal readonly TextBlock Status=new TextBlock{Text="Choose Check for updates when you're ready.",TextWrapping=TextWrapping.Wrap},ReleaseLabel=new TextBlock{TextWrapping=TextWrapping.Wrap,FontWeight=FontWeights.SemiBold,Visibility=Visibility.Collapsed};
         private readonly TextBox _notes=new TextBox{IsReadOnly=true,TextWrapping=TextWrapping.Wrap,VerticalScrollBarVisibility=ScrollBarVisibility.Auto,MinHeight=90,MaxHeight=180,Visibility=Visibility.Collapsed};
         private readonly ProgressBar _progress=new ProgressBar{Minimum=0,Maximum=100,Height=7,Margin=new Thickness(0,8,0,8)};
-        private readonly UpdateService _service;private readonly string _current;private readonly CancellationToken _traffic;private readonly bool _readOnly;
+        private readonly UpdateService _service;private readonly string _current;private readonly BuildIdentity _build;private readonly CancellationToken _traffic;private readonly bool _readOnly;
         private readonly DispatcherTimer _timer=new DispatcherTimer{Interval=TimeSpan.FromSeconds(1)};
         private CancellationTokenSource _operation;private VerifiedUpdate _verified;private bool _busy,_closed;private UpdateInstallChoice _ready;
         internal UpdateInstallChoice InstallChoice {get;private set;}
-        internal UpdatesWindow(UpdateService service,string current,CancellationToken traffic,bool readOnly=false)
+        internal UpdatesWindow(UpdateService service,string current,CancellationToken traffic,bool readOnly=false,string buildIdentity=null)
         {
-            _service=service;_current=current;_traffic=traffic;_readOnly=readOnly;
+            _service=service;_current=current;_build=BuildIdentity.Parse(buildIdentity??current);_traffic=traffic;_readOnly=readOnly;
+            if(_build.Number!=current)throw new InvalidDataException("Installed version and build identity do not match.");
             Title="Harbor updates and recovery";Width=620;Height=570;MinWidth=360;MinHeight=350;WindowStartupLocation=WindowStartupLocation.CenterOwner;WindowFitService.Attach(this);SetResourceReference(StyleProperty,typeof(Window));
             var stack=new StackPanel{Margin=new Thickness(18)};Content=new ScrollViewer{Content=stack,VerticalScrollBarVisibility=ScrollBarVisibility.Auto};
             stack.Children.Add(new TextBlock{Text="Updates and recovery",FontSize=23,FontWeight=FontWeights.SemiBold});
-            stack.Children.Add(new TextBlock{Text="Installed: Harbor "+current,Margin=new Thickness(0,5,0,10)});
+            stack.Children.Add(new TextBlock{Text="Installed: Harbor "+_build.DisplayVersion,Margin=new Thickness(0,5,0,10)});
             stack.Children.Add(new TextBlock{Text="Checks contact Harbor's public GitHub releases using the Windows connection. Checks and downloads pause while Proton or Tor is enabled. Nothing installs automatically.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,0,0,12)});
             var actions=new WrapPanel();actions.Children.Add(CheckButton);actions.Children.Add(DownloadButton);actions.Children.Add(CancelButton);stack.Children.Add(actions);
             stack.Children.Add(_progress);stack.Children.Add(Status);stack.Children.Add(ReleaseLabel);stack.Children.Add(_notes);
@@ -38,7 +39,7 @@ namespace HarborBrowser.Views
             stack.Children.Add(new TextBlock{Text="Only a previous version approved for this release and profile format can be offered. Setup backs up bookmarks, settings and other Harbor data files before replacement. Account databases remain in place and are not copied.",TextWrapping=TextWrapping.Wrap,Margin=new Thickness(0,6,0,8)});
             var recovery=new WrapPanel();recovery.Children.Add(PreviousButton);var backups=new Button{Content="Open profile backups"};recovery.Children.Add(backups);stack.Children.Add(recovery);
             var close=new Button{Content="Close",IsCancel=true,HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,12,0,0)};close.Click+=(s,e)=>Close();stack.Children.Add(close);
-            CheckButton.Click+=async(s,e)=>await Run(async cancel=>{Status.Text="Checking Harbor's public releases…";_verified=await _service.Check(cancel);ShowRelease();Status.Text=UpdateTrust.VersionOf(_verified.Manifest.Latest.Version)>UpdateTrust.VersionOf(_current)?"A newer stable release is available.":"You're using the latest published Harbor release.";});
+            CheckButton.Click+=async(s,e)=>await Run(async cancel=>{Status.Text="Checking Harbor's public releases…";_verified=await _service.Check(cancel);ShowRelease();var latest=UpdateTrust.VersionOf(_verified.Manifest.Latest.Version);Status.Text=_build.CanUpdateTo(_verified.Manifest.Latest.Version)?(latest==_build.Version?"The full release is available to replace this test build.":"A newer stable release is available."):(latest<_build.Version?"This build is newer than the latest published release.":"You're using the latest published Harbor release.");});
             DownloadButton.Click+=async(s,e)=>await Download(false);
             PreviousButton.Click+=async(s,e)=>await Download(true);
             CancelButton.Click+=(s,e)=>_operation?.Cancel();
@@ -82,7 +83,7 @@ namespace HarborBrowser.Views
             bool network=_service.NetworkAllowed&&!_traffic.IsCancellationRequested;
             _progress.Visibility=_busy?Visibility.Visible:Visibility.Collapsed;
             CheckButton.IsEnabled=!_busy&&network;CancelButton.IsEnabled=_busy;
-            DownloadButton.IsEnabled=!_busy&&network&&!_readOnly&&_verified!=null&&UpdateTrust.VersionOf(_verified.Manifest.Latest.Version)>UpdateTrust.VersionOf(_current);
+            DownloadButton.IsEnabled=!_busy&&network&&!_readOnly&&_verified!=null&&_build.CanUpdateTo(_verified.Manifest.Latest.Version);
             PreviousButton.IsEnabled=!_busy&&network&&!_readOnly&&_verified?.Manifest.Previous!=null&&_verified.Manifest.RollbackFrom==_current;
             InstallButton.IsEnabled=!_busy&&!_readOnly&&_ready!=null;
             if(!_busy&&!network)Status.Text="Update checks and downloads are paused while a browser connection is enabled. Turn it off in its controls yourself when you want to check.";

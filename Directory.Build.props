@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <HarborVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)VERSION.txt').Trim())</HarborVersion>
+    <HarborReleaseChannel Condition="'$(HarborReleaseChannel)' == ''">$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)RELEASE-CHANNEL.txt').Trim())</HarborReleaseChannel>
+    <HarborInformationalVersion>$(HarborVersion)</HarborInformationalVersion>
+    <HarborInformationalVersion Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(HarborReleaseChannel)', '^rc[1-9][0-9]*$'))">$(HarborVersion)-rc.$([System.String]::Copy('$(HarborReleaseChannel)').Substring(2))</HarborInformationalVersion>
+  </PropertyGroup>
+  <Target Name="ValidateHarborReleaseChannel" BeforeTargets="BeforeBuild">
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(HarborReleaseChannel)', '^(release|rc[1-9][0-9]*)$'))" Text="Harbor release channel must be release or rc followed by a positive integer." />
+  </Target>
+</Project>

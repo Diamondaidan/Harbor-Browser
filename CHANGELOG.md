@@ -1,3 +1,11 @@
+# 0.7.1 RC1
+
+- Recognize 25 pinned original markerless application identities; refuse modified binaries.
+- Persist/display RC identity and support authenticated same-base RC-to-full updates.
+- Require matching source/app/helper/package channel metadata and prevent RC signing into the stable feed.
+- Test public updater pause, recreation and ranged resume in an owned profile without executing the downloaded installer.
+- Preserve the regular installation/profile, backup behavior, Windows defaults and published 0.7.0 packages.
+
 # 0.7.0
 
 - Optional inactive-tab unloading with conservative page-state/media/download checks; off by default.

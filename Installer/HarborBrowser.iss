@@ -1,16 +1,19 @@
-; Stable Harbor 0.7.0. Preserve the established installation and profile.
+; Stable Harbor 0.7.1. Preserve the established installation and profile.
 #define AppExeName "HarborBrowser.exe"
 #ifndef AppVersion
-#define AppVersion "0.7.0"
+#define AppVersion "0.7.1"
 #endif
 #ifndef Candidate
 #define Candidate "release"
+#endif
+#ifndef AppBuildIdentity
+#define AppBuildIdentity AppVersion
 #endif
 #ifndef BuildRevision
 #define BuildRevision 0
 #endif
 #ifndef PayloadDir
-#define PayloadDir "..\dist\Harbor-0.7.0-release"
+#define PayloadDir "..\dist\Harbor-0.7.1-release"
 #endif
 #ifndef RedistDir
 #define RedistDir "redist"
@@ -40,7 +43,7 @@
 AppId={#ReleaseAppId}
 AppName={#AppName}
 AppVersion={#AppVersion}
-AppVerName={#AppName} {#AppVersion}
+AppVerName={#AppName} {#AppBuildIdentity}
 AppPublisher=Harbor Browser Project
 #ifdef FixtureBuild
 DefaultDirName={#FixtureInstallDir}
@@ -50,7 +53,7 @@ DefaultDirName={autopf}\Harbor Browser
 UsePreviousAppDir=yes
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
-UninstallDisplayIcon={app}\Branding\HarborBeacon-0.7.0.ico
+UninstallDisplayIcon={app}\Branding\HarborBeacon-{#AppVersion}.ico
 SetupIconFile=assets\HarborBrowser.ico
 OutputDir={#OutputFolder}
 OutputBaseFilename=HarborBrowserSetup-{#AppVersion}-{#Candidate}
@@ -72,19 +75,20 @@ ChangesAssociations=yes
 VersionInfoVersion={#AppVersion}.{#BuildRevision}
 VersionInfoDescription={#AppName} Setup
 VersionInfoProductName={#AppName}
+VersionInfoProductTextVersion={#AppBuildIdentity}
 
 [Tasks]
 Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: unchecked
 [Files]
 Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#PayloadDir}\Branding\HarborBeacon.ico"; DestDir: "{app}\Branding"; DestName: "HarborBeacon-0.7.0.ico"; Flags: ignoreversion
+Source: "{#PayloadDir}\Branding\HarborBeacon.ico"; DestDir: "{app}\Branding"; DestName: "HarborBeacon-{#AppVersion}.ico"; Flags: ignoreversion
 Source: "{#RedistDir}\ndp48-x86-x64-allos-enu.exe"; Flags: dontcopy
 Source: "{#RedistDir}\MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; Flags: dontcopy
 
 #ifndef FixtureBuild
 [Icons]
-Name: "{group}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-0.7.0.ico"; AppUserModelID: "HarborBrowser.Desktop"
-Name: "{autodesktop}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-0.7.0.ico"; AppUserModelID: "HarborBrowser.Desktop"; Tasks: desktopicon
+Name: "{group}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-{#AppVersion}.ico"; AppUserModelID: "HarborBrowser.Desktop"
+Name: "{autodesktop}\{#AppName}"; Filename: "{app}\HarborBrowser.exe"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-{#AppVersion}.ico"; AppUserModelID: "HarborBrowser.Desktop"; Tasks: desktopicon
 [Run]
 Filename: "{app}\HarborBrowser.exe"; Description: "Open Harbor Browser"; Flags: postinstall nowait skipifsilent unchecked; Check: CanLaunch
 #endif
@@ -100,6 +104,8 @@ function CreateFileW(Name: String; Access, Share: Cardinal; Security: Integer;
   external 'CreateFileW@kernel32.dll stdcall';
 function CloseHandle(Handle: THandle): Boolean;
   external 'CloseHandle@kernel32.dll stdcall';
+
+#include "LegacyReleaseHashes.iss"
 
 function ProfileDir: String;
 begin
@@ -197,13 +203,12 @@ begin
   Result := ''; NeedsRestart := False;
   if FileExists(ExpandConstant('{app}\HarborBrowser.exe')) then begin
     if not LoadStringFromFile(ExpandConstant('{app}\harbor-release-channel.txt'), Marker) or (Trim(String(Marker)) <> 'HarborStable') then begin
-      { The installed 0.5.3 release predates channel markers. Recognize only its
-        exact archived application hash, never a filename or version string. }
-      if CompareText(GetSHA256OfFile(ExpandConstant('{app}\HarborBrowser.exe')),
-        'BF36D03382CA42EF331F400768DE354DA88928EABDD5AD7073372E48E6121EF6') <> 0 then begin
+      { Recognize only exact application hashes extracted from pinned original
+        installers; filenames and version strings are not ownership evidence. }
+      if not IsKnownLegacyHarbor(ExpandConstant('{app}\HarborBrowser.exe')) then begin
         Result := 'This destination is not a recognized Harbor release. Keep it unchanged and install to another folder.'; Exit;
       end;
-      Log('Recognized the archived Harbor 0.5.3 executable for upgrade.');
+      Log('Recognized a verified archived Harbor executable for upgrade.');
     end;
   end;
   if not LockProfile then begin Result := 'Close Harbor Browser before updating it. Its profile is in use.'; Exit; end;

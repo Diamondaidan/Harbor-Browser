@@ -6,5 +6,7 @@
   <MakeDir Directories="$(TargetDir)Fixtures"/>
   <Exec Command="&quot;$(windir)\Microsoft.NET\Framework64\v4.0.30319\csc.exe&quot; /nologo /target:winexe /out:&quot;$(TargetDir)Fixtures\HarborBrowser.exe&quot; &quot;$(MSBuildProjectDirectory)\Fixtures\Parent.cs&quot;"/>
   <Exec Command="&quot;$(windir)\Microsoft.NET\Framework64\v4.0.30319\csc.exe&quot; /nologo /target:winexe /out:&quot;$(TargetDir)Fixtures\Setup.exe&quot; &quot;$(MSBuildProjectDirectory)\Fixtures\Installer.cs&quot;"/>
+  <Exec Command="&quot;$(windir)\Microsoft.NET\Framework64\v4.0.30319\csc.exe&quot; /nologo /target:winexe /out:&quot;$(TargetDir)Fixtures\StableIdentity.exe&quot; &quot;$(MSBuildProjectDirectory)\Fixtures\StableIdentity.cs&quot;"/>
+  <Exec Command="&quot;$(windir)\Microsoft.NET\Framework64\v4.0.30319\csc.exe&quot; /nologo /target:winexe /out:&quot;$(TargetDir)Fixtures\CandidateIdentity.exe&quot; &quot;$(MSBuildProjectDirectory)\Fixtures\CandidateIdentity.cs&quot;"/>
  </Target>
 </Project>

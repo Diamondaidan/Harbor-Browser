@@ -1,9 +1,11 @@
 # GitHub release inventory
 
-Full unsigned 0.7.0 preparation was authorized November 24, 2026. Its source is prepared on release/0.7.0 and its intended release is a draft, with public publication and feed activation separate. Check the local delivery/upload receipts or GitHub itself for completed transfers; package preparation is not proof of upload.
+Verified November 25, 2026. The public latest full release is v0.7.0. Main points to tested 0.7.0 commit 609912aa72b2e17ad9b9e314abf473889e36e4ac after the owner's explicit approval.
 
-Repository: https://github.com/Diamondaidan/Harbor-Browser . Public main remains 0.6.0; no merge was performed during the 0.6.3 validation session. Public development/0.6.3 points to 216e40f90949657e868c5b2a158de6465564666c and includes the final 0.6.1/0.6.2 fixes in its history.
+Twenty-five recovered full release entries are published, with 24 original installers and 58 original assets. Version 0.3.1 has its original source ZIP only. The original 0.1.1, 0.2.0, 0.2.1, 0.2.2, 0.2.3 and 0.3.0 files could not be recovered; they were not recreated or represented as originals.
 
-The 0.6.3 release draft has the exact installer, portable archive, matching source archive, signed update record, SHA256SUMS.txt and a sanitized installed-build validation report. Its six attachment hashes/sizes were verified against local files. The preserved 0.6.2 fallback has a separate draft with installer, matching source and checksums. The original 0.6.0 draft remains preserved. All three releases were confirmed unpublished; the public update feed is inactive.
+Public inventory: https://github.com/Diamondaidan/Harbor-Browser/blob/archive/full-releases/RELEASE-ARCHIVE.md . The archive branch holds separately verified recovered source snapshots. Existing canonical release targets remain preserved.
 
-The earlier performance task did not upload 0.7.0. Do not infer that every historical version has an individual hosted installer. Signing private keys and test profiles are excluded from source and release assets. The preserved 0.6.3, 0.6.2 and 0.6.0 releases were rechecked November 24 and remain drafts.
+The published 0.7.0 signed update record was verified with the production trust root. Public release assets were checked against original size/digest records. Windows installers remain unsigned by the owner's choice.
+
+0.7.1 RC1 is local development. Preparing its source/build does not publish it, change main, or update the stable feed. Private signing keys, profiles and extracted inspection tools are excluded from source/release assets.
