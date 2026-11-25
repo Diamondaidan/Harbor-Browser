@@ -1,6 +1,6 @@
 # Harbor Browser
 
-This branch develops **0.6.2**: site-verification notices, clearer loading errors, a local report without URLs or account data, and a visible explanation of the private-tab limit with browser-only VPNs. See [SITE-0.6.2-VERIFICATION.md](SITE-0.6.2-VERIFICATION.md) for behavior, verification scope and remaining work.
+This branch develops **0.6.3**: reliable reading of Proton verification replies, clearer network recovery, and safer download resume handling. See [RELIABILITY-0.6.3-VERIFICATION.md](RELIABILITY-0.6.3-VERIFICATION.md) for behavior, test scope and remaining manual checks. The verified 0.6.2 package remains preserved separately.
 
 Harbor is a Windows browser built with WPF, .NET Framework 4.8 and Microsoft WebView2. It is developed with ChatGPT under the maintainer's guidance.
 

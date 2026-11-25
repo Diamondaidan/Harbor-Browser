@@ -773,6 +773,9 @@ namespace HarborBrowser
             {
                 entry.IsActive = operation.State == CoreWebView2DownloadState.InProgress;
                 entry.CanResume = operation.State == CoreWebView2DownloadState.Interrupted && operation.CanResume;
+                entry.InterruptReason = operation.State == CoreWebView2DownloadState.Interrupted ? operation.InterruptReason.ToString() : null;
+                if(operation.State!=CoreWebView2DownloadState.Interrupted||operation.InterruptReason!=CoreWebView2DownloadInterruptReason.UserPaused)
+                {entry.ResumePending=false;}
                 entry.BytesReceived = operation.BytesReceived;
                 ulong? expected = operation.TotalBytesToReceive;
                 entry.TotalBytes = expected.HasValue ? (long?)Math.Min(expected.Value, (ulong)long.MaxValue) : null;
@@ -1919,8 +1922,12 @@ namespace HarborBrowser
 
         private async void ResumeDownload(DownloadEntry download)
         {
+            if(download==null||!_downloads.Contains(download))return;
+            if(download.ResumePending){SetStatus("A resume request is already pending for this download.");return;}
+            bool requested=false;download.ResumePending=true;
             try
             {
+                if(TorBlocksRequest(download.SourceUrl)){SetStatus("Reconnect and verify Tor, or turn it off, before resuming this download.");return;}
                 if (download?.IsPrivate == true && ProtonProtection.Enabled)
                 { SetStatus("Private downloads are paused while Proton browser protection is enabled."); return; }
                 if (download != null && ProtonProtection.ShouldBlock(download.SourceUrl, false))
@@ -1930,10 +1937,13 @@ namespace HarborBrowser
                 { SetStatus("Connect and verify Proton before resuming this download."); return; }
                 if (download != null && download.Operation != null && download.Operation.State == CoreWebView2DownloadState.Interrupted && download.Operation.CanResume)
                 {
+                    // Keep the pending row until DownloadStarting rebinds a
+                    // replacement operation. InProgress can arrive first.
                     _resumingDownloads.Remove(download);
-                    if (_resumingDownloads.Any(d => d.SourceUrl == download.SourceUrl)) { SetStatus("A download is resuming. Try again in a moment."); return; }
+                    if (_resumingDownloads.Any(d => d.SourceUrl == download.SourceUrl&&d.IsPrivate==download.IsPrivate&&d.PrivateSessionId==download.PrivateSessionId)) { SetStatus("A download is resuming. Try again in a moment."); return; }
                     _resumingDownloads.Add(download);
                     download.Operation.Resume();
+                    requested=true;UpdateDownloadStatus(download,download.Operation);
                 }
                 else if (download != null && download.Operation != null)
                 {
@@ -1946,6 +1956,7 @@ namespace HarborBrowser
                 if (download != null) _resumingDownloads.Remove(download);
                 SetStatus("Could not resume download: " + ex.Message);
             }
+            finally{if(!requested)download.ResumePending=false;}
         }
 
         private void OpenDownloadedFile(DownloadEntry download)

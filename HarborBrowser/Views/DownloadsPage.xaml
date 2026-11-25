@@ -19,13 +19,14 @@
       <StackPanel>
        <TextBlock Text="{Binding FileName}" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileName}"/>
        <TextBlock Text="{Binding ProgressText}" Foreground="{DynamicResource HarborMuted}" Margin="0,6,0,6" TextWrapping="Wrap"/>
+       <TextBlock Text="{Binding RecoveryText}" TextWrapping="Wrap" Margin="0,0,0,8"><TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding RecoveryText}" Value=""><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
        <ProgressBar Minimum="0" Maximum="100" Value="{Binding Percent,Mode=OneWay}" IsIndeterminate="{Binding IsIndeterminate}" Height="4" BorderThickness="0"/>
        <TextBlock Text="{Binding FilePath}" Foreground="{DynamicResource HarborMuted}" Margin="0,7,0,6" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="{Binding FilePath}"/>
        <WrapPanel>
         <Button Content="Open file" Tag="open" Click="Action_Click" IsEnabled="{Binding CanOpen}"/>
         <Button Content="Show in folder" Tag="reveal" Click="Action_Click" IsEnabled="{Binding CanReveal}"/>
         <Button Content="Pause" Tag="pause" Click="Action_Click" IsEnabled="{Binding IsActive}"/>
-        <Button Content="Resume" Tag="resume" Click="Action_Click" IsEnabled="{Binding CanResume}"/>
+        <Button Content="Resume" Tag="resume" Click="Action_Click" IsEnabled="{Binding CanRequestResume}" ToolTip="Resume is available only while the browser still has a resumable download operation. Connection changes never resume it automatically."/>
         <Button Content="Cancel" Tag="cancel" Click="Action_Click" IsEnabled="{Binding CanCancel}"/>
         <Button Content="Remove" Tag="remove" Click="Action_Click" IsEnabled="{Binding CanRemove}"/>
        </WrapPanel>

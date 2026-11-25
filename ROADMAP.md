@@ -1,9 +1,7 @@
-# Harbor 0.6.1 development roadmap
+# Harbor development roadmap
 
-Delivered development scope: explicit GitHub update checks, signed release records, verified/resumable downloads, consent before setup, compatible previous-version recovery, data snapshots and future Windows signing tools.
+0.6.3 focuses on reliable Proton route verification, network recovery and download resume. Current release evidence is in RELEASE-VERIFICATION.md and RELIABILITY-0.6.3-VERIFICATION.md. Earlier 0.6.2 and 0.6.1 packages remain preserved.
 
-0.6.1 adds immediate route-evidence invalidation on network/wake callbacks, clock-safe verification leases and 67 targeted regression checks. All 1,284 app assertions and 94 isolated installer checks passed. Owned-profile startup/CPU/memory measurements are recorded separately. Physical hardware and signed public-update gates remain open.
+Before public binary publication, finish live Proton/site checks and spare-PC validation, then review the exact assets and update record. GitHub currently contains 0.6.0 source/draft assets and an older 0.6.1 source branch; see GITHUB-UPLOAD-STATUS.md for the dated inventory. No automatic upload or publication is part of local development.
 
-Next validation: prepare clearly labeled unsigned packages for final review, then publish owner-approved assets and test an actual hosted newer-release update and rollback; validate an approved candidate on the spare PC, including genuine offline/missing prerequisites, sleep/reboot and network interruption. Keep broader privacy, accessibility and hardware/site testing as separate gates toward 1.0. SignPath is no longer a dependency. The frozen 0.6.0 release stays draft while this separate development branch is reviewed.
-
-No automatic public upload, silent install, key rotation or complete TUF implementation is included. See UPDATING.md, LIVE-VERIFICATION.md and the final verification reports.
+The recommended next feature milestone is 0.7.0 performance and memory: optional inactive-tab unloading, startup work and clearer resource accounting, with measurements against a matching baseline. Broader privacy, accessibility and hardware/site coverage remain part of progress toward 1.0. Paid Windows signing and SignPath approval are not release dependencies under the owner's unsigned-distribution decision.

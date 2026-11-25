@@ -146,12 +146,13 @@ namespace HarborBrowser.Services
         {
             return Regex.IsMatch(value ?? "", @"^\d{1,5}(\.\d{1,5}){1,3}$") ? value : "unavailable";
         }
-        internal string Report(string appVersion, string runtimeVersion, int osBuild, ProtonProtectionPhase protection, bool tor, bool tracker)
+        internal string Report(string appVersion, string runtimeVersion, int osBuild, ProtonProtectionPhase protection, bool tor, bool tracker, bool? networkAvailable=null)
         {
             var text = new StringBuilder();
             text.AppendLine("Harbor page loading details");
             text.AppendLine("Harbor: " + VersionText(appVersion)); text.AppendLine("WebView2: " + VersionText(runtimeVersion));
             text.AppendLine("Windows build: " + Math.Max(0, osBuild)); text.AppendLine("Tab: " + (_private ? "Private" : "Regular"));
+            text.AppendLine("Network adapter: " + (networkAvailable.HasValue ? networkAvailable.Value ? "Available" : "Unavailable" : "Unknown"));
             text.AppendLine("Proton: " + (Enum.IsDefined(typeof(ProtonProtectionPhase), protection) ? protection.ToString() : "Unknown"));
             if (protection == ProtonProtectionPhase.Connecting || protection == ProtonProtectionPhase.Disconnected)
                 text.AppendLine("Browser protection is pausing supported browsing. Connect and verify in Proton's controls, or turn protection off to use the regular connection. Paused pages are not retried automatically.");

@@ -33,6 +33,7 @@ namespace HarborBrowser
         private ProtonRouteSession _protonRouteSession;
         private DispatcherTimer _protonMonitor;
         private bool _protonMonitorBusy;
+        private volatile bool _protonNetworkAvailable=true;
         private int _protonObserverSerial;
         private DateTime _protonNextCheckUtc = DateTime.MinValue;
         private DateTime _protonNextErrorCheckUtc = DateTime.MinValue;
@@ -42,6 +43,7 @@ namespace HarborBrowser
 
         private void InitializeProtonPreview()
         {
+            _protonNetworkAvailable=System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable();
             _protonPreview = new ProtonPreviewService(_store.RootFolder);
             _protonFallback = new ProtonFallbackGuard(_store.RootFolder);
             ProtonProxyOwnershipValidator = ValidateProtonProxyOwnership;
@@ -278,14 +280,16 @@ namespace HarborBrowser
 
         private async Task MonitorProtonProtection()
         {
-            if(!AutomaticProtonMonitoringEnabled || _protonMonitorBusy || _shuttingDown || _torWindowClosed || _protonChanges>0 ||
+            if(!AutomaticProtonMonitoringEnabled || !_protonNetworkAvailable || _protonMonitorBusy || _shuttingDown || _torWindowClosed || _protonChanges>0 ||
                ProtonProtection==null || !ProtonProtection.Enabled || !_protonPreview.Enabled)return;
             if(ProtonProtection.State!=ProtonProtectionPhase.Protected && DateTime.UtcNow<_protonNextCheckUtc)return;
             _protonMonitorBusy=true;
+            long monitorEpoch=ProtonProtection.Epoch;
             try
             {
                 var core=await EnsureProtonObserverReady();
                 var proof=await ProtonRouteProbe.ReadProxyProof(core,_protonObserverLifetime.Token);
+                if(monitorEpoch!=ProtonProtection.Epoch||!_protonNetworkAvailable)return;
                 if(!proof.Owned || !proof.Supported)
                 {
                     string reason=!proof.Owned?"Disconnected. Connect in Proton's controls; browsing is paused.":"Unsupported Proton settings. Turn off split tunneling, enable WebRTC protection and recheck; browsing is paused.";
@@ -299,10 +303,14 @@ namespace HarborBrowser
                     await VerifyProtonRoute();
                 }
             }
-            catch
+            catch(Exception error)
             {
-                if(!_shuttingDown && ProtonProtection.Enabled) InvalidateProtonProtection("Proton could not be confirmed. Browsing is paused; open its controls to retry.");
-                _protonNextCheckUtc=DateTime.UtcNow.AddSeconds(10);
+                if(!_shuttingDown && ProtonProtection.Enabled && monitorEpoch==ProtonProtection.Epoch)
+                {
+                    string message=ProtonRouteProbe.FailureMessage(error);
+                    InvalidateProtonProtection(message,error is TimeoutException||error is OperationCanceledException);
+                    _protonLastCheck=message;_protonNextCheckUtc=DateTime.UtcNow.AddSeconds(10);
+                }
             }
             finally{_protonMonitorBusy=false;UpdateProtonIndicator();}
         }
@@ -318,6 +326,7 @@ namespace HarborBrowser
         }
         private async Task<ProtonRouteCheckResult> VerifyProtonRouteCore()
         {
+            if(!_protonNetworkAvailable)throw new InvalidOperationException("The network adapter is unavailable. Reconnect before checking the browser route.");
             if(ProtonProtection.State!=ProtonProtectionPhase.Protected) InvalidateProtonProtection("Connecting. Verifying Proton's browser route…",true);
             long epoch=ProtonProtection.Epoch;
             _protonProbeCancellation?.Cancel();
@@ -340,10 +349,10 @@ namespace HarborBrowser
                     else { InvalidateProtonProtection(result.Message);_protonLastCheck=result.Message; }
                     UpdateProtonIndicator();return result;
                 }
-                catch
+                catch(Exception error)
                 {
                     if(epoch==ProtonProtection.Epoch && ProtonProtection.Enabled && !_shuttingDown)
-                    {InvalidateProtonProtection("Route verification did not finish. Browsing remains paused.");_protonLastCheck="Verification failed or expired; no protection claim is made.";}
+                    {string message=ProtonRouteProbe.FailureMessage(error);InvalidateProtonProtection(message,error is TimeoutException||error is OperationCanceledException);_protonLastCheck=message;}
                     throw;
                 }
                 finally{if(ReferenceEquals(_protonProbeCancellation,cancellation))_protonProbeCancellation=null;}

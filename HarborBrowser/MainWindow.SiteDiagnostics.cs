@@ -97,7 +97,7 @@ namespace HarborBrowser
         {
             var diagnostics = SelectedTab?.PageDiagnostics ?? new PageLoadDiagnostics();
             return diagnostics.Report(typeof(MainWindow).Assembly.GetName().Version.ToString(), _environment?.BrowserVersionString,
-                Environment.OSVersion.Version.Build, ProtonProtection.State, _browserVpn?.Enabled ?? false, _settings.EnableTrackerBlocking);
+                Environment.OSVersion.Version.Build, ProtonProtection.State, _browserVpn?.Enabled ?? false, _settings.EnableTrackerBlocking, _protonNetworkAvailable);
         }
         private void PageLoadingDetails_Click(object sender, RoutedEventArgs e)
         {

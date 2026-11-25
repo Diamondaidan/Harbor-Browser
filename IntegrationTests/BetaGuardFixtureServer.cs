@@ -27,6 +27,8 @@ internal sealed class BetaGuardFixtureServer : IDisposable
     internal bool RequireProxyAuthentication;
     internal string ProxyPassword = "canary";
     internal bool DiagnosticsVerified;
+    internal string AddressContentType="application/json", AddressBody, AddressRedirect;
+    internal int AddressStatus=200, AddressDelayMilliseconds;
     internal string BaseUrl { get; private set; }
     internal string CertificateSpkiHash
     {
@@ -128,6 +130,12 @@ internal sealed class BetaGuardFixtureServer : IDisposable
             else if (path.EndsWith("/download", StringComparison.Ordinal))
                 extra = "Content-Disposition: attachment; filename=harbor-beta-guard-proof.txt\r\n";
             string status = "200 OK";
+            if(path=="/route-address"||((proxyMode||AddressAtRoot)&&path=="/"))
+            {
+                if(AddressDelayMilliseconds>0)Task.Delay(AddressDelayMilliseconds).GetAwaiter().GetResult();
+                type=AddressContentType;body=AddressBody??body;status=AddressStatus+" Owned response";
+                if(AddressRedirect!=null){status="302 Found";extra="Location: "+AddressRedirect+"\r\n";}
+            }
             if (path == "/diagnostics/page") { type = "text/html"; body = "<!doctype html><title>Owned diagnostics page</title><link rel='stylesheet' href='/diagnostics/style.css?private-token=canary#fragment'><h1 id='owned'>Original page stays visible</h1>"; }
             if (path == "/diagnostics/refused") { type = "text/html"; body = "<!doctype html><title>Owned refusal</title><link rel='stylesheet' href='/diagnostics/refused.css'><h1>Refused resource</h1>"; }
             if (path == "/diagnostics/refused.css") { type = "text/html"; body = "Refused by fixture"; status = "403 Forbidden"; }

@@ -155,13 +155,14 @@ namespace HarborBrowser
         private bool RebindResumedDownload(BrowserTab tab,CoreWebView2DownloadStartingEventArgs args)
         {
             if(args.DownloadOperation==null)return false;
-            var candidates=_resumingDownloads.Where(d=>d.IsPrivate==(tab!=null&&tab.IsPrivate)).ToList();
+            var candidates=_resumingDownloads.Where(d=>d.IsPrivate==(tab!=null&&tab.IsPrivate)&&(!d.IsPrivate||d.PrivateSessionId==tab.PrivateSessionId)).ToList();
             var entry=candidates.FirstOrDefault(d=>string.Equals(d.FilePath,args.ResultFilePath,StringComparison.OrdinalIgnoreCase));
             var matchingSource=candidates.Where(d=>d.SourceUrl==args.DownloadOperation.Uri).ToList();
             if(entry==null&&matchingSource.Count==1)entry=matchingSource[0];
             if(entry==null)return false;
             args.ResultFilePath=entry.FilePath;args.Handled=true;
             _resumingDownloads.Remove(entry);
+            entry.ResumePending=false;
             entry.Operation=args.DownloadOperation;entry.SourceUrl=entry.Operation.Uri;entry.Status="Resuming";
             var operation=entry.Operation;
             operation.BytesReceivedChanged+=(s,e)=>QueueDownloadUpdate(entry,operation);

@@ -19,6 +19,7 @@ namespace HarborBrowser.Services
         private bool _disposed,_controllerFaulted;
         internal int ControllerCreations {get;private set;}
         internal Func<CancellationToken,Task<IPAddress>> DirectAddressProvider;
+        internal Action<ProtonRouteStage> ProbeProgress;
 
         internal ProtonRouteSession(CoreWebView2Environment environment,IntPtr owner)
         {
@@ -51,6 +52,12 @@ namespace HarborBrowser.Services
                             throw new InvalidOperationException("The verification profile changed.");
                         core.Settings.AreDevToolsEnabled=false;core.Settings.IsStatusBarEnabled=false;
                         core.Settings.IsScriptEnabled=false;core.Settings.IsWebMessageEnabled=false;
+                        core.AddWebResourceRequestedFilter("*",CoreWebView2WebResourceContext.All,
+                            CoreWebView2WebResourceRequestSourceKinds.Document|CoreWebView2WebResourceRequestSourceKinds.SharedWorker|CoreWebView2WebResourceRequestSourceKinds.ServiceWorker);
+                        core.WebResourceRequested+=(s,e)=>{
+                            if(!ProtonRouteProbe.IsAddressTarget(e.Request.Uri))
+                                e.Response=core.Environment.CreateWebResourceResponse(null,503,"Verifier destination denied","Content-Type: text/plain");
+                        };
                         core.NavigationStarting+=(s,e)=>{
                             Uri uri;
                             if(e.Uri!="about:blank"&&(!Uri.TryCreate(e.Uri,UriKind.Absolute,out uri)||uri.Scheme!="https"||!uri.IsDefaultPort||uri.UserInfo.Length!=0||uri.Host!="api.ipify.org"||uri.AbsolutePath!="/"))e.Cancel=true;
@@ -60,7 +67,9 @@ namespace HarborBrowser.Services
                         core.DownloadStarting+=(s,e)=>e.Cancel=true;
                         core.ProcessFailed+=(s,e)=>_controllerFaulted=true;
                     }
-                    var pair=Task.WhenAll(ProtonRouteProbe.Address(_controller.CoreWebView2,cancel),DirectAddressProvider(cancel));
+                    var browserReply=ProtonRouteProbe.Address(_controller.CoreWebView2,cancel,ProbeProgress);
+                    var directReply=DirectAddressProvider(cancel);
+                    var pair=CompareReplies(browserReply,directReply);
                     var addresses=await ProtonRouteProbe.Bounded(pair,25000,cancel);
                     var last=await ProtonRouteProbe.ReadProxyProof(provider,cancel);
                     cancel.ThrowIfCancellationRequested();
@@ -69,9 +78,18 @@ namespace HarborBrowser.Services
                         ?ProtonRouteProbe.Result(false,"The browser matched the direct comparison. A protected route was not demonstrated; browsing remains paused.")
                         :ProtonRouteProbe.Result(true,"Protected browser route verified. Reload paused pages to continue. Browser protection is limited to supported requests; it is not a system-wide kill switch or complete leak audit.");
                 }
-                catch{ResetController();throw;}
+                catch{linked.Cancel();ResetController();throw;}
                 finally{_gate.Release();}
             }
+        }
+        private static async Task<IPAddress[]> CompareReplies(Task<IPAddress> browser,Task<IPAddress> direct)
+        {
+            // Reject a failed half immediately instead of waiting for the other
+            // transport's timeout. Observe both when cancellation closes it.
+            _=browser.ContinueWith(t=>{var ignored=t.Exception;},TaskContinuationOptions.OnlyOnFaulted);
+            _=direct.ContinueWith(t=>{var ignored=t.Exception;},TaskContinuationOptions.OnlyOnFaulted);
+            var first=await Task.WhenAny(browser,direct);await first;
+            return new[]{await browser,await direct};
         }
         private void ResetController()
         {
