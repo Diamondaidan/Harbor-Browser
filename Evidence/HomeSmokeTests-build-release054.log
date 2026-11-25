@@ -1,4 +1,0 @@
-
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborHomeSmoke -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.4\HomeSmokeTests\bin\Release\net48\HarborHomeSmoke.exe

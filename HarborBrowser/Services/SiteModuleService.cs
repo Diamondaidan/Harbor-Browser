@@ -62,7 +62,7 @@ namespace HarborBrowser.Services
                 var files=Array(Value(script,"js")).Select(Convert.ToString).Concat(Array(Value(script,"css")).Select(Convert.ToString)).ToList();
                 if(files.Count==0)throw new ArgumentException("Declare a local script or stylesheet.");foreach(string file in files)LocalFile(folder,file);
                 script["world"]="ISOLATED";script["all_frames"]=false;
-                script["exclude_matches"]=Array(Value(script,"exclude_matches")).Select(Convert.ToString).Concat(new[]{"https://harbor.invalid/*","https://"+BrowserVpnService.ControlHost+"/*"}).Distinct().ToArray();
+                script["exclude_matches"]=Array(Value(script,"exclude_matches")).Select(Convert.ToString).Concat(new[]{"https://harbor.invalid/*","https://"+BrowserVpnService.ControlHost+"/*","https://account.proton.me/*","https://account.protonvpn.com/*","https://account-api.proton.me/*"}).Distinct().ToArray();
             }
             if(result.Sites.Count==0)throw new ArgumentException("Declare at least one content script.");result.Sites=result.Sites.Distinct().ToList();
             path=Path.Combine(folder,"harbor-module.json");

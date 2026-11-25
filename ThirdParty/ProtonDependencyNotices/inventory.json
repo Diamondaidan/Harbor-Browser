@@ -1,0 +1,178 @@
+[
+  {
+    "License": "MIT",
+    "Version": "10.58.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "F3DF0B92EFCD9D8CC0DE5A36C151569A12A647D65B851ABBB696EF7B13DEE10B"
+      }
+    ],
+    "Name": "@sentry/browser"
+  },
+  {
+    "License": "MIT",
+    "Version": "10.58.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "9D45329F27EEE77D23AB9B4A62CEA6247E3E7402CF5BB04D77B9279F2C1E1BE3"
+      }
+    ],
+    "Name": "@sentry/browser-utils"
+  },
+  {
+    "License": "MIT",
+    "Version": "10.58.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "F3DF0B92EFCD9D8CC0DE5A36C151569A12A647D65B851ABBB696EF7B13DEE10B"
+      }
+    ],
+    "Name": "@sentry/core"
+  },
+  {
+    "License": "MIT",
+    "Version": "10.58.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "E580C7D30024B7E9A41F4386D359D56AB2397A1AEADEE2588FFBE7D03D21506B"
+      }
+    ],
+    "Name": "@sentry/feedback"
+  },
+  {
+    "License": "MIT",
+    "Version": "10.58.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "A7E7CE843788817AF39FC18C22962AD6E23B2DD8F99B8C63FB7AD4E59F1094C4"
+      }
+    ],
+    "Name": "@sentry/replay"
+  },
+  {
+    "License": "MIT",
+    "Version": "10.58.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "7D6562781128956F5E59D66A9D199CB0DF3E27FA7D9684B82C34C80767990E9C"
+      }
+    ],
+    "Name": "@sentry/replay-canvas"
+  },
+  {
+    "License": "MIT",
+    "Version": "2.0.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "D04AF55947868B7D90850F2428451C9F31FEB3FCCD8A11895F56E4F3D4C64C5E"
+      }
+    ],
+    "Name": "dom-form-serializer"
+  },
+  {
+    "License": "MIT",
+    "Version": "1.5.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "433FC9DFE659DBFB1E91EED8351F13651E97BFA3AC6D03394C3D63F61D4BBC80"
+      }
+    ],
+    "Name": "lz-string"
+  },
+  {
+    "License": "MIT",
+    "Version": "0.5.5",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "9DC1211E9228E47C9ECA55C18229129859063BD936A59CBB90B6403484502360"
+      }
+    ],
+    "Name": "plural-forms"
+  },
+  {
+    "License": "MIT",
+    "Version": "5.0.2",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE.md",
+        "SHA256": "B07649C798231A321F90ABBB329C15E41A8B5EC5E814DDE3E60CD4A470E3B012"
+      }
+    ],
+    "Name": "throttle-debounce"
+  },
+  {
+    "License": "MIT",
+    "Version": "1.4.0",
+    "LicenseFiles": [
+      {
+        "File": "license",
+        "SHA256": "5C932D88256B4AB958F64A856FA48E8BD1F55BC1D96B8149C65689E0C61789D3"
+      }
+    ],
+    "Name": "uint8array-extras"
+  },
+  {
+    "License": "MIT",
+    "Version": "5.3.2",
+    "LicenseFiles": [
+      {
+        "File": "license",
+        "SHA256": "4F1216089FF1FAE958E88DFA72AAD4319BD168AB6336CC595ED9104F2B2B27F2"
+      }
+    ],
+    "Name": "webext-detect"
+  },
+  {
+    "License": "MIT",
+    "Version": "3.1.1",
+    "LicenseFiles": [
+      {
+        "File": "license",
+        "SHA256": "4F1216089FF1FAE958E88DFA72AAD4319BD168AB6336CC595ED9104F2B2B27F2"
+      }
+    ],
+    "Name": "webext-events"
+  },
+  {
+    "License": "MIT",
+    "Version": "4.3.0",
+    "LicenseFiles": [
+      {
+        "File": "license",
+        "SHA256": "4F1216089FF1FAE958E88DFA72AAD4319BD168AB6336CC595ED9104F2B2B27F2"
+      }
+    ],
+    "Name": "webext-options-sync"
+  },
+  {
+    "License": "MIT",
+    "Version": "1.0.2",
+    "LicenseFiles": [
+      {
+        "File": "license",
+        "SHA256": "4F1216089FF1FAE958E88DFA72AAD4319BD168AB6336CC595ED9104F2B2B27F2"
+      }
+    ],
+    "Name": "webext-polyfill-kinda"
+  },
+  {
+    "License": "MPL-2.0",
+    "Version": "0.12.0",
+    "LicenseFiles": [
+      {
+        "File": "LICENSE",
+        "SHA256": "1F256ECAD192880510E84AD60474EAB7589218784B9A50BC7CEEE34C2B91F1D5"
+      }
+    ],
+    "Name": "webextension-polyfill"
+  }
+]

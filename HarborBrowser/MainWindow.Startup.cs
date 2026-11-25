@@ -67,7 +67,7 @@ namespace HarborBrowser
             if(_moduleValidation!=null&&(_moduleValidation.IsFaulted||_moduleValidation.IsCanceled)) _moduleValidationGeneration=-1;
             UpdateTabHeader(tab);
             if (SelectedTab == tab) ShowTabContent();
-            SetStatus("Browser startup did not finish. Use Reload tab to try again.");
+            if(SelectedTab==tab)SetStatus("Browser startup did not finish. Use Reload tab to try again.");
             System.Diagnostics.Debug.WriteLine(error);
         }
     }

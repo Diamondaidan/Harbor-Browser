@@ -48,6 +48,8 @@ namespace HarborBrowser
         }
         private string SafeTabUrl(BrowserTab tab)
         {
+            if(tab.IsProviderAuthentication)return ProtonPreviewService.AccountUrl;
+            if(tab.ProtonBlockedUrl!=null)return tab.ProtonBlockedUrl;
             if(tab.NativeContent is DownloadsPage)return DownloadsUrl;
             if(tab.PendingUrl!=null)return tab.PendingUrl;
             try{if(tab.View.Source!=null)return tab.View.Source.AbsoluteUri;}catch{}
@@ -62,6 +64,8 @@ namespace HarborBrowser
             if(kind==CoreWebView2ProcessFailedKind.BrowserProcessExited)
             {
                 if(tab.NeedsNewView)return;
+                InvalidateProtonProtection("The browser engine stopped. Browsing is paused until Proton is verified again.");
+                CloseProtonProtectionObserver();
                 _browserGeneration++;_pendingBrowserExit=_environmentExited==null?Task.CompletedTask:_environmentExited.Task;
                 foreach(var item in BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).Where(t=>t!=null&&t.NativeContent==null))
                 {
@@ -104,6 +108,8 @@ namespace HarborBrowser
         }
         private async Task FinishPrivacyBeforeClose()
         {
+            InvalidateProtonProtection("Harbor is closing. Protected browsing is paused.");
+            CloseProtonProtectionObserver();
             _torDebounce?.Stop();_browserVpn.PauseVerification();
             foreach(var tab in BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).Where(t=>t!=null&&t.Initializing))CancelTabStartup(tab);
             CancelPermissions();CancelOnlineSuggestions();foreach(var tab in BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab))CancelHomeSuggestions(tab);

@@ -33,6 +33,11 @@ namespace HarborBrowser.Views
         public string LastRecordedUrl { get; set; }
         public bool Initialized { get; set; }
         public bool Initializing { get; set; }
+        public Task InitializationTask { get; set; }
+        public bool SuppressInitialNavigation { get; set; }
+        public bool IsPopupPending { get; set; }
+        public bool IsPopupWindow { get; set; }
+        public string NativeProfileName { get; set; }
         public System.Threading.CancellationTokenSource StartupCancellation { get; set; }
         public bool IsSuspended { get; set; }
         public Guid ResourceId {get;}=Guid.NewGuid();
@@ -43,6 +48,11 @@ namespace HarborBrowser.Views
         public string SleepReason {get;set;}
         public bool IsClosing { get; set; }
         public bool IsPrivate { get; set; }
+        public bool IsProviderAuthentication {get;set;}
+        public bool AllowProtonAuthentication {get;set;}
+        public string ProtonBlockedUrl {get;set;}
+        public bool ProtonPaused {get;set;}
+        public bool ProtonPauseNavigation {get;set;}
         public string PrivateSessionId {get;set;}
         public int NavigationGeneration {get;set;}
         public string LastKnownUrl {get;set;}

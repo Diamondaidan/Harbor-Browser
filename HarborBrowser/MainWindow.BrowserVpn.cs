@@ -21,17 +21,23 @@ namespace HarborBrowser
         private BrowserVpnService _browserVpn;
         private Task _browserVpnPreparation;
         private int _browserVpnGeneration=-1;
-        private BrowserVpnWindow _browserVpnWindow;
         private DispatcherTimer _torMonitor,_torDebounce;
         private bool _torWindowClosed,_torHealthInFlight;
         private int _torChanges;
-        private bool AllowOnlineSuggestions {get{return _settings.OnlineSuggestionsEnabled&&!(_browserVpn?.Enabled??false);}}
+        private bool AllowOnlineSuggestions {get{return _settings.OnlineSuggestionsEnabled&&!(_browserVpn?.Enabled??false)&&!(_protonPreview?.Enabled??false)&&!(ProtonProtection?.Enabled??false);}}
         private Task PrepareBrowserVpn(CoreWebView2Profile profile)
         {
             if(profile.IsInPrivateModeEnabled)return Task.CompletedTask;
             if(_browserVpnGeneration!=_browserGeneration||_browserVpnPreparation==null)
-            {_browserVpnGeneration=_browserGeneration;_browserVpnPreparation=_browserVpn.Prepare(profile,_environment,new WindowInteropHelper(this).Handle);}
+                {_browserVpnGeneration=_browserGeneration;_browserVpnPreparation=PrepareProtonForBrowsing(profile);}
             return _browserVpnPreparation;
+        }
+        private async Task PrepareProtonForBrowsing(CoreWebView2Profile profile)
+        {
+            try{await _protonFallback.Prepare(_environment,profile,new WindowInteropHelper(this).Handle,_protonPreview.Enabled||ProtonProtection.Enabled);}
+            catch{if(_protonFallback.Armed&&!ProtonProtection.Enabled)BeginProtonProtection(true);throw;}
+            if(_protonPreview.Enabled)await EnsureProtonProtectionObserverAsync();
+            await _protonPreview.Prepare(profile);
         }
         private void InitializeBrowserVpnMonitoring()
         {
@@ -68,6 +74,7 @@ namespace HarborBrowser
         private void UpdateTorIndicator()
         {
             if(_torWindowClosed||TorIndicatorButton==null)return;
+            if(_protonPreview!=null){UpdateProtonIndicator();return;}
             string label=!_browserVpn.Enabled?"Tor Off":_browserVpn.State==BrowserConnectionState.Connected&&_browserVpn.RouteVerified?"Tor On":_browserVpn.State==BrowserConnectionState.Failed?"Tor !":_browserVpn.State==BrowserConnectionState.Checking?"Tor ?":"Tor …";
             TorIndicatorButton.Content=label;
             TorIndicatorButton.ToolTip=_browserVpn.Status+(_browserVpn.LastVerifiedUtc.HasValue?"\nLast successful check: "+_browserVpn.LastVerifiedUtc.Value.ToLocalTime().ToString("t"):"");
@@ -79,6 +86,8 @@ namespace HarborBrowser
             if(_torWindowClosed||Dispatcher.HasShutdownStarted)return;
             try{Dispatcher.BeginInvoke(new Action(()=>{
                 if(_torWindowClosed||_shuttingDown)return;_torDebounce.Stop();
+                if (ProtonProtection != null && ProtonProtection.Enabled)
+                    InvalidateProtonProtection(available ? "The network changed. Browsing is paused until Proton is verified again." : "The network is unavailable. Browsing is paused.", available);
                 _browserVpn.NotifyConnectionChange(available,reason);
                 if(available&&_browserVpn.Enabled)_torDebounce.Start();
             }));}catch(InvalidOperationException){}
@@ -118,7 +127,9 @@ namespace HarborBrowser
         {
             if(tab.IsPrivate)return;
             int generation=_browserGeneration;var view=tab.View;var environment=_environment;
-            core.AddWebResourceRequestedFilter("*",CoreWebView2WebResourceContext.All,CoreWebView2WebResourceRequestSourceKinds.All);
+            // Worker requests use the shared protection callback registered
+            // on each normal browsing context.
+            core.AddWebResourceRequestedFilter("*",CoreWebView2WebResourceContext.All,CoreWebView2WebResourceRequestSourceKinds.Document);
             core.WebResourceRequested+=(s,e)=>{
                 if(tab.IsClosing||generation!=_browserGeneration||!ReferenceEquals(view,tab.View))return;
                 if(TorBlocksRequest(e.Request.Uri))e.Response=environment.CreateWebResourceResponse(new MemoryStream(Encoding.UTF8.GetBytes("Tor is not verified. Check or reconnect Tor, or disconnect to use the regular route.")),503,"Tor connection paused","Content-Type: text/plain; charset=utf-8");
@@ -137,9 +148,7 @@ namespace HarborBrowser
         }
         private void BrowserVpn_Click(object sender,RoutedEventArgs e)
         {
-            if(_browserVpnWindow!=null){_browserVpnWindow.Activate();return;}
-            _browserVpnWindow=new BrowserVpnWindow(_browserVpn,ChangeBrowserVpn,OpenVpnTarget,()=>CheckBrowserVpnHealth()){Owner=this};
-            _browserVpnWindow.Closed+=(s,args)=>_browserVpnWindow=null;_browserVpnWindow.Show();
+            OpenProtonPreview();
         }
         private void OpenVpnTarget(string target)
         {if(Uri.TryCreate(target,UriKind.Absolute,out var uri)&&(uri.Scheme=="https"||uri.Scheme=="http"))CreateNewTab(target,true);}

@@ -100,11 +100,12 @@ namespace HarborBrowser
             var tab=SelectedTab;
             if(_presentation!=null)
             {
-                bool videoFull=tab!=null&&!tab.IsClosing&&tab.FailureMessage==null&&tab.Initialized&&tab.VideoPopout==null&&tab.View.CoreWebView2!=null&&tab.View.CoreWebView2.ContainsFullScreenElement;
+                bool videoFull=tab!=null&&!tab.IsClosing&&!tab.ProtonPaused&&tab.FailureMessage==null&&tab.Initialized&&tab.VideoPopout==null&&tab.View.CoreWebView2!=null&&tab.View.CoreWebView2.ContainsFullScreenElement;
                 _presentation.SetVideoFullScreen(videoFull);
             }
             if(tab==null){BrowserContentHost.Content=null;return;}
             if(tab.FailureMessage!=null){BrowserContentHost.Content=BuildTabRecoveryView(tab);return;}
+            if(tab.ProtonPaused){BrowserContentHost.Content=BuildProtonPausedView(tab);return;}
             if(tab.NativeContent!=null){BrowserContentHost.Content=tab.NativeContent;return;}
             if(tab.VideoPopout==null){BrowserContentHost.Content=tab.View;return;}
             var panel=new StackPanel{HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};

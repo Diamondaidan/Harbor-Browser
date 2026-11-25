@@ -34,8 +34,8 @@ namespace HarborBrowser
         }
         private void DefaultBrowser_Click(object sender,RoutedEventArgs e)
         {
-            try{ExternalNavigationService.OpenDefaultApps();SetStatus("Choose Harbor Browser in Windows Default apps.");}
-            catch(Exception ex){MessageBox.Show(this,"Open Windows Settings > Apps > Default apps and choose Harbor Browser. Install this version first if Harbor is missing. "+ex.Message,"Default browser");}
+            try{ExternalNavigationService.OpenDefaultApps();SetStatus("Choose "+ProtonTrialIdentity.RegisteredName+" in Windows Default apps.");}
+            catch(Exception ex){MessageBox.Show(this,"Open Windows Settings > Apps > Default apps and choose "+ProtonTrialIdentity.RegisteredName+". Install Harbor first if it is missing. "+ex.Message,"Default browser");}
         }
     }
 }

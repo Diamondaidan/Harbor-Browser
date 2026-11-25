@@ -44,7 +44,7 @@ namespace HarborBrowser
 
 
 
-        public MainWindow() : this(new BrowserDataStore(), null) { }
+        public MainWindow() : this(ProtonTrialIdentity.CreateStore(), null) { }
 
         internal MainWindow(BrowserDataStore store, Func<IntPtr, MonitorLayout> monitorProvider = null)
         {
@@ -252,18 +252,31 @@ namespace HarborBrowser
 
         private BrowserTab CreateNewTab(string initialUrl, bool select, bool isPrivate, BrowserSessionTab restoredTab)
         {
-            if(isPrivate&&(_browserVpn?.Enabled??false)){SetStatus("Private tabs are paused while the Tor connection preview is enabled. Turn it off in VPN controls to use private tabs.");return null;}
+            return CreateNewTab(initialUrl, select, isPrivate, restoredTab, false, null, false);
+        }
+
+        private BrowserTab CreateNewTab(string initialUrl, bool select, bool isPrivate, BrowserSessionTab restoredTab,
+            bool suppressInitialNavigation, string profileName, bool providerAuthentication)
+        {
+            if(isPrivate&&((_browserVpn?.Enabled??false)||(_protonPreview?.Enabled??false)||(ProtonProtection?.Enabled??false)||_protonChanges>0)){SetStatus("Private tabs are paused while a browser connection is enabled. Remove it in the connection controls to use private tabs.");return null;}
             var tab = new BrowserTab
             {
                 View = new WebView2(),
-                PendingUrl = string.IsNullOrWhiteSpace(initialUrl) ? _settings.HomePage : initialUrl,
+                PendingUrl = suppressInitialNavigation ? null : string.IsNullOrWhiteSpace(initialUrl) ? _settings.HomePage : initialUrl,
                 PageTitle = isPrivate ? "Private tab" : "New tab",
                 IsPrivate = isPrivate,
+                IsProviderAuthentication = providerAuthentication || ProtonPreviewService.IsSensitivePage(initialUrl),
+                AllowProtonAuthentication = providerAuthentication,
+                SuppressInitialNavigation = suppressInitialNavigation,
+                IsPopupPending = suppressInitialNavigation,
+                IsPopupWindow = suppressInitialNavigation,
+                NativeProfileName = profileName,
                 IsPinned = restoredTab != null && restoredTab.IsPinned,
                 GroupName = restoredTab == null ? (isPrivate ? null : GetSelectedGroupForNewTab()) : restoredTab.GroupName
             };
             if (tab.IsPrivate)
             {
+                if (!string.IsNullOrEmpty(profileName)) tab.PrivateSessionId = profileName;
                 ConfigurePrivateView(tab);
             }
 
@@ -424,7 +437,24 @@ namespace HarborBrowser
             return count;
         }
 
-        private async Task EnsureTabInitializedAsync(BrowserTab tab)
+        private Task EnsureTabInitializedAsync(BrowserTab tab)
+        {
+            if (tab == null || tab.NativeContent != null || tab.Initialized || tab.IsClosing || tab.FailureMessage != null || tab.NeedsNewView)
+                return Task.CompletedTask;
+            if (tab.Initializing) return tab.InitializationTask ?? Task.CompletedTask;
+            var completion = new TaskCompletionSource<bool>();
+            tab.InitializationTask = completion.Task;
+            _ = InitializeTabAndSignalAsync(tab, completion);
+            return completion.Task;
+        }
+
+        private async Task InitializeTabAndSignalAsync(BrowserTab tab, TaskCompletionSource<bool> completion)
+        {
+            try { await InitializeTabCoreAsync(tab); completion.TrySetResult(true); }
+            catch (Exception error) { completion.TrySetException(error); }
+        }
+
+        private async Task InitializeTabCoreAsync(BrowserTab tab)
         {
             if (tab == null || tab.NativeContent != null || tab.Initialized || tab.Initializing || tab.IsClosing || tab.FailureMessage != null || tab.NeedsNewView)
                 return;
@@ -435,15 +465,22 @@ namespace HarborBrowser
             int generation = _browserGeneration;
             var view = tab.View;
             Func<bool> current = () => !startup.IsCancellationRequested && !tab.IsClosing && generation == _browserGeneration && ReferenceEquals(view, tab.View);
-            SetStatus("Starting browser engine…");
+            if(SelectedTab==tab)SetStatus("Starting browser engine…");
             try
             {
                 await StartupStep(EnsureEnvironmentAsync(),startup.Token,BrowserStartupTimeout,"engine creation");
 
                 if (!current()) return;
+                if (!tab.IsPrivate && !string.IsNullOrEmpty(tab.NativeProfileName) && view.CoreWebView2 == null)
+                    view.CreationProperties = new CoreWebView2CreationProperties { ProfileName = tab.NativeProfileName, IsInPrivateModeEnabled = false };
                 await StartupStep(BrowserViewInitializer==null?view.EnsureCoreWebView2Async(_environment):BrowserViewInitializer(view,_environment),startup.Token,BrowserStartupTimeout,"tab creation");
                 if (!current()) return;
                 CoreWebView2 core = view.CoreWebView2;
+                // Install the document guard before any asynchronous setup or
+                // ordinary navigation. New-window contents are wired after bind.
+                if (!tab.IsPopupPending) ConfigureProtonRequestGuard(tab, core);
+                if(!tab.IsPrivate&&!tab.IsPopupPending)await StartupStep(ConfigureProtonWorkerLifecycle(core),startup.Token,BrowserStartupTimeout,"background request guard");
+                if(!current())return;
                 if(tab.IsPrivate)_initializedPrivateSessions.Add(tab.PrivateSessionId);
                 await StartupStep(InitializePermissionProfile(core.Profile),startup.Token,BrowserStartupTimeout,"permission initialization");
                 if (!current()) return;
@@ -478,14 +515,34 @@ namespace HarborBrowser
                 core.Settings.AreDevToolsEnabled = _settings.EnableDeveloperTools;
                 core.Settings.IsStatusBarEnabled = false;
                 core.Settings.IsZoomControlEnabled = true;
-                ConfigureTrackerProtection(tab);
-                ConfigureTorRequestGuard(tab,core);
+                if (!tab.IsPopupPending)
+                {
+                    ConfigureTrackerProtection(tab);
+                    ConfigureTorRequestGuard(tab,core);
+                }
                 core.FaviconChanged += (s, args) => { if (current()) UpdateTabFavicon(tab); };
                 UpdateTabFavicon(tab);
 
                 core.NavigationStarting += (s, args) =>
                 {
                     if (!current()) return;
+                    if (tab.ProtonPauseNavigation && args.Uri == "about:blank") { tab.ProtonPauseNavigation = false; return; }
+                    if(ProtonPreviewService.IsSensitivePage(args.Uri))tab.IsProviderAuthentication=true;
+                    Uri authenticationTarget;
+                    if (tab.AllowProtonAuthentication && Uri.TryCreate(args.Uri, UriKind.Absolute, out authenticationTarget) &&
+                        authenticationTarget.Scheme != "about" && !ProtonProtectionState.IsAuthenticationOrigin(authenticationTarget) &&
+                        !ProtonPreviewService.IsProviderPage(args.Uri)) tab.AllowProtonAuthentication = false;
+                    if ((tab.IsPrivate && ProtonProtection.Enabled && ProtonProtectionState.IsOrdinaryRequest(args.Uri, false)) ||
+                        ProtonProtection.ShouldBlock(args.Uri, tab.AllowProtonAuthentication))
+                    {
+                        args.Cancel = true; PauseProtonTab(tab, args.Uri);
+                        if (SelectedTab == tab) SetAddressText(HomePageService.DisplayUrl(args.Uri));
+                        SetStatus("Browsing is paused. Connect and verify Proton, then use Reload to retry this address.");
+                        return;
+                    }
+                    bool wasProtonPaused = tab.ProtonPaused;
+                    tab.ProtonBlockedUrl = null; tab.ProtonPaused = false;
+                    if (wasProtonPaused && SelectedTab == tab) ShowTabContent();
                     if(!tab.IsPrivate&&TorBlocksRequest(args.Uri))
                     {
                         args.Cancel=true;tab.TorBlockedUrl=args.Uri;
@@ -506,13 +563,14 @@ namespace HarborBrowser
                     {
                         SetAddressText(HomePageService.DisplayUrl(args.Uri));
                         UpdateBookmarkButtonState();
-                        SetStatus("Loading " + args.Uri);
+                        SetStatus(tab.IsProviderAuthentication?"Loading Proton account page…":"Loading " + args.Uri);
                     }
                 };
 
                 core.SourceChanged += (s, args) =>
                 {
                     if (!current()) return;
+                    if (tab.ProtonPaused && core.Source == "about:blank") return;
                     tab.LastKnownUrl = core.Source;
                     if (SelectedTab == tab && tab.View.Source != null)
                     {
@@ -524,16 +582,18 @@ namespace HarborBrowser
                 core.DocumentTitleChanged += (s, args) =>
                 {
                     if (!current()) return;
+                    if (tab.ProtonPaused && core.Source == "about:blank") return;
                     string title = string.IsNullOrWhiteSpace(core.DocumentTitle) ? "Untitled" : core.DocumentTitle;
                     tab.PageTitle = title;
                     UpdateTabHeader(tab);
                     if (SelectedTab == tab)
-                        Title = (tab.IsPrivate ? "Private · " : "") + title + " - Harbor Browser";
+                        Title = (tab.IsPrivate ? "Private · " : "") + title + " - " + ProtonTrialIdentity.DisplayName;
                 };
 
                 core.NavigationCompleted += (s, args) =>
                 {
                     if (!current()) return;
+                    if (tab.ProtonPaused && core.Source == "about:blank") return;
                     if (SelectedTab == tab)
                     {
                         SetStatus(args.IsSuccess ? "Done" : "Page load finished with an error");
@@ -553,11 +613,10 @@ namespace HarborBrowser
 
                 core.NewWindowRequested += (s, args) =>
                 {
-                    args.Handled = true;
-                    if (!current()) return;
-                    if (!string.IsNullOrWhiteSpace(args.Uri))
-                        CreateNewTab(args.Uri, true, tab.IsPrivate, null);
+                    if (!current()) { args.Handled = true; return; }
+                    HandleNewWindowRequested(core, args, tab, startup.Token);
                 };
+                core.WindowCloseRequested += (s, args) => { if (current() && tab.IsPopupWindow) CloseTab(tab); };
 
                 core.DownloadStarting += (sender, args) => { if (current()) Core_DownloadStarting(tab, sender, args); else args.Cancel = true; };
                 core.ProcessFailed += (s, args) =>
@@ -568,10 +627,11 @@ namespace HarborBrowser
                 tab.Initialized = true;
                 string firstUrl = tab.PendingUrl;
                 tab.PendingUrl = null;
-                if (!string.IsNullOrWhiteSpace(firstUrl))
-                    core.Navigate(firstUrl);
-                else
-                    core.Navigate(_settings.HomePage);
+                if (!tab.SuppressInitialNavigation)
+                {
+                    if (!string.IsNullOrWhiteSpace(firstUrl)) core.Navigate(firstUrl);
+                    else core.Navigate(_settings.HomePage);
+                }
 
                 UpdateTabActivity();
             }
@@ -588,7 +648,26 @@ namespace HarborBrowser
             }
         }
 
-        private void Core_DownloadStarting(BrowserTab tab, object sender, CoreWebView2DownloadStartingEventArgs e)
+        private async void Core_DownloadStarting(BrowserTab tab, object sender, CoreWebView2DownloadStartingEventArgs e)
+        {
+            CoreWebView2Deferral protectionDeferral = null;
+            try
+            {
+                if (tab?.IsPrivate == true && ProtonProtection.Enabled) { e.Cancel = true; SetStatus("Private downloads are paused while Proton browser protection is enabled."); return; }
+                if (ProtonProtection.Enabled && e.DownloadOperation != null &&
+                    ProtonProtectionState.IsOrdinaryRequest(e.DownloadOperation.Uri, false))
+                {
+                    protectionDeferral = e.GetDeferral();
+                    if (!await CanSendProtonRequestAsync(e.DownloadOperation.Uri, false, _protonRequestLifetime.Token))
+                    { e.Cancel = true; SetStatus("The download is paused until Proton's route is verified."); return; }
+                }
+                Core_DownloadStartingAllowed(tab, sender, e);
+            }
+            catch { e.Cancel = true; SetStatus("The download could not start safely. Verify the browser connection and retry."); }
+            finally { try { protectionDeferral?.Complete(); } catch { } }
+        }
+
+        private void Core_DownloadStartingAllowed(BrowserTab tab, object sender, CoreWebView2DownloadStartingEventArgs e)
         {
             if (RebindResumedDownload(tab, e)) return;
             if (tab != null && tab.IsClosing) { e.Cancel = true; return; }
@@ -795,6 +874,7 @@ namespace HarborBrowser
 
         private void RecordHistory(BrowserTab tab, string url, string title)
         {
+            if(tab?.IsProviderAuthentication==true||ProtonPreviewService.IsSensitivePage(url))return;
             if (tab == null || tab.IsClosing || tab.IsPrivate || string.IsNullOrWhiteSpace(url) || url == "about:blank" || HomePageService.IsHomeUrl(url) || url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 return;
             if (string.Equals(tab.LastRecordedUrl, url, StringComparison.OrdinalIgnoreCase))
@@ -861,6 +941,8 @@ namespace HarborBrowser
             foreach (TabItem item in BrowserTabs.Items) if (!ReferenceEquals(item.Tag, tab)) CancelPermissions(item.Tag as BrowserTab);
             if (tab.NativeContent != null)
                 SetAddressText(DownloadsUrl);
+            else if (tab.ProtonPaused && tab.ProtonBlockedUrl != null)
+                SetAddressText(HomePageService.DisplayUrl(tab.ProtonBlockedUrl));
             else if (tab.View.Source != null)
                 SetAddressText(HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri));
             else
@@ -876,7 +958,7 @@ namespace HarborBrowser
             UpdateTabActivity();
             SaveSession();
             string title = string.IsNullOrWhiteSpace(tab.PageTitle) ? "New tab" : tab.PageTitle;
-            Title = (tab.IsPrivate ? "Private · " : "") + title + " - Harbor Browser";
+            Title = (tab.IsPrivate ? "Private · " : "") + title + " - " + ProtonTrialIdentity.DisplayName;
             if (!tab.Initialized)
                 _ = EnsureTabInitializedAsync(tab);
         }
@@ -936,6 +1018,14 @@ namespace HarborBrowser
         {
             BrowserTab tab = SelectedTab;
             if (tab != null && tab.FailureMessage != null) { _ = RecoverTab(tab); return; }
+            if (tab != null && tab.Initialized && tab.ProtonBlockedUrl != null)
+            {
+                if ((tab.IsPrivate && ProtonProtection.Enabled) || ProtonProtection.ShouldBlock(tab.ProtonBlockedUrl, tab.AllowProtonAuthentication))
+                { SetStatus("Browsing is paused. Connect and verify Proton before retrying this address."); return; }
+                string target = tab.ProtonBlockedUrl; tab.ProtonBlockedUrl = null; tab.ProtonPaused = false;
+                ShowTabContent();
+                tab.View.CoreWebView2.Navigate(target); return;
+            }
             if (tab != null && tab.Initialized)
                 tab.View.CoreWebView2.Reload();
         }
@@ -967,7 +1057,7 @@ namespace HarborBrowser
                 return;
             if (!PreparePrivateClose(tab)) return;
             CancelPermissions(tab);
-            RememberClosedTab(tab);
+            if (!tab.IsPopupPending) RememberClosedTab(tab);
             CancelHomeSuggestions(tab);
             tab.IsClosing = true;
             CancelTabStartup(tab);
@@ -1063,6 +1153,7 @@ namespace HarborBrowser
         private void AddBookmark()
         {
             BrowserTab tab = SelectedTab;
+            if(tab?.IsProviderAuthentication==true){SetStatus("Proton account pages are not bookmarked.");return;}
             if (tab == null || !tab.Initialized || tab.View.Source == null || HomePageService.IsHomeUrl(tab.View.Source.AbsoluteUri))
             {
                 SetStatus("Open a page before bookmarking it");
@@ -1447,6 +1538,7 @@ namespace HarborBrowser
 
         private static bool IsRestorableUrl(string value)
         {
+            if(ProtonPreviewService.IsSensitivePage(value))return false;
             if (IsDownloadsUrl(value)) return true;
             Uri uri;
             return Uri.TryCreate(value, UriKind.Absolute, out uri) &&
@@ -1464,7 +1556,7 @@ namespace HarborBrowser
                 foreach (TabItem item in BrowserTabs.Items)
                 {
                     BrowserTab tab = item.Tag as BrowserTab;
-                    if (tab == null || tab.IsPrivate || tab.IsClosing) continue;
+                    if (tab == null || tab.IsPrivate || tab.IsClosing || tab.IsProviderAuthentication || tab.IsPopupPending) continue;
                     string url = SafeTabUrl(tab);
                     if (!IsRestorableUrl(url)) continue;
                     if (tab == SelectedTab) selectedSavedIndex = session.Tabs.Count;
@@ -1730,7 +1822,7 @@ namespace HarborBrowser
 
             menu.Items.Add(CreateTabGroupsMenu());
             MenuItem vpn = CreateGearSubmenu("VPN");
-            AddGearCommand(vpn, "Free browser connection · Tor preview…", BrowserVpn_Click);
+            AddGearCommand(vpn, "Proton browser protection…", BrowserVpn_Click);
             AddGearCommand(vpn, "Manage Windows VPN connections…", (s, args) => new VpnWindow { Owner = this }.ShowDialog());
             AddGearCommand(vpn, "Windows VPN settings…", VpnSettings_Click);
             menu.Items.Add(vpn);
@@ -1808,10 +1900,17 @@ namespace HarborBrowser
             }
         }
 
-        private void ResumeDownload(DownloadEntry download)
+        private async void ResumeDownload(DownloadEntry download)
         {
             try
             {
+                if (download?.IsPrivate == true && ProtonProtection.Enabled)
+                { SetStatus("Private downloads are paused while Proton browser protection is enabled."); return; }
+                if (download != null && ProtonProtection.ShouldBlock(download.SourceUrl, false))
+                { SetStatus("Connect and verify Proton before resuming this download."); return; }
+                if (download != null && ProtonProtection.Enabled &&
+                    !await CanSendProtonRequestAsync(download.SourceUrl, false, _protonRequestLifetime.Token))
+                { SetStatus("Connect and verify Proton before resuming this download."); return; }
                 if (download != null && download.Operation != null && download.Operation.State == CoreWebView2DownloadState.Interrupted && download.Operation.CanResume)
                 {
                     _resumingDownloads.Remove(download);
@@ -2036,6 +2135,7 @@ namespace HarborBrowser
                 return;
             }
             _shuttingDown = true;
+            CloseProtonProtectionObserver();
             CancelPermissions();
             if (_downloadNotificationTimer != null)
                 _downloadNotificationTimer.Stop();
@@ -2068,6 +2168,7 @@ namespace HarborBrowser
         }
     }
 }
+
 
 
 

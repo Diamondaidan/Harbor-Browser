@@ -16,11 +16,11 @@ namespace HarborBrowser
         [DllImport("shell32.dll",CharSet=CharSet.Unicode)]private static extern int SetCurrentProcessExplicitAppUserModelID(string id);
         protected override void OnStartup(StartupEventArgs e)
         {
-            SetCurrentProcessExplicitAppUserModelID("HarborBrowser.Desktop");
+            SetCurrentProcessExplicitAppUserModelID(ProtonTrialIdentity.AppUserModelId);
             string[] targets;
             try{targets=ExternalNavigationService.Targets(_startupArguments??e.Args).ToArray();}
             catch(Exception ex){MessageBox.Show(ex.Message,"Harbor link");Shutdown(2);return;}
-            _instance=new BrowserInstanceService(_instanceSuffix??"");
+            _instance=new BrowserInstanceService(_instanceSuffix??ProtonTrialIdentity.InstanceSuffix);
             if(!_instance.IsPrimary)
             {
                 if(!_instance.Forward(targets))MessageBox.Show("Harbor could not pass this link to the open window. Close any older Harbor version and try again.","Harbor link");

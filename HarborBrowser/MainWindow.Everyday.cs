@@ -107,7 +107,9 @@ namespace HarborBrowser
         }
         private void RememberClosedTab(BrowserTab tab)
         {
+            if(tab.IsProviderAuthentication)return;
             string url=tab.NativeContent!=null?DownloadsUrl:tab.PendingUrl??(tab.View.Source==null?null:tab.View.Source.AbsoluteUri);
+            if(ProtonPreviewService.IsSensitivePage(url))return;
             _recentlyClosed.Remember(new ClosedTabSnapshot{Url=url,Title=tab.PageTitle,GroupName=tab.GroupName,IsPinned=tab.IsPinned,Index=BrowserTabs.Items.IndexOf(tab.Item)},tab.IsPrivate);
         }
         internal BrowserTab ReopenClosedTab()

@@ -1,21 +1,15 @@
-# Harbor Browser 0.5.4 setup
+# Installing Harbor Browser 0.5.7
 
-Use dist/HarborBrowserSetup-0.5.4.exe for installation. It contains Harbor, Microsoft's .NET Framework 4.8 offline installer, the Evergreen WebView2 x64 standalone installer, the optional Tor client, notices, and matching Tor source.
+Close regular Harbor before running HarborBrowserSetup-0.5.7-release.exe. Approve Windows' administrator prompt yourself. Setup defaults to Program Files\Harbor Browser, recognizes the existing 0.5.3 installation, and keeps LocalAppData\HarborBrowser. Beta/trial installations and profiles remain separate. Use your usual Windows account when approving setup; upgrades with multiple simultaneously signed-in Windows users have not been validated.
 
-Supported target: Intel/AMD x64 Windows 10 version 1709 or later, or Windows 11 x64. Administrator access is required. Setup installs missing prerequisites and honors their restart-required result. WebView2 157 or later is required for this tested release: older or missing runtimes trigger the bundled Microsoft standalone installer. The included runtime is 157.0.4341.46; Evergreen normally keeps it updated afterward.
+The full installer contains Microsoft-signed .NET Framework 4.8 and WebView2 x64 offline packages. No developer tools are needed on another PC. Usable installed dependencies are skipped. If setup requests a restart, save your work and restart before opening Harbor. Harbor's installer is unsigned. Do not bypass a Windows security block; report it for diagnosis.
 
-Setup offers a desktop shortcut, registers HTTP/HTTPS and HTML capabilities, and leaves your default-browser choice to Windows. Choose Harbor in Windows Settings > Apps > Default apps if desired. It does not add a system VPN or change Windows proxy settings.
+Package target: x64 Windows 10 build 19041 or later / Windows 11, .NET Framework 4.8+, WebView2 157+. Older Windows versions, 32-bit Windows and ARM64 are outside this package's support scope. Clean installation and genuine missing-prerequisite/restart behavior on another PC remain separate validation items.
 
-Upgrade uses the regular Harbor profile in %LOCALAPPDATA%\HarborBrowser. Existing core settings, bookmarks, history, session, module permissions, connection choice and startup metadata are copied to UpgradeBackups before application files change. Uninstall removes the app and its registrations while keeping the profile. Keep your own backup before downgrading; compatibility with earlier data formats is not guaranteed.
+The extracted portable build also uses the regular Harbor profile and single-instance identity. Close installed Harbor before opening it. Keep the complete extracted folder together. Never run older and newer releases against the same profile simultaneously.
 
-To rebuild: install Visual Studio 2022 Build Tools with .NET desktop tools and the .NET Framework 4.8 Developer Pack, and Inno Setup 7. Run .\Build-Installer.ps1. It restores NuGet packages, builds Release, checks payload completeness, and downloads official signed offline prerequisites. For already cached packages use -SkipPrerequisiteDownloads; their sizes and Microsoft signatures are still checked. -SkipCompile builds and stages the payload but skips the final Inno compiler.
+For Proton, open VPN Off, enable browser protection, sign in yourself and connect. Wait for Protected. A restart may require Connect again without another sign-in. Reload paused pages explicitly. Disconnect pauses supported browsing until you reconnect and verify, or choose Turn off and remove. Forms and downloads are not resumed automatically. Private tabs cannot coexist with an enabled browser connection.
 
-Official prerequisite sources:
-- https://go.microsoft.com/fwlink/?linkid=2088631 (.NET Framework 4.8 offline)
-- https://go.microsoft.com/fwlink/p/?LinkId=2124701 (WebView2 x64 Evergreen standalone)
+Windows keeps your current default browser. After installation, Harbor's default-browser command opens Windows Settings for you to choose. Setup advertises HTTP/HTTPS and local .htm/.html support without writing UserChoice.
 
-Keep these filenames under Installer/redist when using cached packages: ndp48-x86-x64-allos-enu.exe and MicrosoftEdgeWebView2RuntimeInstallerX64.exe. Do not substitute the small online WebView2 bootstrapper. Source archives omit cached Microsoft installers; the builder obtains them from Microsoft.
-
-See VERIFICATION.md for executed tests. Clean-machine prerequisite installation, other Windows versions and hardware remain separate validation work. This unsigned Harbor installer may produce Windows reputation prompts.
-
-Setup's log now records detected prerequisite versions, whether each bundled installer was skipped or run, helper exit codes, and restart requests. Keep that log when reporting setup problems.
+Uninstall keeps data and Microsoft dependencies. Upgrades snapshot Harbor JSON/state files under LocalAppData\HarborBrowser\UpgradeBackups. Authentication databases remain in place and are not copied. Keep previous installers and backups. Before reverting to an older release, turn off and remove Proton in 0.5.7 and close Harbor. Do not delete a profile to fix setup or sign-in.

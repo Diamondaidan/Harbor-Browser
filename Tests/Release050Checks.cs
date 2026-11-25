@@ -17,7 +17,7 @@ internal static partial class Program
         Check("non-HTML local files are refused",ExternalNavigationService.Target(FileBytes("launch.exe",1))==null);
         rejected=false;try{ExternalNavigationService.Targets(Enumerable.Repeat("https://example.test/",17));}catch(ArgumentException){rejected=true;}Check("external launch target count is bounded",rejected);
         Equal("Windows 10 opens general Default apps","ms-settings:defaultapps",ExternalNavigationService.DefaultAppsUri(new Version(10,0,19045)));
-        Check("Windows 11 deep link identifies registered Harbor",ExternalNavigationService.DefaultAppsUri(new Version(10,0,22631)).Contains("registeredAppMachine=Harbor%20Browser"));
+        Check("Windows 11 deep link identifies installed Harbor",ExternalNavigationService.DefaultAppsUri(new Version(10,0,22631)).Contains("registeredAppMachine=Harbor%20Browser"));
         var snapshot=VpnClientService.Parse("{\"Profiles\":[{\"Name\":\"Office VPN\",\"AllUsers\":false,\"Status\":\"Connected\"},{\"Name\":\"Office VPN\",\"AllUsers\":true,\"Status\":\"Disconnected\"}],\"Errors\":[]}");
         Check("same-name user and all-user VPN profiles remain distinct",snapshot.Profiles.Count==2&&snapshot.Profiles[0].Key!=snapshot.Profiles[1].Key);
         Check("VPN buttons derive from Windows state",snapshot.Profiles[0].CanDisconnect&&!snapshot.Profiles[0].CanConnect&&snapshot.Profiles[1].CanConnect);

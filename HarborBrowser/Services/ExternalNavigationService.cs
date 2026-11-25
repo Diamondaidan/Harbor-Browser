@@ -41,7 +41,7 @@ namespace HarborBrowser.Services
             catch(ArgumentException){return null;}catch(NotSupportedException){return null;}catch(PathTooLongException){return null;}
         }
         public static string DefaultAppsUri(Version windows)
-        {return windows!=null&&windows.Build>=22000?"ms-settings:defaultapps?registeredAppMachine="+Uri.EscapeDataString("Harbor Browser"):"ms-settings:defaultapps";}
+        {return windows!=null&&windows.Build>=22000?"ms-settings:defaultapps?registeredAppMachine="+Uri.EscapeDataString(ProtonTrialIdentity.RegisteredName):"ms-settings:defaultapps";}
         public static void OpenDefaultApps(){Process.Start(new ProcessStartInfo(DefaultAppsUri(Environment.OSVersion.Version)){UseShellExecute=true});}
     }
 }

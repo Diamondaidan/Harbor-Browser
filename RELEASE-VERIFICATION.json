@@ -1,0 +1,114 @@
+{
+  "ReadyToPackage": true,
+  "TestCopiesMatch": true,
+  "AssertionsPassed": 1089.0,
+  "Version": "0.5.7",
+  "RecordedUtc": "2026-11-17T01:01:02.8887854Z",
+  "Suites": [
+    {
+      "Log": "regression-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "regression",
+      "Passed": true,
+      "AssertionsPassed": 384
+    },
+    {
+      "Log": "full-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "full",
+      "Passed": true,
+      "AssertionsPassed": 360
+    },
+    {
+      "Log": "suggestions-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "suggestions",
+      "Passed": true,
+      "AssertionsPassed": 17
+    },
+    {
+      "Log": "recovery-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "recovery",
+      "Passed": true,
+      "AssertionsPassed": 15
+    },
+    {
+      "Log": "proton-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "proton",
+      "Passed": true,
+      "AssertionsPassed": 34
+    },
+    {
+      "Log": "auth-handoff-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "auth-handoff",
+      "Passed": true,
+      "AssertionsPassed": 27
+    },
+    {
+      "Log": "proton-pending-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "proton-pending",
+      "Passed": true,
+      "AssertionsPassed": 24
+    },
+    {
+      "Log": "proton-hotfix2-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "proton-hotfix2",
+      "Passed": true,
+      "AssertionsPassed": 45
+    },
+    {
+      "Log": "proton-beta-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "proton-beta",
+      "Passed": true,
+      "AssertionsPassed": 109
+    },
+    {
+      "Log": "proton-fallback-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "proton-fallback",
+      "Passed": true,
+      "AssertionsPassed": 19
+    },
+    {
+      "Log": "proton-guard-handoff-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "proton-guard-handoff",
+      "Passed": true,
+      "AssertionsPassed": 12
+    },
+    {
+      "Log": "proton-r4-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "proton-r4",
+      "Passed": true,
+      "AssertionsPassed": 34
+    },
+    {
+      "Log": "release057-release057.log",
+      "Failures": [],
+      "CurrentExecutable": true,
+      "Suite": "release057",
+      "Passed": true,
+      "AssertionsPassed": 9
+    }
+  ],
+  "AppSHA256": "349A49B8B835C9F6BE206312EE19BDDF859EEDFB1360FDEAB7373C9ACB4A122B"
+}

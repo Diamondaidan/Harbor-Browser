@@ -1,0 +1,12 @@
+{
+  "Passed": true,
+  "Checks": 84,
+  "AppSHA256": "349A49B8B835C9F6BE206312EE19BDDF859EEDFB1360FDEAB7373C9ACB4A122B",
+  "TemplateSHA256": "53DF507C88B81BDC22ECE2B6D652A127FFAE30040FAF0A886962CD40608B89A3",
+  "RegistrySHA256": "EB80E682DA8D9D321E45EC028B099E0587C13B19D88D9BBAB2613258BEEA20AE",
+  "Evidence": "C:\\Users\\sirai\\.codex\\.chatgpt-projects\\g-p-6af557a5179881919319ac0b2640f739\\HarborBrowser-0.5.7-release\\T\\installer057-fe130e5846",
+  "RealVendorPackagesExecuted": false,
+  "UserProfilesAccessed": false,
+  "DefaultsUnchanged": true,
+  "RecordedUtc": "2026-11-17T00:58:20.2552009Z"
+}

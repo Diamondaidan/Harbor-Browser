@@ -1,3 +1,30 @@
+# Harbor 0.5.6 Proton Beta R4 (automated checks pass; live verification pending)
+
+- Keep an aborted request from unloading unrelated pages; retain immediate pauses for proxy/privacy changes and unsafe errors, existing lease/ownership checks and the native rejecting fallback.
+- Correct stale Protected descriptions and keep hidden/background startup status out of the active tab.
+- Reuse one verification view and replace per-check direct-browser launches with a credential-free HTTP comparison; validate native cancellation and recovery.
+- Pass 1,080 assertions across twelve suites. Complete both owned component benchmarks; live Proton retry and broader manual gates remain pending.
+
+# Harbor 0.5.6 Proton Beta R3
+
+- Separate 056G profile and beta identity; preserve the user's working Hotfix 2 and earlier development data.
+- Allow the exact HTTPS verification origin in trusted authentication and native fallback; exclude it from history/session storage and managed modules.
+- Deny embedded unrelated pages without replacing their parent sign-in tab. Retain the prepared native popup handoff from R2.
+- Pass all eleven Windows automation/test suites, totaling 1,046 assertions; retain live sign-in, connection, network-failure and performance gates.
+- Add host protection states, expiring route evidence, current proxy ownership checks, explicit paused-page retry and fail-closed removal handling.
+- Correct unnamed versus named default-profile selection for verification controllers.
+- Expand native server-counted tests across startup, workers, downloads, connection loss, expiry and network changes. Failed protection checks block packaging.
+- Include pinned dependency license/source notices and record remaining public-distribution review.
+
+# Harbor 0.5.5 Proton trial (portable, experimental)
+
+- Separate application/pipe identity and portable TrialData folders; production installer disabled.
+- Host unmodified official Proton1.3.6 controls persistently; bounded loading/reload/removal and safe diagnostics.
+- Keep extension-enabled intent distinct from connected/verified state; add a limited manual same-profile/direct-control route comparison.
+- Exclude Proton account handoff tabs from Harbor history, sessions, recently closed tabs and managed site-module injection.
+- Add signed-out compatibility/reversal checks and controlled direct/Tor/signed-out-Proton component measurements.
+- Live account authentication, proxy authentication, leak/failure behavior and connected-Proton performance remain separate validation gates.
+
 # Harbor Browser 0.5.4
 
 - Match native History, Bookmarks, Settings, resource monitor and other dialog title bars to Harbor's light/dark appearance, including live changes.

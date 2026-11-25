@@ -1,0 +1,7 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Harbor synthetic popup parent</title></head><body><h1>Synthetic local popup parent</h1><script>
+window.harborPopupProof={ready:true,returnedWindow:false,roundTrip:false};
+function prepareProof(target,name,canary){sessionStorage.setItem('harbor-popup-canary',canary);window.harborPopupProof={ready:true,target,name,canary,returnedWindow:false,roundTrip:false};window.harborChildWindow=null;}
+window.beginPopupProof=(target,name,canary)=>{prepareProof(target,name,canary);window.harborChildWindow=window.open(target,name);harborPopupProof.returnedWindow=!!harborChildWindow;};
+window.beginPostProof=(target,name,canary)=>{prepareProof(target,name,canary);const form=document.createElement('form');form.method='POST';form.action=target;form.target=name;form.rel='opener';const input=document.createElement('input');input.name='canary';input.value=canary;form.append(input);document.body.append(form);form.submit();};
+addEventListener('message',e=>{const p=window.harborPopupProof;if(!e.data||e.data.kind!=='harbor-child-proof'||e.data.canary!==p.canary||!e.source)return;if(window.harborChildWindow&&e.source!==window.harborChildWindow)return;window.harborChildWindow=e.source;p.roundTrip=true;p.childName=e.data.name;e.source.postMessage({kind:'harbor-parent-confirm',canary:p.canary},'*');});
+</script></body></html>

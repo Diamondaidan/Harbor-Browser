@@ -29,6 +29,8 @@ internal static partial class Program
     private static int Main(string[] args)
     {
         if(args.Length>2&&args[2]=="--startup-host")return StartupHost(args);
+        if(args.Length>2&&args[2]=="--proton-hotfix2-host")return ProtonHotfix2Host(args);
+        if(args.Length>2&&args[2]=="--proton-beta-host")return ProtonBetaHost(args);
         if(args.Length>3&&args[2]=="--tor-lifecycle-host")return TorLifecycleHost(args);
         int exit=1;Directory.CreateDirectory(args[0]);
         var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
@@ -42,6 +44,12 @@ internal static partial class Program
         Func<IntPtr,MonitorLayout> monitors=interactive?null:new Func<IntPtr,MonitorLayout>(h=>layout);
         var main=new MainWindow(store,monitors){WindowStartupLocation=WindowStartupLocation.Manual,Left=interactive?80:-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=interactive,ShowActivated=interactive};
         main.TestBrowserArguments="--use-fake-device-for-media-stream";
+        BetaGuardFixtureServer r4Proxy=null;
+        if(args.Length>2&&(args[2]=="--proton-r4"||args[2]=="--proton-r4-benchmark"))
+        {
+            r4Proxy=new BetaGuardFixtureServer(true,true);
+            main.TestBrowserArguments+=" --host-resolver-rules=\"MAP harbor-owned-proxy.invalid 127.0.0.1\" --ignore-certificate-errors-spki-list="+r4Proxy.CertificateSpkiHash;
+        }
         var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(600)};
         timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL integration timed out");app.Shutdown(1);};
         main.Loaded+=async(s,e)=>{
@@ -50,6 +58,32 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--release057")
+                {await Release057Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" isolated 0.5.7 identity and native engine recovery checks.");exit=0;return;}
+                if(args.Length>3&&args[2]=="--proton-r4-benchmark")
+                {try{await ProtonR4Checks(main,args[0],r4Proxy,args[3]);Console.WriteLine("ALL PASSED: "+checks+" owned route-lifecycle benchmark checks.");exit=0;}finally{r4Proxy.Dispose();}return;}
+                if(args.Length>2&&args[2]=="--proton-r4")
+                {try{await ProtonR4Checks(main,args[0],r4Proxy);Console.WriteLine("ALL PASSED: "+checks+" R4 proxy-error, status and resource checks.");exit=0;}finally{r4Proxy.Dispose();}return;}
+                if(args.Length>2&&args[2]=="--proton-unguarded-handoff")
+                {await ProtonGuardHandoffChecks(main,args[0],false);exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-guard-handoff")
+                {await ProtonGuardHandoffChecks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" guarded extension handoff checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-fallback")
+                {await ProtonFallbackChecks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" native proxy fallback checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--socket-block")
+                {await BetaSocketBlockCheck(core);exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-beta")
+                {await ProtonBetaChecks(main,store,args[0]);await ProtonProxyProofChecks(main,args[0]);FinishBetaCounterChecks(args[0]);Console.WriteLine("ALL PASSED: "+checks+" beta startup/request protection checks. Synthetic owned profiles only; no account login performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-proxy-proof")
+                {await ProtonProxyProofChecks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" isolated native proxy-proof shape checks. No account login or external requests performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-hotfix2")
+                {await ProtonHotfix2Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Proton cold-restart and loading-recovery checks. No account login performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--auth-handoff")
+                {await AuthHandoffChecks(main,store,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" synthetic popup-context and sign-in sleep-protection checks. No account login performed.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton-pending")
+                {await ProtonPendingStateChecks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" synthetic Proton pending-state storage checks. No real authorization state read.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--proton055")
+                {await Proton055Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" signed-out Proton compatibility and reversal checks. Live login/connection are not included.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--theme054")
                 {await Theme054Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" native title bar and toolbar checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--tor054")

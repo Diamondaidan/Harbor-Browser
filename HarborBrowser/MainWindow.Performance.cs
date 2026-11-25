@@ -23,6 +23,8 @@ namespace HarborBrowser
             if(tab.IsClosing||_shuttingDown)return "Closing";
             if(tab.FailureMessage!=null||tab.NeedsNewView)return "Needs reload";
             if(tab.NativeContent!=null)return "Browser page";
+            if(tab.IsPopupPending)return "Opening requested window";
+            if(tab.IsProviderAuthentication || ProtonPreviewService.IsProviderPage(tab.PendingUrl) || ProtonPreviewService.IsProviderPage(tab.LastKnownUrl))return "Proton sign-in or controls";
             if(!tab.Initialized)return tab.Initializing?"Starting":"Not loaded";
             if(tab==SelectedTab)return "Active";
             if(tab.KeepAwake)return "Kept awake";
@@ -54,7 +56,7 @@ namespace HarborBrowser
         {
             if(tab==null||tab.SuspendTimer==null)return;
             tab.SuspendTimer.Stop();
-            if(!_settings.SuspendInactiveTabs||tab.IsClosing||tab==SelectedTab||!tab.Initialized||tab.NativeContent!=null||tab.KeepAwake||tab.IsSuspended||tab.FailureMessage!=null||_shuttingDown)return;
+            if(!_settings.SuspendInactiveTabs||tab.IsClosing||tab==SelectedTab||!tab.Initialized||tab.NativeContent!=null||tab.KeepAwake||tab.IsSuspended||tab.FailureMessage!=null||_shuttingDown||tab.IsProviderAuthentication||ProtonPreviewService.IsProviderPage(tab.PendingUrl)||ProtonPreviewService.IsProviderPage(tab.LastKnownUrl))return;
             if(!tab.InactiveSinceUtc.HasValue)tab.InactiveSinceUtc=DateTime.UtcNow;
             tab.SuspendTimer.Interval=TabSleepSchedule.Delay(tab.InactiveSinceUtc.Value,tab.RetrySleepAfterUtc,DateTime.UtcNow,_settings.InactiveTabSuspendDelaySeconds);
             tab.SuspendTimer.Start();

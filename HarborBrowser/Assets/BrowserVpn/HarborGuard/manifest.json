@@ -1,0 +1,9 @@
+{
+  "manifest_version": 3,
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsX3tBleuUTprAK2Ey6hO0A8NA/YpWt9JQ1JlHvh9Jpo3Mh+0vyQkpkdWB0gyBO+VnrG4klDnBhK7CJbYewh6um0Y7sZ5837XIzkuvhB7ebBsLsaUDU6CB6eBjeK9ufLrUJX3Xtlh3JV+xxKAKQ/1uemFeRNZn6h/AlxQdwRYmZ1PIIHkvfBUd7aAFjV36vyb2p2oSV/9R5C5j6J7fsDoqVtTtXg+e3nHtf9V8qge4IXMMsZJd0yupKjPk4jmf19jN4sgOGRRrIY/3HJcw/FRdhHrriKsai/K2GAhyvlux43lhk1Oqzv2xc/IM97rH0vsROX68/ZqhJWLFc+ZortAhQIDAQAB",
+  "version": "0.1.0",
+  "permissions": [
+    "proxy"
+  ],
+  "name": "Harbor browser connection fallback"
+}

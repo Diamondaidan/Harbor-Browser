@@ -41,8 +41,10 @@ namespace HarborBrowser
         private void InitializePrivacy()
         {
             _browserVpn=new BrowserVpnService(_store.RootFolder);
+            InitializeProtonPreview();
+            InitializeProtonProtection();
             InitializeBrowserVpnMonitoring();
-            Closed+=(s,e)=>_browserVpn.Dispose();
+            Closed+=(s,e)=>{_protonPreview.Dispose();_protonFallback.Dispose();_browserVpn.Dispose();};
             _normalPermissions=new SitePermissionService(_store.LoadPermissions());
             ConfirmPrivateDownload=()=>MessageBox.Show(this,"Private browsing does not hide downloaded files from this computer. Continue downloading?","Private download",MessageBoxButton.YesNo,MessageBoxImage.Information)==MessageBoxResult.Yes;
             ConfirmPrivateDownloadClose=()=>MessageBox.Show(this,"Closing the last private tab cancels unfinished private downloads. Close and cancel them?","Private downloads",MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes;
@@ -71,7 +73,8 @@ namespace HarborBrowser
             {
                 string folder=System.IO.Path.Combine(_store.RootFolder,"WebView2");System.IO.Directory.CreateDirectory(folder);
                 var options=new CoreWebView2EnvironmentOptions{EnableTrackingPrevention=true,AreBrowserExtensionsEnabled=true};
-                if(!string.IsNullOrEmpty(TestBrowserArguments))options.AdditionalBrowserArguments=TestBrowserArguments;
+                string fallback=(_protonPreview.Enabled||_protonFallback.Armed)?_protonFallback.BrowserArguments:string.Empty;
+                options.AdditionalBrowserArguments=(fallback+" "+TestBrowserArguments).Trim();
                 _environmentTask=CoreWebView2Environment.CreateAsync(null,folder,options);
             }
             var creation=_environmentTask;var environment=await creation;
@@ -91,7 +94,13 @@ namespace HarborBrowser
         private static async Task ResetNativePermissions(CoreWebView2Profile profile)
         {
             var saved=await profile.GetNonDefaultPermissionSettingsAsync();
-            foreach(var setting in saved)await profile.SetPermissionStateAsync(setting.PermissionKind,setting.PermissionOrigin,CoreWebView2PermissionState.Default);
+            foreach(var setting in saved)
+            {
+                // Harbor manages website consent. Engine and extension grants are
+                // separate; WebView2 can enumerate them but reject resetting them.
+                if(SitePermissionService.Origin(setting.PermissionOrigin)==null)continue;
+                await profile.SetPermissionStateAsync(setting.PermissionKind,setting.PermissionOrigin,CoreWebView2PermissionState.Default);
+            }
         }
         private SitePermissionService PermissionPolicy(BrowserTab tab)
         {
@@ -156,7 +165,7 @@ namespace HarborBrowser
         {
             var source=BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).Concat(_retainedDownloadTabs).FirstOrDefault(t=>t!=null&&t.Initialized&&!t.NeedsNewView&&((privateSession==null&&!t.IsPrivate)||(privateSession!=null&&t.IsPrivate&&t.PrivateSessionId==privateSession)));
             if(source!=null){await action(source.View.CoreWebView2.Profile);return;}
-            await EnsureEnvironmentAsync();var options=_environment.CreateCoreWebView2ControllerOptions();options.ProfileName=privateSession??"Default";options.IsInPrivateModeEnabled=privateSession!=null;
+            await EnsureEnvironmentAsync();var options=_environment.CreateCoreWebView2ControllerOptions();options.ProfileName=privateSession??string.Empty;options.IsInPrivateModeEnabled=privateSession!=null;
             var creation=_environment.CreateCoreWebView2ControllerAsync(new WindowInteropHelper(this).Handle,options);
             try{await StartupStep(creation,System.Threading.CancellationToken.None,BrowserStartupTimeout,"profile access");}
             catch{_ = CloseLateProfileController(creation);throw;}

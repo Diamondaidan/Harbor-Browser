@@ -8,3 +8,4 @@ dist/
 T/
 Installer/Inspection/
 Installer/redist/*.exe
+ThirdParty/DependencyInputs/

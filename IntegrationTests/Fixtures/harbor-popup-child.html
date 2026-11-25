@@ -1,0 +1,3 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Harbor synthetic popup child</title></head><body><h1>Synthetic local popup child</h1><script>
+(()=>{const request=__SERVER_REQUEST_JSON__;const canary=new URL(location.href).searchParams.get('canary');window.harborChildProof={ready:true,hasOpener:!!window.opener,name:window.name,sessionCanary:sessionStorage.getItem('harbor-popup-canary'),parentConfirmed:false,serverMethod:request.method,serverBody:request.body};addEventListener('message',e=>{if(e.source===window.opener&&e.data?.kind==='harbor-parent-confirm'&&e.data.canary===canary)harborChildProof.parentConfirmed=true;});if(window.opener)window.opener.postMessage({kind:'harbor-child-proof',canary,name:window.name},'*');})();
+</script></body></html>
