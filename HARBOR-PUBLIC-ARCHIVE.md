@@ -1,13 +1,6 @@
-# Harbor Browser 0.7.0 archive
+# Harbor Browser 0.7.0
 
-The original full Windows installer and matching source are attached. Original files are preserved byte for byte; this is an archival publication, not a new build or a fresh Windows validation.
+This is the current full unsigned release, prepared November 24, 2026 (America/Chicago). Original installer, portable and source assets are unchanged. The original release notes and validation report describe the completed tests and outstanding physical network/power, final installed upgrade and clean/offline spare-PC checks. Protected IPv6 is unconfirmed. Harbor-authored code is GPL-3.0-only; third-party licenses remain applicable.
 
-Harbor 0.7.0 supersedes this historical release. Use the latest release for normal installation. Historical packages retain their original behavior, limitations, and bundled dependencies; do not assume current fixes or protection guarantees apply. Windows installers are unsigned. These old packages were not installed or executed during this archive audit.
-
-Harbor-authored code is released under GPL-3.0-only under the owner's public-source authorization. Third-party components retain their own licenses and notices. The original source ZIP is unchanged; this note documents the current distribution terms separately.
-
-Archive checks: source ZIP decompression/CRC, source-version identity, installer file-version identity when available, existing release receipts/sidecars where available, and SHA-256/size verification. Checksums are in ARCHIVE-SHA256SUMS.txt. Publication prepared November 24, 2026 (America/Chicago).
-
-Original source asset: HarborBrowser-0.7.0-source.zip
+Original source: HarborBrowser-0.7.0-source.zip
 SHA-256: C22223C9F0F801117C04189947F28CE751CCFF005C0838D4BF4FE34E8CF1CABE
-This Git mirror retains original source file bytes. Supplemental archive/license files are separate from the unchanged attached ZIP.
