@@ -83,6 +83,7 @@ namespace HarborBrowser.Views
             var verificationNotice = new TextBlock { Text = "Route checks compare browser and direct ipify requests. Addresses are compared in memory and aren't saved. Protection covers supported browser requests, not other apps.", FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 5) };
             verificationNotice.SetResourceReference(TextBlock.ForegroundProperty, "HarborMuted");
             AutomationProperties.SetName(verificationNotice, "Route verification details"); details.Children.Add(verificationNotice);
+            details.Children.Add(new TextBlock { Text = "Private tabs cannot use browser-only Proton in this engine. Choose ‘Turn off protection — keep sign-in’ for private tabs on your regular connection. Remove resets the extension sign-in.", FontSize = 11, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 5, 0, 5) });
             var buttons = new WrapPanel(); details.Children.Add(buttons);
             buttons.Children.Add(_remove); buttons.Children.Add(_reload); if (_verify != null) buttons.Children.Add(_check);
             _options = new Expander { Header = "Options and connection details", Content = details, Margin = new Thickness(0, 5, 0, 0) };

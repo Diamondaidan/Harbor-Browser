@@ -142,7 +142,11 @@ namespace HarborBrowser
             core.AddWebResourceRequestedFilter("*",CoreWebView2WebResourceContext.All,CoreWebView2WebResourceRequestSourceKinds.Document);
             core.WebResourceRequested+=(s,e)=>{
                 if(tab.IsClosing||generation!=_browserGeneration||!ReferenceEquals(view,tab.View))return;
-                if(TorBlocksRequest(e.Request.Uri))e.Response=environment.CreateWebResourceResponse(new MemoryStream(Encoding.UTF8.GetBytes("Tor is not verified. Check or reconnect Tor, or disconnect to use the regular route.")),503,"Tor connection paused","Content-Type: text/plain; charset=utf-8");
+                if(TorBlocksRequest(e.Request.Uri))
+                {
+                    e.Response=environment.CreateWebResourceResponse(new MemoryStream(Encoding.UTF8.GetBytes("Tor is not verified. Check or reconnect Tor, or disconnect to use the regular route.")),503,"Tor connection paused","Content-Type: text/plain; charset=utf-8");
+                    tab.PageDiagnostics.Blocked(e.Request.Uri,false);
+                }
             };
         }
         internal async Task ChangeBrowserVpn(bool enabled)

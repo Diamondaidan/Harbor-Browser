@@ -12,6 +12,8 @@ namespace HarborBrowser.Views
     // changes can evolve without enlarging the main window's code-behind.
     internal sealed class BrowserTab
     {
+        internal readonly HarborBrowser.Services.PageLoadDiagnostics PageDiagnostics = new HarborBrowser.Services.PageLoadDiagnostics();
+        internal BrowserTab VerificationReturnTab;
         public readonly List<CoreWebView2Frame> MediaFrames = new List<CoreWebView2Frame>();
         public PictureInPictureWindow VideoPopout { get; set; }
         public Func<string,Task<string>> ActiveVideoContext { get; set; }

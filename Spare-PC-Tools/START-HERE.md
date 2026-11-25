@@ -1,13 +1,17 @@
-# Harbor 0.6.1 spare-PC checks
+# Harbor 0.6.2 spare-PC checks
 
 Extract the whole kit into a writable folder. This regular release uses the existing Harbor installation/profile; choose a spare PC for fresh install/uninstall tests.
 
 1. Run Check-PC.cmd for read-only package and platform checks. Save the Results folder.
-2. On the spare PC, run HarborBrowserSetup-0.6.1-release.exe. This installer is intentionally unsigned; Windows may warn or block it. Report a security block rather than disabling Windows protections. Handle any administrator prompt yourself. Check offline setup and, if required, the requested restart. No developer tools are needed.
+2. On the spare PC, run HarborBrowserSetup-0.6.2-release.exe. This installer is intentionally unsigned; Windows may warn or block it. Report a security block rather than disabling Windows protections. Handle any administrator prompt yourself. Check offline setup and, if required, the requested restart. No developer tools are needed.
 3. Open Harbor Browser. Check tabs, bookmarks, history, downloads, settings, dark/light mode and resource monitor using test data. Check History/Bookmarks/Settings title bars in both modes; move/resize those windows. Confirm the plus button follows the last tab and stays accessible in a crowded strip. Resize Proton's compact window and check its controls, footer and Options panel, including after signing in.
+
+   Check Help > Page loading details in regular and private tabs. The report must contain categories and counts, not URLs, IP addresses or account data. On a site that requests verification, complete it yourself; the helper should return to the original page without reloading automatically. Use Reload explicitly. If no challenge occurs, mark the live challenge check as not exercised.
 4. Enable optional Proton, sign in yourself and connect. Wait for Protected. Run Connection-Checks.cmd and paste its displayed local address into Harbor. Unavailable IPv6 results are inconclusive.
 5. Close/reopen Harbor. Check retained sign-in, Connect if needed, wait for Protected, then Reload the paused test tab.
 6. Disconnect Proton. Confirm Disconnected / Browsing paused and blocked Reload. Choose “Turn off protection — keep sign-in,” confirm VPN Off, then explicitly Reload. Enable Proton again and check that its sign-in is retained; connect, verify and Reload. Repeat after closing/reopening Harbor while protection is off. “Remove Proton and reset sign-in” under Options is a separate uninstall/reset action and is expected to clear the extension login while retaining the website login.
+
+   While protection is enabled, try a private tab: Harbor must explain the private-route limitation and offer connection controls without creating an unprotected tab. With protection off, a private tab should open on the regular connection. Close private tabs before enabling Proton again.
 7. Check a brief network interruption, sleep/wake and reboot when convenient. Record both paused state and recovery. Avoid forms and active downloads during these tests.
 8. Close Harbor and rerun setup to check upgrade/repair and saved test data. Uninstall on the spare PC and confirm data remains. Do not use an uninstall test on an everyday profile without a separate backup.
 

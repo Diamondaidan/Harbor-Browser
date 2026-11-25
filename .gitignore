@@ -20,6 +20,9 @@ SigningKeys/
 *.log
 Evidence/
 PublishingPrivate/
+/INSTALLER-ARTIFACT.json
+/SPARE-PC-KIT.json
+/LOCAL-DELIVERY-CHECKS.json
 *.pfx
 *.p12
 *.pem

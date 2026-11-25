@@ -98,6 +98,7 @@ namespace HarborBrowser
         private void ShowTabContent()
         {
             var tab=SelectedTab;
+            UpdatePageIssueBar();
             if(_presentation!=null)
             {
                 bool videoFull=tab!=null&&!tab.IsClosing&&!tab.ProtonPaused&&tab.FailureMessage==null&&tab.Initialized&&tab.VideoPopout==null&&tab.View.CoreWebView2!=null&&tab.View.CoreWebView2.ContainsFullScreenElement;

@@ -45,7 +45,12 @@ internal static partial class Program
         var main=new MainWindow(store,monitors){WindowStartupLocation=WindowStartupLocation.Manual,Left=interactive?80:-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=interactive,ShowActivated=interactive};
         main.TestBrowserArguments="--use-fake-device-for-media-stream";
         BetaGuardFixtureServer r4Proxy=null;
-        if(args.Length>2&&(args[2]=="--proton-r4"||args[2]=="--proton-r4-benchmark"))
+        if(args.Length>2&&args[2]=="--site062")
+        {
+            r4Proxy=new BetaGuardFixtureServer(true);
+            main.TestBrowserArguments+=" --ignore-certificate-errors-spki-list="+r4Proxy.CertificateSpkiHash;
+        }
+        if(args.Length>2&&(args[2]=="--proton-r4"||args[2]=="--proton-r4-benchmark"||args[2]=="--private-vpn-probe062"))
         {
             r4Proxy=new BetaGuardFixtureServer(true,true);
             main.TestBrowserArguments+=" --host-resolver-rules=\"MAP harbor-owned-proxy.invalid 127.0.0.1\" --ignore-certificate-errors-spki-list="+r4Proxy.CertificateSpkiHash;
@@ -58,6 +63,10 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--site062")
+                {try{await Site062Checks(main,args[0],r4Proxy);Console.WriteLine("ALL PASSED: "+checks+" site verification, loading diagnostics and private-tab limit checks. Owned HTTPS fixture only.");exit=0;}finally{r4Proxy.Dispose();}return;}
+                if(args.Length>2&&args[2]=="--private-vpn-probe062")
+                {try{await PrivateVpnProbe062(main,args[0],r4Proxy);exit=0;}finally{r4Proxy.Dispose();}return;}
                 if(args.Length>2&&args[2]=="--proton-off061")
                 {await ProtonOff061Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Proton off/on data retention and reset checks. Synthetic canaries only; no account login.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--ui061")

@@ -65,6 +65,7 @@ namespace HarborBrowser
             AutomationProperties.SetName(TorIndicatorButton,"Proton browser protection: " + phase);
             TorIndicatorButton.SetResourceReference(Control.ForegroundProperty,phase == ProtonProtectionPhase.Protected ? "HarborAccent" : "HarborMuted");
             _protonPreviewWindow?.SetProtectionStatus(phase.ToString(),detail);
+            QueuePageIssueUpdate();
         }
 
         internal Task ChangeProtonPreview(bool enabled) { return ChangeProtonPreviewCore(enabled, false); }

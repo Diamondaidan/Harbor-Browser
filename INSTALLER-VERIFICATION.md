@@ -1,9 +1,9 @@
-# Harbor 0.6.1 installer fixture verification
+# Harbor 0.6.2 installer fixture verification
 
-94 isolated native installer assertions passed for the final app and helper hashes recorded in INSTALLER-VERIFICATION.json.
+94 isolated native installer assertions passed for the final app/helper hashes in INSTALLER-VERIFICATION.json. The fixtures installed into owned temporary folders with unique AppIds and an isolated registration namespace; the production installer was not run over the regular browser.
 
-Executed: install/reinstall/uninstall; copied app/helper hash checks; data preservation/snapshots; busy profile update/uninstall refusal; unreadable backup refusal; unrelated destination rejection; exact archived markerless 0.5.3 upgrade; known stable 0.5.7 upgrade to 0.6.1; nonactive scoped browser registration; unchanged actual HTTP/HTTPS user choices; fake dependency skip/success/cancel/failure/false-success and restart outcomes. AppId, install/profile paths and registry namespace were isolated. The user installation/profile was not used.
+Executed: install/reinstall/uninstall; app/helper hash checks; data preservation/snapshots; busy-profile update/uninstall refusal; unreadable-backup refusal; unrelated destination rejection; archived markerless 0.5.3 and known stable 0.5.7 upgrades; scoped browser registration; unchanged actual HTTP/HTTPS defaults; fake prerequisite skip, success, cancellation, failure, false-success and restart outcomes. Fake helpers were used, not actual Microsoft installers.
 
-The production template requests administrator rights, retains the established AppId and stable marker, registers under HKLM64 and includes the full pinned Microsoft prerequisites. The app/helper, template and registry hashes bind the fixture record to this build. This run compiled and executed fixture setups only; it did not build or install a new production setup.
+The production template retains the stable AppId and profile location, requests administrator rights, registers scoped HTTP/HTTPS/HTML capability under HKLM64 and includes full pinned Microsoft prerequisites. App/helper, template and registration hashes bind the fixture record to this build. The Windows installer remains intentionally unsigned.
 
-Not established here: real updater-driven UAC/setup, missing Microsoft prerequisites, clean/offline installation, Windows reboot or multi-user compatibility. Installer signing is prepared but not performed because no code-signing certificate is available.
+The full-payload follow-up receipt and production installer hash are separate: see PACKAGED-PAYLOAD-VERIFICATION.json and LOCAL-PACKAGE-VERIFICATION.md once packaging completes. These tests do not establish real updater/UAC behavior, missing/offline Microsoft prerequisites, clean spare-PC setup, reboot or multi-user compatibility.

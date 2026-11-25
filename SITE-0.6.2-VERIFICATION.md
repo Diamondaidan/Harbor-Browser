@@ -1,0 +1,29 @@
+# Harbor 0.6.2 site compatibility and private-tab scope
+
+The site notice observes first-party GET document/style/script/image/font responses in regular, non-Proton-account tabs. A Cloudflare verification notice requires both `cf-mitigated: challenge` and HTML content. A generic 403 is reported as a website refusal, not proof of a challenge or VPN fault. Harbor's own tracker/protection blocks have separate counters. Navigation errors describe address lookup, connection, proxy authentication and TLS failures without bypassing checks.
+
+The notice keeps the live document visible. A same-origin HTTPS challenge on a page file offers Complete site check. Clicking opens a separate normal tab in the same browser profile; query/fragment tokens are removed. Complete any check yourself. Return selects the original tab without replaying navigation, forms or downloads. Reload is explicit and still observes the protection gate. Cross-origin, HTTP, POST, private and Proton account resources cannot become helper actions. A challenge on the main document is completed in the page itself. Some third-party, native-tracking and non-HTTP failures remain outside this lightweight observation scope.
+
+Help > Page loading details and Details on the notice open a themed, read-only report. Copy is explicit. Reports contain only version/build numbers, privacy/protection state, preset error categories and counts. They exclude URLs/hosts/IPs, queries, titles, cookies, account data and profile paths, and are never uploaded. Pending observations are bounded to 256 resource addresses in tab memory. Overlapping URLs from different navigations are ignored conservatively; if the bounded limit is reached, the report discloses the missing coverage and reopening the tab resets it. Private/Proton-account tabs omit resource inspection.
+
+## Private tabs with Proton
+
+The owner chose to retain browser-only Proton and explain its current private-tab limitation. The restriction remains in both tab creation and request guards. The new visible notice links to connection controls and explains that Turn off protection — keep sign-in permits private tabs on the regular connection. Disconnect keeps protection enabled and does not enable private tabs. Explicit Remove remains a separate reset operation.
+
+The isolated `--private-vpn-probe062` used fake extension credentials, a loopback TLS proxy and `.invalid` destinations. Native same-name InPrivate views were cookie-isolated, but both same-name and separate-name private views failed to inherit the normal extension proxy. Normal views reached the owned proxy with no authentication, with Basic authentication and after rotation; private views attempted direct resolution and failed. Adding the fake extension through the private profile API returned an ID but its extension page could not run. This is evidence for retaining the current restriction on the tested WebView2 157 runtime, not a statement about all future engine versions. No actual provider credentials were inspected or copied.
+
+## Automated and manual scope
+
+The site suite checks classification, stale navigation/response handling, query stripping, report redaction, bounded observation, dismissal, HTTPS helper navigation, explicit return/reload, document retention, responsive notice geometry, themed report windows, protected private-tab refusal and native InPrivate after protection is off. The challenge is synthetic and no CAPTCHA is solved. See RELEASE-VERIFICATION.json for the exact current suite counts and executable hashes.
+
+Still manual: a real website challenge through a signed-in Proton route; live account off/on/restart validity; actual clean/offline spare-PC setup and missing Microsoft prerequisites; physical sleep/reboot/network/DPI and broad hardware coverage; hosted GitHub update/rollback after approved publication. No installed profile was upgraded during automated testing. No new performance improvement is claimed.
+
+Primary platform references: [Cloudflare challenge header](https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/), [WebView2 request/response events](https://learn.microsoft.com/en-us/microsoft-edge/webview2/how-to/webresourcerequested), [WebView2 private controller options](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2environment.createcorewebview2controlleroptions), [Chrome proxy scope](https://developer.chrome.com/docs/extensions/reference/api/proxy). Standard Chrome incognito inheritance is not taken as evidence that WebView2 implements the same behavior; the native probe above is the current compatibility result.
+
+## Verification qualifications
+
+Two initial R4 proxy-route fixture runs timed out during the third repeated comparison. A fresh run with additional fixture event logging passed all 34 checks without changing the timeout, proxy policy or production route verifier. The timeout remains an intermittent test/runtime observation, not a demonstrated fixed defect. Earlier logs are retained under Evidence/062-initial. The final release receipt requires a passing run against the packaged app bytes.
+
+The pinned projects built successfully from available packages. NuGet's vulnerability-data service was unavailable from this machine, including a separate restore attempt; NU1900 is recorded in the build logs. A fresh online dependency-vulnerability scan was not established by this build. All 336 pinned provider asset hashes are checked independently before packaging.
+
+A final native test also exposed a startup-label race: a newly created private tab could report Regular before its first navigation. The report state is now initialized at tab creation, and the native suite checks the private label before waiting for browser initialization. The native view remained InPrivate and resource inspection remained disabled during the earlier failure.

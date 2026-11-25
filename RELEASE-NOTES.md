@@ -1,28 +1,11 @@
-# Harbor Browser 0.6.1 development notes
+# Harbor Browser 0.6.2
 
-- Add “Turn off protection — keep sign-in” in Proton controls and paused pages. This restores the regular connection after explicit Reload while preserving the installed extension and its saved data.
-- Keep “Remove Proton and reset sign-in” as a separate action under Options. Disconnect still pauses browsing; unfinished or failed off operations cannot silently open the request gate.
-- Match Harbor-owned dialog title bars to the browser's light/dark palette, including live theme changes on Windows 10.
-- Use a compact Proton window with the extension given most of the space; place secondary actions in a collapsed options panel and scale the provider controls on small windows.
-- Keep the new-tab button directly after the last tab, with the button still accessible when the tab strip overflows.
-- Invalidate Proton route evidence as soon as a network/address/suspend/resume callback arrives, even while the interface is busy.
-- Cancel obsolete route checks and schedule a fresh check after a transition; keep paused pages and downloads from resuming automatically.
-- Use monotonic elapsed time and UTC bounds for route evidence. Moving the system clock backward cannot prolong an old Protected claim.
-- Preserve the established profile format and pinned provider files. Add synthetic event/clock coverage and startup measurements to the owned-profile harness.
+- Show a compact notice when a website requests verification, refuses first-party page files or returns missing/server-error files. The live page stays visible.
+- Offer a separate same-origin HTTPS site-check tab when appropriate. Complete checks yourself, return to the original page, then reload explicitly. Forms and downloads are not resumed automatically, and browser protections remain enabled.
+- Explain address lookup, connection, proxy authentication and certificate errors more clearly. Harbor's own tracker and protection denials are counted separately from website errors.
+- Add Help > Page loading details, with an explicit Copy report action. Reports contain categories, counts and version numbers; URLs, hosts/IPs, page titles, account data and profile paths are excluded. Nothing is uploaded.
+- Explain why private tabs are unavailable while browser-only Proton/Tor is enabled. Proton's Turn off protection — keep sign-in allows private tabs on the regular connection; Disconnect continues to pause browsing. The current private-route restriction remains for safety.
 
-The owner has chosen unsigned Windows packages after SignPath declined the application. Public installer publication still requires final release review and validation. These fixes are validated with synthetic callbacks and local fixtures; actual physical sleep/Wi-Fi and signed-in IPv6 tests remain open.
+The Windows app and installer remain intentionally unsigned. Microsoft prerequisites retain their verified signatures; Harbor's signed update metadata is separate. This is a local development package, not a public GitHub release. No installed profile is upgraded automatically.
 
-## Retained update and recovery features from 0.6.0
-
-- Check for updates from the Help menu; updates and backup recovery are also available under Tools.
-- Read release notes, download a verified update and explicitly choose when to close Harbor and open setup. There are no automatic startup checks or silent installations.
-- Update records use Harbor's embedded release public key. Expired, altered, foreign, inconsistent or older release records are refused. Installer size and SHA-256 must match the signed record.
-- Interrupted transfers can resume with matching strong server validators and exact byte ranges. Changed or ignored ranges restart safely or are refused; failed verification never opens the installer.
-- The update helper rechecks the signed record and installer, holds the package against modification, waits for Harbor to exit, then snapshots compatible profile data before opening setup. Windows approval and restart remain user choices.
-- A compatible previous version can be offered only when explicitly approved in the current signed record. Profile format remains 9, shared with 0.5.7. Bookmarks/settings and other Harbor data files are snapshotted; account databases remain in place and are not copied.
-- Update checks/downloads use the Windows connection and pause while Proton or Tor is enabled. Enabling a browser connection cancels pending update traffic.
-- Prepared GitHub Releases hosting for Diamondaidan/Harbor-Browser and optional Windows code-signing tools. Current packages are intentionally unsigned and will be labeled accordingly. Harbor's own update signatures remain required.
-
-The application retains the established Harbor installation/profile and browser registration. Proton behavior and its limited supported-browser-request scope remain as in 0.5.7; this release does not add system-wide VPN, DNS or anonymity guarantees.
-
-This build targets x64 Windows 10 build 19041+ / Windows 11 with .NET Framework 4.8+ and WebView2 157+. Actual live hosting, a real newer-release self-update/rollback, genuine missing-prerequisite setup, clean spare-PC installation, network interruption and Windows sleep/reboot remain manual validation items.
+The lightweight resource notice covers observed first-party GET page files in regular, non-Proton-account tabs. Private/Proton-account inspection, third-party failures, native tracker prevention and every website feature are not fully covered. No new performance improvement or complete privacy audit is claimed. Live Proton/account/site-check behavior, actual clean/offline setup and prerequisites/restart, physical network/sleep/DPI and a hosted updater cycle still require manual validation. See RELEASE-VERIFICATION.md and SITE-0.6.2-VERIFICATION.md.
