@@ -1,3 +1,19 @@
+## 0.3.6
+
+- Keep cog menu and submenu scrollbars on the physical right side.
+- Preserve left-opening flyouts and menu content direction.
+- Verify overflowing History menus with synthetic history in light and dark mode, including scrolling to the bottom.
+
+- Fit normal windows and dialogs to monitor work areas at startup and after display/DPI/work-area changes.
+- Adapt toolbar and branding to narrow logical widths; shorten tab titles and preserve essential navigation.
+- Keep Settings actions visible while content scrolls; wrap long labels and cookie/history action rows.
+- Make picture-in-picture placement account for DPI and available work area.
+- Replace native menu templates with compact, palette-aware cog menus and flyouts.
+- Remove unused icon gutters, truncate long menu labels and bound/scroll long menus.
+- Select the full URL on initial address-bar mouse focus and keyboard focus; preserve normal editing on subsequent clicks.
+- Use a contrasting foreground for selected text.
+- Add resolution geometry, real-app layout, native fitting, menu and address-selection checks.
+
 ## 0.3.5
 
 - Connect HTML fullscreen changes to native full-monitor video presentation.

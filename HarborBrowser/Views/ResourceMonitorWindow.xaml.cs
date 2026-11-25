@@ -12,6 +12,7 @@ namespace HarborBrowser.Views
         public ResourceMonitorWindow(Func<string> reportProvider)
         {
             InitializeComponent();
+            HarborBrowser.Services.WindowFitService.Attach(this);
             _reportProvider = reportProvider;
             _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
             _timer.Tick += (s, e) => RefreshReport();

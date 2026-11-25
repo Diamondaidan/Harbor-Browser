@@ -74,7 +74,7 @@ namespace HarborBrowser
                 popout.Closed+=(s,e)=>ReturnVideoToTab(tab,popout);
                 popout.Show();
                 NativeWindowGeometry.SetBounds(new WindowInteropHelper(popout).Handle,
-                    new PixelRect(monitor.Right-520,monitor.Bottom-350,monitor.Right-20,monitor.Bottom-20));
+                    WindowFitService.BottomRight(monitor,500,330,scale,scale));
                 ShowTabContent();
                 SetStatus("Picture in picture opened. Close it or choose Return to tab to put the video back.");
             }

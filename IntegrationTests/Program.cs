@@ -16,7 +16,7 @@ using HarborBrowser.Models;
 using HarborBrowser.Views;
 using Microsoft.Web.WebView2.Core;
 
-internal static class Program
+internal static partial class Program
 {
     private static int checks;
     private static readonly JavaScriptSerializer Json=new JavaScriptSerializer();
@@ -33,6 +33,7 @@ internal static class Program
         app.Resources.MergedDictionaries.Add(new ResourceDictionary{Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml")});
         var store=new BrowserDataStore(Path.Combine(args[0],"Profile"),Path.Combine(args[0],"Downloads"));
         store.SaveSettings(new BrowserSettings{RestorePreviousSession=false,HarborHomeIntroduced=true,ThemeMode="Dark"});
+        store.SaveHistory(Enumerable.Range(1,30).Select(i=>new HistoryEntry{Title="History sample "+i,Url="https://history.test.invalid/page-"+i,VisitedAt=new DateTime(2026,11,12,12,0,0).AddMinutes(-i)}).ToList());
         var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
         var main=new MainWindow(store,h=>layout){WindowStartupLocation=WindowStartupLocation.Manual,Left=-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=false,ShowActivated=false};
         var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(100)};
@@ -55,6 +56,7 @@ internal static class Program
                 Check("group bar absent",main.FindName("TabGroupFilterBox")==null);
                 Check("caption and tabs share same row",Math.Abs(main.BrowserTabs.TransformToAncestor(main.WindowFrame).Transform(new Point()).Y-main.CloseWindowButton.TransformToAncestor(main.WindowFrame).Transform(new Point()).Y)<5);
                 Check("Beacon window icon loaded",main.Icon!=null&&main.HeaderBrandLogo.Source!=null);
+                await ResponsiveChecks(main,tab,core,args[0]);
                 main.Presentation.SetBrowserFullScreen(true);
                 await Task.Delay(200);
                 NativeWindowGeometry.Rect bounds;NativeWindowGeometry.GetWindowRect(new WindowInteropHelper(main).Handle,out bounds);
@@ -96,7 +98,7 @@ internal static class Program
                 NativeWindowGeometry.GetWindowRect(new WindowInteropHelper(main).Handle,out bounds);
                 Check("exiting video retains prior browser fullscreen",main.Presentation.BrowserFullScreen&&bounds.Pixels.Height==680);
                 main.Presentation.SetBrowserFullScreen(false);
-                Check("fullscreen restores normal resize minimums",main.MinWidth==800&&main.MinHeight==560);
+                Check("fullscreen restores normal resize minimums",main.MinWidth==480&&main.MinHeight==280);
                 await core.CallDevToolsProtocolMethodAsync("Runtime.evaluate",Json.Serialize(new {expression=request,contextId=contextId,userGesture=true,awaitPromise=true,returnByValue=true}));
                 await Wait(()=>core.ContainsFullScreenElement&&main.Presentation.VideoFullScreen);
                 var originalView=tab.View;

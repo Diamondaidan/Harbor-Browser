@@ -1,42 +1,34 @@
-# Harbor Browser 0.3.5 verification
+# Harbor Browser 0.3.6 verification
 
 Verified November 12, 2026 (America/Chicago).
 
+This rebuilt 0.3.6 package includes the History scrollbar fix.
+
 ## Executed results
 
-- Windows .NET Framework 4.8 Release build: passed, zero warnings and zero errors.
-- Inno Setup installer compilation: passed.
-- Cached .NET Framework 4.8 and WebView2 x64 offline prerequisite signature/size validation: passed.
-- Compiled executable and installer payload executable SHA-256: identical.
-- 176 regression checks: passed.
-- 28 isolated WebView2 home-page checks: passed.
-- 36 isolated full-app/media integration checks: passed.
-- Total: 240 passed checks.
+- All 125 isolated real-app/interface/media checks passed on the rebuilt 0.3.6 app.
+- History scrollbar position passed in both light and dark modes.
+- Windows .NET Framework 4.8 Release build passed with zero warnings and zero errors.
+- Inno Setup installer compilation passed.
+- Application, staged application and installer file versions verified as 0.3.6.0.
+- Application, installer defaults, About text, status bar and home-page version references checked for 0.3.6.
+- Bundled .NET Framework 4.8 and WebView2 x64 prerequisite size and Microsoft signature checks passed.
+- Compiled executable and staged installer payload hashes matched.
 
-The regression suite includes previous filename, settings, appearance, home-page and tab-order checks, plus monitor/work-area geometry, taskbar edges on all sides, scaled auto-hide reserve space, media-script parsing, isolated profile storage and the compact title-row layout.
+## History scrollbar
 
-The full-app test constructs the real MainWindow with a dedicated test profile and injected offscreen monitor bounds. It loads a generated live canvas video in a cross-origin iframe. No personal browsing profile or internet video service is used. The test activates its own offscreen window and uses a simulated user gesture to request fullscreen on the actual video element; an initial inactive-window attempt was rejected by the browser, as expected.
+The real cog > History menu was opened with 30 sample history records. In both modes the vertical scrollbar was visible at the physical right edge, the flyout retained its left-opening placement, and scrolling reached the bottom.
 
-Integration checks confirm:
-- Cross-origin video discovery.
-- Removal of the group bar; tabs and caption controls in the same row; Beacon window/header icon resources.
-- Browser fullscreen uses the work area; video fullscreen uses the whole monitor rectangle.
-- Toolbars/status/borders disappear for video fullscreen.
-- Switching away restores chrome; nested browser/video fullscreen exits preserve the prior mode.
-- Normal minimum sizes return after exiting fullscreen.
-- Picture-in-picture opens, stays on top, preserves the original WebView/player and playback position, and exits video fullscreen.
-- Parent frame/video layouts and original controls are restored on return.
-- No scrollbars in the final PiP page/frame; play/pause and mute buttons work.
-- Cog-based group assignment/filtering, right-side new tabs, tab movement and saved order.
+The same right-side scrollbar convention applies to other overflowing cog menus. Menu contents retain their original direction.
 
-Fullscreen and picture-in-picture viewports were captured from the live test player and inspected. A visual check found an unwanted PiP scrollbar; ancestor overflow handling was corrected and the no-scrollbar checks passed afterward. Compact-header previews were also inspected.
-
-The installed 0.3.4 executable was inspected read-only and its extracted icon was already Beacon. The 0.3.5 installer uses a versioned icon file and an explicit app identity to address stale shortcut/taskbar references.
+The 125-check app suite also rechecked small-screen layouts, address selection, themed menus, Settings scrolling/actions, native fitting, video fullscreen, picture-in-picture controls/restoration, tab groups and tab reordering.
 
 ## Limits
 
-No installation/upgrade/uninstall was run on the user's system. The installed browser/profile and earlier project versions remain unchanged.
+Tests used an isolated profile and offscreen monitor geometry. The installed browser and personal browsing data were not changed. No installation, upgrade or uninstall was performed.
 
-Offscreen monitor geometry lets the app tests verify actual native window rectangles without covering the user's desktop. It does not verify physical mouse movement against the real Windows taskbar, multi-monitor hot-plug/DPI changes, existing pinned shortcut cache refresh, every website/player, protected video services, or actual desktop drag gestures. Those remain live-desktop checks.
+Physical mouse/trackpad scrolling, installation on the target laptop and real Windows display/scale changes remain user-system checks.
 
-Video fullscreen uses the documented WebView2 [fullscreen-element event](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.containsfullscreenelementchanged). Window sizing uses monitor and work-area rectangles as described in Microsoft's [multiple-monitor guidance](https://learn.microsoft.com/en-us/windows/win32/gdi/positioning-objects-on-multiple-display-monitors). Shortcut icon and app identity settings follow the [Inno Setup Icons documentation](https://jrsoftware.org/ishelp/topic_iconssection.htm).
+The separate 241-check regression suite and 28-check home-page suite passed for the earlier 0.3.6 build before the History scrollbar patch. They were not rerun for this packaging update and are not counted among the 125 checks above.
+
+The updated installer and source archive hashes are in HarborBrowser-0.3.6-SHA256.txt. The source archive excludes build outputs, test profiles and prerequisite executables.

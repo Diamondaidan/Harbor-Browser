@@ -11,6 +11,7 @@ namespace HarborBrowser.Views
         public SettingsWindow(BrowserSettings current)
         {
             InitializeComponent();
+            HarborBrowser.Services.WindowFitService.Attach(this);
             SearchEngineBox.ItemsSource = SearchEngineService.Engines;
 
             BrowserSettings settings = current == null ? new BrowserSettings() : current.Copy();

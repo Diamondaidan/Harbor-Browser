@@ -27,6 +27,7 @@ namespace HarborBrowser.Views
         public CookieManagerWindow(CoreWebView2CookieManager manager, string uri)
         {
             InitializeComponent();
+            HarborBrowser.Services.WindowFitService.Attach(this);
             _manager = manager;
             _uri = uri;
             ScopeText.Text = string.IsNullOrWhiteSpace(uri) ? "Showing cookies for the selected profile." : "Showing cookies available to " + uri;

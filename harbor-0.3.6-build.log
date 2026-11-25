@@ -1,0 +1,196 @@
+
+==> Checking build tools
+Using MSBuild: C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\MSBuild.exe
+
+==> Building Harbor Browser (Release)
+MSBuild version 17.14.60+43b635718 for .NET Framework
+Build started 11/12/2026 8:03:02 PM.
+
+     1>Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser.sln" on node 1 (Restore target(s)).
+     1>ValidateSolutionConfiguration:
+         Building solution configuration "Release|Any CPU".
+       _GetAllRestoreProjectPathItems:
+         Determining projects to restore...
+       Restore:
+         X.509 certificate chain validation will use the default trust store selected by .NET for code signing.
+         X.509 certificate chain validation will use the default trust store selected by .NET for timestamping.
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\project.assets.json
+         Restored C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\HarborBrowser.csproj (in 61 ms).
+         
+         NuGet Config files used:
+             C:\Users\sirai\AppData\Roaming\NuGet\NuGet.Config
+             C:\Program Files (x86)\NuGet\Config\Microsoft.VisualStudio.FallbackLocation.config
+             C:\Program Files (x86)\NuGet\Config\Microsoft.VisualStudio.Offline.config
+         
+         Feeds used:
+             https://api.nuget.org/v3/index.json
+             C:\Program Files (x86)\Microsoft SDKs\NuGetPackages\
+             C:\Program Files\dotnet\library-packs
+         All projects are up-to-date for restore.
+     1>Done Building Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser.sln" (Restore target(s)).
+   1:2>Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser.sln" on node 1 (default targets).
+     1>ValidateSolutionConfiguration:
+         Building solution configuration "Release|Any CPU".
+   1:2>Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser.sln" (1:2) is building "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\HarborBrowser.csproj" (2:6) on node 1 (default targets).
+     2>_WriteAppConfigWithSupportedRuntime:
+       Skipping target "_WriteAppConfigWithSupportedRuntime" because all output files are up-to-date with respect to the input files.
+       GenerateBindingRedirectsUpdateAppConfig:
+         Copying file from "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\HarborBrowser.exe.withSupportedRuntime.config" to "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\HarborBrowser.exe.config".
+         Touching "obj\Release\net48\HarborBrowser.exe.config".
+       GenerateTemporaryTargetAssembly:
+         Copying file from "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\HarborBrowser.csproj.nuget.g.props" to "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\HarborBrowser_diqcumwb_wpftmp.csproj.nuget.g.props".
+         Copying file from "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\HarborBrowser.csproj.nuget.g.targets" to "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\HarborBrowser_diqcumwb_wpftmp.csproj.nuget.g.targets".
+         Copying file from "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\HarborBrowser.csproj.nuget.dgspec.json" to "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\HarborBrowser_diqcumwb_wpftmp.csproj.nuget.dgspec.json".
+   2:6>Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\HarborBrowser.csproj" (2:6) is building "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\HarborBrowser_diqcumwb_wpftmp.csproj" (3) on node 1 (_CompileTemporaryAssembly target(s)).
+     3>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link is empty, file 'obj\Release\net48\HarborBrowser_diqcumwb_wpftmp.sourcelink.json' does not exist.
+       CoreCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\Roslyn\csc.exe /noconfig /unsafe- /checked- /nowarn:1701,1702,1701,1702 /fullpaths /nostdlib+ /platform:AnyCPU /errorreport:prompt /warn:4 /define:TRACE;RELEASE;NETFRAMEWORK;NET48;NET30_OR_GREATER;NET35_OR_GREATER;NET40_OR_GREATER;NET45_OR_GREATER;NET451_OR_GREATER;NET452_OR_GREATER;NET46_OR_GREATER;NET461_OR_GREATER;NET462_OR_GREATER;NET47_OR_GREATER;NET471_OR_GREATER;NET472_OR_GREATER;NET48_OR_GREATER /highentropyva+ /nullable:disable /reference:C:\Users\sirai\.nuget\packages\microsoft.web.webview2\1.0.4314.35\lib\net462\Microsoft.Web.WebView2.Core.dll /reference:C:\Users\sirai\.nuget\packages\microsoft.web.webview2\1.0.4314.35\lib\net462\Microsoft.Web.WebView2.WinForms.dll /reference:C:\Users\sirai\.nuget\packages\microsoft.web.webview2\1.0.4314.35\lib\net462\Microsoft.Web.WebView2.Wpf.dll /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\mscorlib.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationCore.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationFramework.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Core.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Data.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Drawing.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.IO.Compression.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.IO.Compression.FileSystem.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Net.Http.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Numerics.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Runtime.Serialization.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Web.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Web.Extensions.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Controls.Ribbon.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xaml.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.Linq.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationClient.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationClientsideProviders.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationProvider.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationTypes.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\WindowsBase.dll" /debug- /debug:portable /filealign:512 /optimize+ /out:obj\Release\net48\HarborBrowser.exe /subsystemversion:6.00 /target:winexe /warnaserror- /utf8output /win32icon:HarborBrowser.ico /deterministic+ /langversion:7.3 /analyzerconfig:obj\Release\net48\HarborBrowser_diqcumwb_wpftmp.GeneratedMSBuildEditorConfig.editorconfig App.xaml.cs MainWindow.Groups.cs MainWindow.Media.cs MainWindow.Presentation.cs MainWindow.Responsive.cs MainWindow.TabDragging.cs MainWindow.xaml.cs Models\AppearanceColors.cs Models\Bookmark.cs Models\BrowserSession.cs Models\BrowserSettings.cs Models\DownloadEntry.cs Models\HistoryEntry.cs Models\SearchEngine.cs Properties\TestVisibility.cs Services\AppearanceService.cs Services\BrowserDataStore.cs Services\DownloadFileNameService.cs Services\HomePageService.cs Services\ResponsiveLayout.cs Services\SearchEngineService.cs Services\TabOrderService.cs Services\TrackerProtectionService.cs Services\VideoScriptService.cs Services\VpnService.cs Services\WindowFitService.cs Services\WindowPresentationController.cs Views\BrowserTab.cs Views\ColorWheel.cs Views\CookieManagerWindow.xaml.cs Views\PictureInPictureWindow.cs Views\ResourceMonitorWindow.xaml.cs Views\SettingsWindow.Appearance.cs Views\SettingsWindow.xaml.cs Views\SmoothScrollViewer.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\MainWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\Views\CookieManagerWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\Views\ResourceMonitorWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\Views\SettingsWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\App.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\HarborBrowser_Content.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\GeneratedInternalTypeHelper.g.cs "obj\Release\net48\.NETFramework,Version=v4.8.AssemblyAttributes.cs" obj\Release\net48\HarborBrowser_diqcumwb_wpftmp.AssemblyInfo.cs /warnaserror+:NU1605
+         CompilerServer: server - server processed compilation - HarborBrowser_diqcumwb_wpftmp (net48)
+     3>Done Building Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\HarborBrowser_diqcumwb_wpftmp.csproj" (_CompileTemporaryAssembly target(s)).
+     2>GenerateTemporaryTargetAssembly:
+         Deleting file "obj\HarborBrowser_diqcumwb_wpftmp.csproj.nuget.g.props".
+         Deleting file "obj\HarborBrowser_diqcumwb_wpftmp.csproj.nuget.g.targets".
+         Deleting file "obj\HarborBrowser_diqcumwb_wpftmp.csproj.nuget.dgspec.json".
+       MarkupCompilePass2:
+         MarkupCompilePass2 successfully generated BAML or source code files.
+       CleanupTemporaryTargetAssembly:
+         Deleting file "obj\Release\net48\HarborBrowser.exe".
+       GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link is empty, file 'obj\Release\net48\HarborBrowser.sourcelink.json' does not exist.
+       CoreCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\Roslyn\csc.exe /noconfig /unsafe- /checked- /nowarn:1701,1702,1701,1702 /fullpaths /nostdlib+ /platform:AnyCPU /errorreport:prompt /warn:4 /define:TRACE;RELEASE;NETFRAMEWORK;NET48;NET30_OR_GREATER;NET35_OR_GREATER;NET40_OR_GREATER;NET45_OR_GREATER;NET451_OR_GREATER;NET452_OR_GREATER;NET46_OR_GREATER;NET461_OR_GREATER;NET462_OR_GREATER;NET47_OR_GREATER;NET471_OR_GREATER;NET472_OR_GREATER;NET48_OR_GREATER /highentropyva+ /nullable:disable /reference:C:\Users\sirai\.nuget\packages\microsoft.web.webview2\1.0.4314.35\lib\net462\Microsoft.Web.WebView2.Core.dll /reference:C:\Users\sirai\.nuget\packages\microsoft.web.webview2\1.0.4314.35\lib\net462\Microsoft.Web.WebView2.WinForms.dll /reference:C:\Users\sirai\.nuget\packages\microsoft.web.webview2\1.0.4314.35\lib\net462\Microsoft.Web.WebView2.Wpf.dll /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\mscorlib.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationCore.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\PresentationFramework.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Core.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Data.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Drawing.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.IO.Compression.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.IO.Compression.FileSystem.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Net.Http.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Numerics.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Runtime.Serialization.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Web.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Web.Extensions.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Windows.Controls.Ribbon.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xaml.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\System.Xml.Linq.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationClient.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationClientsideProviders.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationProvider.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\UIAutomationTypes.dll" /reference:"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.8\WindowsBase.dll" /debug- /debug:portable /filealign:512 /optimize+ /out:obj\Release\net48\HarborBrowser.exe /subsystemversion:6.00 /resource:obj\Release\net48\HarborBrowser.g.resources /resource:Assets\Media\media.js,HarborBrowser.Assets.Media.media.js /target:winexe /warnaserror- /utf8output /win32icon:HarborBrowser.ico /win32manifest:app.manifest /deterministic+ /langversion:7.3 /analyzerconfig:obj\Release\net48\HarborBrowser.GeneratedMSBuildEditorConfig.editorconfig App.xaml.cs MainWindow.Groups.cs MainWindow.Media.cs MainWindow.Presentation.cs MainWindow.Responsive.cs MainWindow.TabDragging.cs MainWindow.xaml.cs Models\AppearanceColors.cs Models\Bookmark.cs Models\BrowserSession.cs Models\BrowserSettings.cs Models\DownloadEntry.cs Models\HistoryEntry.cs Models\SearchEngine.cs Properties\TestVisibility.cs Services\AppearanceService.cs Services\BrowserDataStore.cs Services\DownloadFileNameService.cs Services\HomePageService.cs Services\ResponsiveLayout.cs Services\SearchEngineService.cs Services\TabOrderService.cs Services\TrackerProtectionService.cs Services\VideoScriptService.cs Services\VpnService.cs Services\WindowFitService.cs Services\WindowPresentationController.cs Views\BrowserTab.cs Views\ColorWheel.cs Views\CookieManagerWindow.xaml.cs Views\PictureInPictureWindow.cs Views\ResourceMonitorWindow.xaml.cs Views\SettingsWindow.Appearance.cs Views\SettingsWindow.xaml.cs Views\SmoothScrollViewer.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\MainWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\Views\CookieManagerWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\Views\ResourceMonitorWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\Views\SettingsWindow.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\App.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\HarborBrowser_Content.g.cs C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\GeneratedInternalTypeHelper.g.cs "obj\Release\net48\.NETFramework,Version=v4.8.AssemblyAttributes.cs" obj\Release\net48\HarborBrowser.AssemblyInfo.cs /warnaserror+:NU1605
+         CompilerServer: server - server processed compilation - HarborBrowser (net48)
+       _CopyOutOfDateSourceItemsToOutputDirectory:
+       Skipping target "_CopyOutOfDateSourceItemsToOutputDirectory" because all output files are up-to-date with respect to the input files.
+       _CopyAppConfigFile:
+         Copying file from "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\HarborBrowser.exe.config" to "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.exe.config".
+       CopyFilesToOutputDirectory:
+         Copying file from "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\HarborBrowser.exe" to "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.exe".
+         HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+         Copying file from "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\obj\Release\net48\HarborBrowser.pdb" to "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.pdb".
+     2>Done Building Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\HarborBrowser.csproj" (default targets).
+     1>Done Building Project "C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser.sln" (default targets).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.66
+
+==> Preparing application payload
+
+==> Preparing offline prerequisites
+Verified .NET Framework 4.8 offline installer: 115.7 MB, Microsoft signature valid.
+Verified WebView2 Evergreen x64 standalone installer: 205.0 MB, Microsoft signature valid.
+
+==> Locating Inno Setup Compiler
+Using Inno Setup: C:\Users\sirai\AppData\Local\Programs\Inno Setup 7\ISCC.exe
+
+==> Compiling the single-file setup wizard
+Inno Setup 7 Command-Line Compiler
+Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
+Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.
+https://www.innosetup.com
+
+Compiler engine version: Inno Setup 7.1.1
+Non-commercial use only
+
+Preprocessing
+   Reading file: C:\Users\sirai\AppData\Local\Programs\Inno Setup 7\ISPPBuiltins.iss
+Parsing [Setup] section, line 16
+Parsing [Setup] section, line 17
+Parsing [Setup] section, line 18
+Parsing [Setup] section, line 19
+Parsing [Setup] section, line 20
+Parsing [Setup] section, line 21
+Parsing [Setup] section, line 22
+Parsing [Setup] section, line 23
+Parsing [Setup] section, line 24
+Parsing [Setup] section, line 25
+Parsing [Setup] section, line 26
+Parsing [Setup] section, line 27
+Parsing [Setup] section, line 28
+Parsing [Setup] section, line 29
+Parsing [Setup] section, line 30
+Parsing [Setup] section, line 31
+Parsing [Setup] section, line 32
+Parsing [Setup] section, line 33
+Parsing [Setup] section, line 34
+Parsing [Setup] section, line 35
+Parsing [Setup] section, line 36
+Parsing [Setup] section, line 37
+Parsing [Setup] section, line 38
+Parsing [Setup] section, line 39
+Parsing [Setup] section, line 40
+Parsing [Setup] section, line 41
+Parsing [Setup] section, line 42
+Parsing [Setup] section, line 43
+Parsing [Setup] section, line 44
+Parsing [Setup] section, line 45
+Parsing [Setup] section, line 46
+Parsing [Setup] section, line 47
+Reading file (WizardImageFile)
+Reading file (WizardSmallImageFile)
+Preparing Setup program executable
+   Verification successful
+   Updating icons (Setup.e32)
+   Updating version info (Setup.e32)
+Determining language code pages
+Parsing [Languages] section, line 50
+   Reading file: C:\Users\sirai\AppData\Local\Programs\Inno Setup 7\Default.isl
+   Messages in script file
+Reading default messages from Default.isl
+Parsing [Languages] section, line 50
+   Reading file: C:\Users\sirai\AppData\Local\Programs\Inno Setup 7\Default.isl
+Parsing [LangOptions], [Messages], and [CustomMessages] sections
+   Messages in script file
+Reading [Code] section
+Parsing [Tasks] section, line 53
+Parsing [Icons] section, line 66
+Parsing [Icons] section, line 67
+Parsing [Run] section, line 70
+Parsing [Files] section, line 57
+Parsing [Files] section, line 60
+   Reading version info: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Installer\redist\ndp48-x86-x64-allos-enu.exe
+Parsing [Files] section, line 61
+   Reading version info: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Installer\redist\MicrosoftEdgeWebView2RuntimeInstallerX64.exe
+Parsing [Files] section, line 63
+Compiling [Code] section
+Deleting HarborBrowserSetup-0.3.6.exe from output directory
+Creating setup files
+   Verification successful
+   Updating icons (Setup.exe)
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\HarborBrowser.exe
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\HarborBrowser.exe.config
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Microsoft.Web.WebView2.Core.dll
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Microsoft.Web.WebView2.WinForms.dll
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Microsoft.Web.WebView2.Wpf.dll
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Assets\Home\beacon.png
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Assets\Home\blue-hour.png
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Assets\Home\home.css
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Assets\Home\home.js
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Assets\Home\index.html
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Assets\Home\morning.png
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\Branding\HarborBeacon.ico
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\runtimes\win-arm64\native\WebView2Loader.dll
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\runtimes\win-x64\native\WebView2Loader.dll
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\payload\runtimes\win-x86\native\WebView2Loader.dll
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Installer\redist\ndp48-x86-x64-allos-enu.exe   (4.8.4115.0)
+   Compressing: \\?\C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Installer\redist\MicrosoftEdgeWebView2RuntimeInstallerX64.exe   (1.3.315.17)
+   Compressing Setup program executable
+   Updating version info (Setup.exe)
+
+
+Successful compile (76.563 sec). Resulting Setup program filename is:
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\HarborBrowserSetup-0.3.6.exe
+
+SUCCESS: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\dist\HarborBrowserSetup-0.3.6.exe
+This installer includes Harbor, .NET Framework 4.8 offline setup, and the WebView2 Evergreen x64 standalone installer.

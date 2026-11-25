@@ -1,47 +1,50 @@
-# Harbor Browser 0.3.5
+# Harbor Browser 0.3.6
 
-## Video fullscreen and taskbar access
+## History scrollbar
 
-A site's fullscreen video button now expands the player to the current monitor and hides Harbor's toolbars, status bar and border. Escape exits video fullscreen and restores the previous window placement. Moving away from the fullscreen video tab restores the browser controls.
+History's vertical scrollbar now stays on the right in both light and dark mode. The cog's menus use the same right-side scrolling convention while retaining their existing left-opening flyouts.
 
-F11 toggles browser fullscreen, which hides Harbor's controls while keeping the taskbar's work area available. Normal maximization also respects the current monitor's work area. In video fullscreen, move the pointer to the taskbar's screen edge to temporarily reveal space for the taskbar; move back into the video to fill the monitor again.
+## Small-screen layout
 
-The window uses per-monitor DPI awareness and saves/restores its window placement and resizing constraints. These behaviors do not modify Windows taskbar settings.
+Harbor now fits its starting window inside the current monitor's usable area, leaving room for the Windows taskbar. Settings, history, cookie management, resource monitoring and text prompts also fit to the available space. Window fitting runs again when Windows reports a DPI, display or work-area change.
 
-## Picture in picture
+The toolbar adapts as the available width decreases:
+- Below 900 logical pixels, the search-engine selector and Go button hide. Enter still searches or navigates using the selected engine.
+- Below 760 logical pixels, the Beacon logo stays visible while the HARBOR wordmark hides.
+- Below 650 logical pixels, the Home and bookmark shortcut buttons hide. Ctrl+T opens the configured home page, and bookmarking remains in the cog menu.
+- Tab titles shorten on narrow windows. The tab strip keeps its existing overflow scrolling.
 
-Start a video, then choose the square picture-in-picture button beside the cog, Cog > Tools > Picture in picture, Ctrl+Shift+P, or Picture in picture in the video context menu.
+Settings content scrolls while Save settings and Cancel stay at the bottom. Long option labels wrap, and cookie/history actions can wrap onto another row. Picture-in-picture placement accounts for DPI and stays within the monitor's work area.
 
-Harbor moves the original browser/player into a floating, resizable, always-on-top window. It retains the playing page and session rather than opening a second copy. Play/pause, mute/unmute and Return to tab are available. Closing the floating window returns the player to its tab and restores the page layout. Pop-out tabs are kept awake.
+The primary target was 1366 × 768. Tests exercised logical layouts corresponding to 100%, 125%, 150%, 175% and 200% scaling without changing the user's Windows display settings.
 
-The video helper supports HTML video in the main page and nested/cross-origin frames. Player behavior varies by website; service-specific players and protected streams have not all been tested.
+## Compact cog menu
 
-## Compact header and groups
+The cog menu and its flyouts use Harbor's current light/dark or custom palette throughout. Compact rows replace the default Windows menu styling and unused icon gutters. Long labels truncate, and long menus scroll within a height based on the available screen area.
 
-Tabs now share the title row with the Beacon logo and window controls. Drag empty header space to move the window; drag tab headers to reorder them. Regular tabs still append on the right. The strip can scroll horizontally when it overflows.
+## Address selection
 
-The separate group bar is gone. Cog > Tab groups provides:
-- Show all, ungrouped, or a selected group.
-- Move the current tab into a group.
-- Add, rename and remove groups.
+The first left click into the address bar selects the entire URL. A subsequent click allows normal cursor placement and editing. Keyboard focus, including Ctrl+L, also selects the entire URL. Selected text uses a contrasting foreground color.
 
-Group assignments and reordered tab sessions remain preserved.
+## Existing features
 
-## Beacon icon refresh
+This update retains Beacon branding, Harbor Home, independent light/dark color customization, right-side new tabs, tab reordering, cog-based tab groups, corrected download filenames/extensions, video fullscreen, taskbar-aware browser fullscreen and picture in picture.
 
-The executable already contained Beacon in 0.3.4. This update also assigns a matching explicit Windows app identity and uses a separate versioned Beacon icon for installer-created shortcuts and the uninstall entry. The installer asks Explorer to refresh its icon information.
+F11 toggles browser fullscreen. A website's video fullscreen button expands video to the monitor; Escape restores the previous mode. Picture in picture is available beside the cog, under Cog > Tools, or with Ctrl+Shift+P.
 
-An older pinned shortcut can retain its own cached icon. If it still looks old after updating, unpin that old shortcut and pin the updated Harbor again.
+## Install and build
 
-## Install and verification
+Close Harbor, then run dist/HarborBrowserSetup-0.3.6.exe over the existing installation. The installer AppId, profile location and schema 5 remain unchanged. The installer bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
 
-Close Harbor and run dist/HarborBrowserSetup-0.3.5.exe over the existing version. The installer identity, profile folder and schema 5 remain unchanged. The installer includes the offline .NET Framework 4.8 and WebView2 x64 installers.
+No installation, upgrade or uninstall was performed on the user's installed browser during this work.
 
-The installer was built but not installed during verification. See VERIFICATION.md for results and remaining real-desktop checks.
+To build from source, follow SETUP-README.md. Source archives omit build outputs, test profiles and large redistributables; the build script obtains the official prerequisites when needed.
 
-Test runners:
-- Tests/Run-Tests.ps1 — 176 service, settings and offline-layout checks.
-- HomeSmokeTests/Run-Browser-Tests.ps1 — 28 isolated WebView2 home-page checks.
-- IntegrationTests/Run-Integration-Tests.ps1 — 36 isolated app/video checks using a generated live video in a cross-origin iframe, a separate profile and offscreen monitor geometry.
+## Verification
 
-Previews includes the compact header and captured video player viewports. Source archives omit build outputs, test profiles and large redistributables.
+See VERIFICATION.md for executed checks and limits. Test runners:
+- Tests/Run-Tests.ps1: service, filename, settings, appearance, geometry and offline layout checks.
+- HomeSmokeTests/Run-Browser-Tests.ps1: isolated WebView2 home-page checks.
+- IntegrationTests/Run-Integration-Tests.ps1: the real app with an isolated profile, compact menus, address selection, small layouts and a generated cross-origin video.
+
+Previews contains rendered interface previews and captured video viewports.

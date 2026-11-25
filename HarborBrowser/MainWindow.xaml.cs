@@ -51,6 +51,7 @@ namespace HarborBrowser
             _store = store ?? throw new ArgumentNullException(nameof(store));
             _monitorProvider = monitorProvider;
             InitializePresentation();
+            InitializeResponsiveLayout();
             _settings = _store.LoadSettings();
             AppearanceService.Normalize(_settings); AppearanceService.ApplyApplication(_settings);
             bool homeDefaultsUpdated = HomePageService.UpgradeDefaults(_settings);
@@ -783,7 +784,7 @@ namespace HarborBrowser
             tab.HeaderText.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             tab.CloseButton.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             tab.Item.Width = tab.IsPinned ? 43 : double.NaN;
-            tab.HeaderText.MaxWidth = 150;
+            tab.HeaderText.MaxWidth = ResponsiveLayout.TabTitleWidth(ActualWidth > 0 ? ActualWidth : Width);
             string url = tab.View != null && tab.View.Source != null ? tab.View.Source.AbsoluteUri : title;
             string description = tab.IsPrivate ? "Private tab" : "Normal tab";
             if (tab.IsPinned) description += " • Pinned";
@@ -1146,6 +1147,7 @@ namespace HarborBrowser
             buttons.Children.Add(ok); buttons.Children.Add(cancel); panel.Children.Add(buttons);
             dialog.Content = panel;
             dialog.Loaded += (s, e) => { text.Focus(); text.SelectAll(); };
+            WindowFitService.Attach(dialog);
             return dialog.ShowDialog() == true ? text.Text.Trim() : null;
         }
 
@@ -1231,6 +1233,7 @@ namespace HarborBrowser
         private void Settings_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new SettingsWindow(_settings) { Owner = this };
+            WindowFitService.Attach(dialog);
             if (dialog.ShowDialog() == true && dialog.ResultSettings != null)
             {
                 _settings = dialog.ResultSettings;
@@ -1696,6 +1699,11 @@ namespace HarborBrowser
 
         private void GearMenuButton_Click(object sender, RoutedEventArgs e)
         {
+            BuildGearMenu().IsOpen = true;
+        }
+
+        internal ContextMenu BuildGearMenu()
+        {
             // The gear sits at the far right of the window. RTL menu flow makes flyouts
             // open toward the left so they stay inside the browser window.
             var menu = new ContextMenu { FlowDirection = FlowDirection.RightToLeft };
@@ -1832,14 +1840,14 @@ namespace HarborBrowser
 
             menu.PlacementTarget = GearMenuButton;
             menu.Placement = PlacementMode.Bottom;
-            menu.IsOpen = true;
+            return menu;
         }
 
         private MenuItem CreateGearMenuItem(string header)
         {
             return new MenuItem
             {
-                Header = new TextBlock { Text = header, FlowDirection = FlowDirection.LeftToRight },
+                Header = new TextBlock { Text = header, FlowDirection = FlowDirection.LeftToRight, TextTrimming = TextTrimming.CharacterEllipsis },
                 FlowDirection = FlowDirection.RightToLeft,
                 HorizontalContentAlignment = HorizontalAlignment.Left
             };
@@ -1860,7 +1868,7 @@ namespace HarborBrowser
 
         private void AddGearSeparator(ItemsControl parent)
         {
-            parent.Items.Add(new Separator { FlowDirection = FlowDirection.RightToLeft });
+            parent.Items.Add(new Separator { Style = (Style)Application.Current.FindResource("HarborMenuSeparator") });
         }
 
         private void ClearCompletedDownloads()
@@ -1953,14 +1961,14 @@ namespace HarborBrowser
             };
 
             var layout = new DockPanel { Margin = new Thickness(12) };
-            var searchRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
+            var searchRow = new WrapPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 0, 0, 10) };
             searchRow.Children.Add(new TextBlock { Text = "Filter history", VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 10, 0) });
             var searchBox = new TextBox { Width = 420, Height = 29, VerticalContentAlignment = VerticalAlignment.Center };
             searchRow.Children.Add(searchBox);
             DockPanel.SetDock(searchRow, Dock.Top);
             layout.Children.Add(searchRow);
 
-            var actions = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 10, 0, 0) };
+            var actions = new WrapPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right, Margin = new Thickness(0, 10, 0, 0) };
             DockPanel.SetDock(actions, Dock.Bottom);
             layout.Children.Add(actions);
 
@@ -2023,6 +2031,7 @@ namespace HarborBrowser
 
             window.Content = layout;
             refresh();
+            WindowFitService.Attach(window);
             window.ShowDialog();
         }
 
@@ -2040,7 +2049,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.3.5\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.3.6\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

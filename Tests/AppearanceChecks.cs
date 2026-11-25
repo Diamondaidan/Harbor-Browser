@@ -79,6 +79,7 @@ internal static partial class Program {
         var input=new HarborBrowser.Models.BrowserSettings();
         string global=AppearanceService.Hex(((SolidColorBrush)Application.Current.Resources["HarborWindow"]).Color);
         var dialog=new HarborBrowser.Views.SettingsWindow(input);
+        WindowFitService.SetIsEnabled(dialog,false);
         dialog.Left=-10000;dialog.Top=-10000;dialog.ShowInTaskbar=false;
         Exception callbackError=null;
         dialog.Loaded+=(sender,args)=>{
@@ -104,6 +105,7 @@ internal static partial class Program {
         Equal("saved color reflects hex input","#765432",dialog.ResultSettings.DarkColors.Accent);
         Equal("saved light palette unchanged",null,dialog.ResultSettings.LightColors.Accent);
         var cancel=new HarborBrowser.Views.SettingsWindow(input);
+        WindowFitService.SetIsEnabled(cancel,false);
         cancel.Left=-10000;cancel.Top=-10000;cancel.ShowInTaskbar=false;
         cancel.Loaded+=(sender,args)=>{
             try{

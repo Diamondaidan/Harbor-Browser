@@ -2,8 +2,8 @@ MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
   All projects are up-to-date for restore.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.5\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.5\Tests\bin\Release\net48\HarborRegressionTests.exe
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Tests\bin\Release\net48\HarborRegressionTests.exe
 PASS header wins
 PASS UTF-8 filename
 PASS RFC 5987 language
@@ -141,6 +141,71 @@ PASS video script embedded
 PASS video command allowlist
 PASS isolated profile settings save/load
 PASS isolated profile path honored
+PASS 1366x768 scale 1 window fits
+PASS 1366x768 scale 1 positive client area
+PASS 1366x768 scale 1 PiP fits
+PASS 1366x768 scale 1.25 window fits
+PASS 1366x768 scale 1.25 positive client area
+PASS 1366x768 scale 1.25 PiP fits
+PASS 1366x768 scale 1.5 window fits
+PASS 1366x768 scale 1.5 positive client area
+PASS 1366x768 scale 1.5 PiP fits
+PASS 1366x768 scale 1.75 window fits
+PASS 1366x768 scale 1.75 positive client area
+PASS 1366x768 scale 1.75 PiP fits
+PASS 1366x768 scale 2 window fits
+PASS 1366x768 scale 2 positive client area
+PASS 1366x768 scale 2 PiP fits
+PASS 1280x720 scale 1 window fits
+PASS 1280x720 scale 1 positive client area
+PASS 1280x720 scale 1 PiP fits
+PASS 1280x720 scale 1.25 window fits
+PASS 1280x720 scale 1.25 positive client area
+PASS 1280x720 scale 1.25 PiP fits
+PASS 1280x720 scale 1.5 window fits
+PASS 1280x720 scale 1.5 positive client area
+PASS 1280x720 scale 1.5 PiP fits
+PASS 1280x720 scale 1.75 window fits
+PASS 1280x720 scale 1.75 positive client area
+PASS 1280x720 scale 1.75 PiP fits
+PASS 1280x720 scale 2 window fits
+PASS 1280x720 scale 2 positive client area
+PASS 1280x720 scale 2 PiP fits
+PASS 1920x1080 scale 1 window fits
+PASS 1920x1080 scale 1 positive client area
+PASS 1920x1080 scale 1 PiP fits
+PASS 1920x1080 scale 1.25 window fits
+PASS 1920x1080 scale 1.25 positive client area
+PASS 1920x1080 scale 1.25 PiP fits
+PASS 1920x1080 scale 1.5 window fits
+PASS 1920x1080 scale 1.5 positive client area
+PASS 1920x1080 scale 1.5 PiP fits
+PASS 1920x1080 scale 1.75 window fits
+PASS 1920x1080 scale 1.75 positive client area
+PASS 1920x1080 scale 1.75 PiP fits
+PASS 1920x1080 scale 2 window fits
+PASS 1920x1080 scale 2 positive client area
+PASS 1920x1080 scale 2 PiP fits
+PASS 3840x2160 scale 1 window fits
+PASS 3840x2160 scale 1 positive client area
+PASS 3840x2160 scale 1 PiP fits
+PASS 3840x2160 scale 1.25 window fits
+PASS 3840x2160 scale 1.25 positive client area
+PASS 3840x2160 scale 1.25 PiP fits
+PASS 3840x2160 scale 1.5 window fits
+PASS 3840x2160 scale 1.5 positive client area
+PASS 3840x2160 scale 1.5 PiP fits
+PASS 3840x2160 scale 1.75 window fits
+PASS 3840x2160 scale 1.75 positive client area
+PASS 3840x2160 scale 1.75 PiP fits
+PASS 3840x2160 scale 2 window fits
+PASS 3840x2160 scale 2 positive client area
+PASS 3840x2160 scale 2 PiP fits
+PASS short-screen menu height bounded
+PASS narrow-screen menu width bounded
+PASS narrow toolbar hides engine
+PASS wide toolbar keeps engine
+PASS compact title hides wordmark
 PASS 1320 borderless
 PASS 1320 resize border
 PASS 1320 Beacon header logo loaded
@@ -180,5 +245,5 @@ PASS 1320 cog moved below caption
 PASS 1320 cog in address row
 PASS 1320 address still usable
 PASS 1320 caption buttons clickable
-ALL PASSED: 176 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
-Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.5\Tests\TestResults\20261112-191213
+ALL PASSED: 241 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
+Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Tests\TestResults\20261112-194926

@@ -107,6 +107,7 @@ internal static partial class Program
             HomeChecks();
             NewTabAndAppearanceChecks();
             VideoWindowChecks();
+            ResolutionChecks();
             Layout(args[4], 1320, 850);
             Layout(args[4], 800, 560);
             AppearanceService.ApplyApplication(new HarborBrowser.Models.BrowserSettings {ThemeMode="Dark"});
@@ -163,7 +164,7 @@ internal static partial class Program
     private static void Layout(string path, int width, int height, string suffix = "")
     {
         var doc = XDocument.Load(path);
-        string[] events = { "Loaded", "Closing", "PreviewKeyDown", "StateChanged", "Click", "SelectionChanged", "KeyDown", "DragOver", "Drop", "DragLeave", "PreviewMouseLeftButtonDown", "PreviewMouseWheel" };
+        string[] events = { "Loaded", "Closing", "PreviewKeyDown", "StateChanged", "Click", "SelectionChanged", "KeyDown", "DragOver", "Drop", "DragLeave", "PreviewMouseLeftButtonDown", "PreviewMouseWheel", "GotKeyboardFocus" };
         // Strip handlers only for an offline layout render; no browser/profile is instantiated.
         foreach (var attr in doc.Descendants().Attributes().Where(a =>
             (a.Name.NamespaceName == "http://schemas.microsoft.com/winfx/2006/xaml" && a.Name.LocalName == "Class") ||
