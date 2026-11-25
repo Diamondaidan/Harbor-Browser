@@ -1,15 +1,15 @@
-# Installing Harbor Browser 0.5.7
+# Installing Harbor Browser 0.6.0
 
-Close regular Harbor before running HarborBrowserSetup-0.5.7-release.exe. Approve Windows' administrator prompt yourself. Setup defaults to Program Files\Harbor Browser, recognizes the existing 0.5.3 installation, and keeps LocalAppData\HarborBrowser. Beta/trial installations and profiles remain separate. Use your usual Windows account when approving setup; upgrades with multiple simultaneously signed-in Windows users have not been validated.
+Close regular Harbor before running HarborBrowserSetup-0.6.0-release.exe. Setup requests Windows administrator approval, keeps the established Program Files installation and LocalAppData/HarborBrowser profile, and backs up Harbor data files. Beta profiles remain separate. The installer is unsigned until the owner obtains a Windows code-signing certificate. Do not bypass a Windows security block; report it for diagnosis.
 
-The full installer contains Microsoft-signed .NET Framework 4.8 and WebView2 x64 offline packages. No developer tools are needed on another PC. Usable installed dependencies are skipped. If setup requests a restart, save your work and restart before opening Harbor. Harbor's installer is unsigned. Do not bypass a Windows security block; report it for diagnosis.
+The full installer embeds the pinned Microsoft-signed .NET Framework 4.8 and WebView2 x64 offline packages. No developer tools are needed on another PC. Usable dependencies are skipped, and setup never forces a reboot. Save work and restart yourself if Windows/setup requests it.
 
-Package target: x64 Windows 10 build 19041 or later / Windows 11, .NET Framework 4.8+, WebView2 157+. Older Windows versions, 32-bit Windows and ARM64 are outside this package's support scope. Clean installation and genuine missing-prerequisite/restart behavior on another PC remain separate validation items.
+Supported package target: x64 Windows 10 build 19041+ / Windows 11, .NET Framework 4.8+, WebView2 157+. Older Windows, 32-bit Windows and ARM64 are outside this package. Clean installation and genuine dependency/restart behavior remain separate validation items.
 
-The extracted portable build also uses the regular Harbor profile and single-instance identity. Close installed Harbor before opening it. Keep the complete extracted folder together. Never run older and newer releases against the same profile simultaneously.
+The portable folder also uses the regular profile and single-instance identity. Close installed Harbor first; it is not an isolated test channel. Keep every extracted file, including HarborUpdateLauncher.exe, together.
 
-For Proton, open VPN Off, enable browser protection, sign in yourself and connect. Wait for Protected. A restart may require Connect again without another sign-in. Reload paused pages explicitly. Disconnect pauses supported browsing until you reconnect and verify, or choose Turn off and remove. Forms and downloads are not resumed automatically. Private tabs cannot coexist with an enabled browser connection.
+Help > Check for updates exposes the new updater. UPDATING.md explains the GitHub feed, signing, consent, network behavior and recovery. Until release files are published, online checks cannot report a verified available release. Signing support is prepared; Windows signing itself has not been performed.
 
-Windows keeps your current default browser. After installation, Harbor's default-browser command opens Windows Settings for you to choose. Setup advertises HTTP/HTTPS and local .htm/.html support without writing UserChoice.
+Proton remains optional. Connect yourself and wait for Protected. Disconnecting pauses supported browsing; reconnect and explicitly Reload. Update checks/downloads pause while Proton or Tor is enabled. Private tabs cannot coexist with an enabled browser connection. Coverage is limited to supported Harbor requests, not other apps or a complete leak audit.
 
-Uninstall keeps data and Microsoft dependencies. Upgrades snapshot Harbor JSON/state files under LocalAppData\HarborBrowser\UpgradeBackups. Authentication databases remain in place and are not copied. Keep previous installers and backups. Before reverting to an older release, turn off and remove Proton in 0.5.7 and close Harbor. Do not delete a profile to fix setup or sign-in.
+Windows keeps its current default browser. Harbor advertises HTTP/HTTPS/HTML support; choose defaults yourself in Windows Settings. Uninstall retains profile data, cached update files/backups and Microsoft prerequisites. A failed update or rollback does not justify deleting the profile. Keep 0.5.7 and its backups until 0.6.0 is validated on your PC.

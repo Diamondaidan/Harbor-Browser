@@ -1833,6 +1833,7 @@ namespace HarborBrowser
             AddGearCommand(tools, "Site permissions…", SitePermissions_Click);
             AddGearCommand(tools, "Clear browsing data… (Ctrl+Shift+Delete)", ClearBrowsingData_Click);
             AddGearCommand(tools, "Restore recovery snapshot", RestoreRecovery_Click, _sessionRecovery != null && _sessionRecovery.Snapshot != null && _sessionRecovery.Snapshot.Session != null);
+            AddGearCommand(tools, "Updates and backup recovery…", Updates_Click);
             AddGearCommand(tools, "Browser full screen (F11)", FullScreen_Click);
             AddGearCommand(tools, "Picture in picture (Ctrl+Shift+P)", PictureInPicture_Click);
             AddGearCommand(tools, "Resource monitor", ResourceMonitor_Click);
@@ -1840,6 +1841,7 @@ namespace HarborBrowser
             menu.Items.Add(tools);
 
             MenuItem help = CreateGearSubmenu("Help");
+            AddGearCommand(help, "Check for updates…", Updates_Click);
             AddGearCommand(help, "About Harbor Browser", About_Click);
             menu.Items.Add(help);
 

@@ -58,6 +58,8 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--updates060")
+                {await Updates060Checks(main,store);Console.WriteLine("ALL PASSED: "+checks+" native update-menu and routing-gate checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--release057")
                 {await Release057Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" isolated 0.5.7 identity and native engine recovery checks.");exit=0;return;}
                 if(args.Length>3&&args[2]=="--proton-r4-benchmark")

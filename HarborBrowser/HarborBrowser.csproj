@@ -36,6 +36,10 @@
   </ItemGroup>
   <ItemGroup><Resource Include="HarborBrowser.ico"/><Resource Include="Assets\Home\beacon.png"/></ItemGroup>
   <ItemGroup><EmbeddedResource Include="Assets\Media\media.js"/><Content Include="Branding\*.ico" CopyToOutputDirectory="PreserveNewest"/></ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\UpdateLauncher\HarborUpdateLauncher.csproj" ReferenceOutputAssembly="false" />
+    <Content Include="..\UpdateLauncher\bin\$(Configuration)\net48\HarborUpdateLauncher.exe" Link="HarborUpdateLauncher.exe" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
 
 

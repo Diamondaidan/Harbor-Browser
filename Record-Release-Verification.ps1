@@ -3,10 +3,10 @@ param()
 $ErrorActionPreference='Stop'
 $root=$PSScriptRoot
 $app=Get-Item -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\HarborBrowser.exe')
-$suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057')
+$suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui')
 $results=@()
 foreach($suite in $suites){
- $path=Join-Path $root ($suite+'-release057.log')
+ $path=Join-Path $root ($suite+'-release060.log')
  $present=Test-Path -LiteralPath $path
  $lines=if($present){@(Get-Content -LiteralPath $path)}else{@()}
  $current=$present -and (Get-Item -LiteralPath $path).LastWriteTimeUtc -ge $app.LastWriteTimeUtc
@@ -18,8 +18,15 @@ $hash=(Get-FileHash -LiteralPath $app.FullName -Algorithm SHA256).Hash
 $integration=Join-Path $root 'IntegrationTests\bin\Release\net48\HarborBrowser.exe'
 $regression=Join-Path $root 'Tests\bin\Release\net48\HarborBrowser.exe'
 $copiesMatch=(Get-FileHash -LiteralPath $integration -Algorithm SHA256).Hash -eq $hash -and (Get-FileHash -LiteralPath $regression -Algorithm SHA256).Hash -eq $hash
+$helper=Join-Path $root 'HarborBrowser\bin\Release\net48\HarborUpdateLauncher.exe'
+$helperHash=(Get-FileHash -LiteralPath $helper -Algorithm SHA256).Hash
+foreach($runner in @('Tests','IntegrationTests','UpdateTests')){
+ $copy=Join-Path $root ($runner+'\bin\Release\net48\HarborBrowser.exe')
+ $helperCopy=Join-Path $root ($runner+'\bin\Release\net48\HarborUpdateLauncher.exe')
+ $copiesMatch=$copiesMatch -and (Get-FileHash -LiteralPath $copy -Algorithm SHA256).Hash -eq $hash -and (Get-FileHash -LiteralPath $helperCopy -Algorithm SHA256).Hash -eq $helperHash
+}
 $verification=@{
- Version='0.5.7';RecordedUtc=[DateTime]::UtcNow.ToString('o');AppSHA256=$hash
+ UpdateLauncherSHA256=$helperHash;Version='0.6.0';RecordedUtc=[DateTime]::UtcNow.ToString('o');AppSHA256=$hash
  ReadyToPackage=$copiesMatch -and @($results | Where-Object {!$_.Passed}).Count -eq 0
  TestCopiesMatch=$copiesMatch;AssertionsPassed=($results | Measure-Object AssertionsPassed -Sum).Sum;Suites=$results
 }

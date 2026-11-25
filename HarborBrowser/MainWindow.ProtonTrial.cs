@@ -69,6 +69,7 @@ namespace HarborBrowser
 
         internal async Task ChangeProtonPreview(bool enabled)
         {
+            if(enabled)CancelUpdateTraffic();
             if (enabled && _protonChanges > 0) throw new InvalidOperationException("Wait for the current Proton change to finish.");
             if (_downloads.Any(d=>d.IsActive)) throw new InvalidOperationException("Finish or cancel active downloads before changing routing.");
             if (enabled && BrowserTabs.Items.Cast<TabItem>().Any(i=>(i.Tag as BrowserTab)?.IsPrivate==true)) throw new InvalidOperationException("Close private tabs before enabling Proton browser protection.");

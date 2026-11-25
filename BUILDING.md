@@ -1,14 +1,13 @@
-# Build Harbor Browser 0.5.7
+# Building Harbor 0.6.0
 
-Use Windows desktop MSBuild, the .NET Framework 4.8 targeting pack and pinned NuGet dependencies. Inno Setup 7 is required for setup.
+Use Windows desktop MSBuild, .NET Framework 4.8 targeting tools, the pinned WebView2 NuGet package and Inno Setup 7.
 
-1. Build IntegrationTests/HarborIntegrationTests.csproj and Tests/HarborRegressionTests.csproj in Release.
-2. Run Run-Full-Release-Tests.ps1, then Record-Release-Verification.ps1.
-3. Run IntegrationTests/Run-Release-Installer-Fixtures.ps1. It uses owned test folders, a nonactive registry namespace and fake dependency helpers; it never launches the real installed app.
-4. Obtain the pinned Microsoft packages using Installer/Get-Prerequisites.ps1 or place them in Installer/redist. Build-Installer.ps1 checks sizes, hashes and Microsoft signatures.
-5. Run Build-Installer.ps1 -SkipBuild -Candidate release. Existing artifacts are never overwritten. Use a new rc number to investigate a later build.
-6. Build-Spare-PC-Kit.ps1 prepares a manual validation kit from the installer record. The local connection tool and matching source are included under TestTools/ConnectionCheck.
+1. Build UpdateTests/HarborUpdateTests.csproj, IntegrationTests/HarborIntegrationTests.csproj and Tests/HarborRegressionTests.csproj in Release. The app project builds and copies the separate update launcher.
+2. Run Run-Full-Release-Tests.ps1, then Record-Release-Verification.ps1. Tests use owned synthetic profiles and test signing keys. Native fixture programs do not install Harbor or change Windows defaults.
+3. Run IntegrationTests/Run-Release-Installer-Fixtures.ps1 for isolated native setup/upgrade/uninstall and simulated dependency cases. Its AppId, paths and registry namespace are separate from the actual app.
+4. Acquire the pinned Microsoft dependencies using Installer/Get-Prerequisites.ps1. Build-Installer.ps1 checks hashes, sizes and Microsoft signatures.
+5. Run Build-Installer.ps1 -SkipBuild -Candidate release. Existing stages/artifacts are never overwritten. Optional SigningThumbprint and TimestampUrl sign the final installer with an existing certificate. See UPDATING.md before signing.
+6. Create a signed update record with ReleaseTools/New-Update-Record.ps1 after installer signing/finalization. The app's update release key is separate from Windows Authenticode signing. Never put private keys in this source tree. Use the existing owner key; do not regenerate the trust root for a routine release.
+7. Validate the prepared record using UpdateTests/bin/Release/net48/HarborUpdateTests.exe --verify-record RECORD INSTALLER [PREVIOUS-INSTALLER]. This reads/hashes files without executing installers.
 
-The regular app uses the established Harbor profile and instance identity. Only tests that explicitly inject owned stores should run during development. Do not launch the normal app to probe a synthetic profile.
-
-Source packaging omits used profiles, build/test output, prerequisite inspection files and large Microsoft dependency executables. The dependency manifest and acquisition script are included. Creating setup does not establish clean installation on every PC.
+The regular app uses the existing production profile. Development/runtime tests must inject owned stores and must not launch the regular app against a pretend profile. Preserve working release packages. Source ZIPs omit private keys, profiles, build/test output, caches, dependency executables and extracted inspection files. Matching provider source/notices and all publisher tooling belong in source packages.

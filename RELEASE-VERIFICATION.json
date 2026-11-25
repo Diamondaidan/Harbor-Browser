@@ -1,114 +1,131 @@
 {
   "ReadyToPackage": true,
+  "Version": "0.6.0",
+  "UpdateLauncherSHA256": "03C09A9EA33414079DC952F854C4351E8CABE1DF802C6DE6C3A370CE283DBB2D",
+  "RecordedUtc": "2026-11-17T02:49:17.4611592Z",
+  "AppSHA256": "5CAC10A130A1E026DC593E86E8FA96998124BFED9FE7A1B2E8F0CC804122146B",
   "TestCopiesMatch": true,
-  "AssertionsPassed": 1089.0,
-  "Version": "0.5.7",
-  "RecordedUtc": "2026-11-17T01:01:02.8887854Z",
   "Suites": [
     {
-      "Log": "regression-release057.log",
+      "Log": "regression-release060.log",
       "Failures": [],
+      "AssertionsPassed": 384,
       "CurrentExecutable": true,
       "Suite": "regression",
-      "Passed": true,
-      "AssertionsPassed": 384
+      "Passed": true
     },
     {
-      "Log": "full-release057.log",
+      "Log": "full-release060.log",
       "Failures": [],
+      "AssertionsPassed": 360,
       "CurrentExecutable": true,
       "Suite": "full",
-      "Passed": true,
-      "AssertionsPassed": 360
+      "Passed": true
     },
     {
-      "Log": "suggestions-release057.log",
+      "Log": "suggestions-release060.log",
       "Failures": [],
+      "AssertionsPassed": 17,
       "CurrentExecutable": true,
       "Suite": "suggestions",
-      "Passed": true,
-      "AssertionsPassed": 17
+      "Passed": true
     },
     {
-      "Log": "recovery-release057.log",
+      "Log": "recovery-release060.log",
       "Failures": [],
+      "AssertionsPassed": 15,
       "CurrentExecutable": true,
       "Suite": "recovery",
-      "Passed": true,
-      "AssertionsPassed": 15
+      "Passed": true
     },
     {
-      "Log": "proton-release057.log",
+      "Log": "proton-release060.log",
       "Failures": [],
+      "AssertionsPassed": 34,
       "CurrentExecutable": true,
       "Suite": "proton",
-      "Passed": true,
-      "AssertionsPassed": 34
+      "Passed": true
     },
     {
-      "Log": "auth-handoff-release057.log",
+      "Log": "auth-handoff-release060.log",
       "Failures": [],
+      "AssertionsPassed": 27,
       "CurrentExecutable": true,
       "Suite": "auth-handoff",
-      "Passed": true,
-      "AssertionsPassed": 27
+      "Passed": true
     },
     {
-      "Log": "proton-pending-release057.log",
+      "Log": "proton-pending-release060.log",
       "Failures": [],
+      "AssertionsPassed": 24,
       "CurrentExecutable": true,
       "Suite": "proton-pending",
-      "Passed": true,
-      "AssertionsPassed": 24
+      "Passed": true
     },
     {
-      "Log": "proton-hotfix2-release057.log",
+      "Log": "proton-hotfix2-release060.log",
       "Failures": [],
+      "AssertionsPassed": 45,
       "CurrentExecutable": true,
       "Suite": "proton-hotfix2",
-      "Passed": true,
-      "AssertionsPassed": 45
+      "Passed": true
     },
     {
-      "Log": "proton-beta-release057.log",
+      "Log": "proton-beta-release060.log",
       "Failures": [],
+      "AssertionsPassed": 109,
       "CurrentExecutable": true,
       "Suite": "proton-beta",
-      "Passed": true,
-      "AssertionsPassed": 109
+      "Passed": true
     },
     {
-      "Log": "proton-fallback-release057.log",
+      "Log": "proton-fallback-release060.log",
       "Failures": [],
+      "AssertionsPassed": 19,
       "CurrentExecutable": true,
       "Suite": "proton-fallback",
-      "Passed": true,
-      "AssertionsPassed": 19
+      "Passed": true
     },
     {
-      "Log": "proton-guard-handoff-release057.log",
+      "Log": "proton-guard-handoff-release060.log",
       "Failures": [],
+      "AssertionsPassed": 12,
       "CurrentExecutable": true,
       "Suite": "proton-guard-handoff",
-      "Passed": true,
-      "AssertionsPassed": 12
+      "Passed": true
     },
     {
-      "Log": "proton-r4-release057.log",
+      "Log": "proton-r4-release060.log",
       "Failures": [],
+      "AssertionsPassed": 34,
       "CurrentExecutable": true,
       "Suite": "proton-r4",
-      "Passed": true,
-      "AssertionsPassed": 34
+      "Passed": true
     },
     {
-      "Log": "release057-release057.log",
+      "Log": "release057-release060.log",
       "Failures": [],
+      "AssertionsPassed": 9,
       "CurrentExecutable": true,
       "Suite": "release057",
-      "Passed": true,
-      "AssertionsPassed": 9
+      "Passed": true
+    },
+    {
+      "Log": "updates-release060.log",
+      "Failures": [],
+      "AssertionsPassed": 120,
+      "CurrentExecutable": true,
+      "Suite": "updates",
+      "Passed": true
+    },
+    {
+      "Log": "updates-ui-release060.log",
+      "Failures": [],
+      "AssertionsPassed": 8,
+      "CurrentExecutable": true,
+      "Suite": "updates-ui",
+      "Passed": true
     }
   ],
-  "AppSHA256": "349A49B8B835C9F6BE206312EE19BDDF859EEDFB1360FDEAB7373C9ACB4A122B"
+  "AssertionsPassed": 1217.0
 }

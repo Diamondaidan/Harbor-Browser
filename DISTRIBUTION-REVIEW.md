@@ -1,4 +1,10 @@
-# Harbor 0.5.7 release distribution record
+# Harbor distribution record
+
+## Current publication decision
+
+On November 16, 2026, the owner authorized public source publication under GPLv3, with installer releases kept as drafts until signed. Harbor-authored work is GPL-3.0-only. Third-party licenses and notices remain in place. No SignPath approval or provider endorsement is claimed. See `CODE-SIGNING-POLICY.md` for remaining signing work.
+
+## Historical 0.5.7 local release record
 
 Prepared locally at the owner's request to remove beta labeling. No public upload or provider contact was performed.
 

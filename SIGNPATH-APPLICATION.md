@@ -1,0 +1,34 @@
+# SignPath application preparation
+
+Prepared for owner review. **Not submitted; no approval or sponsorship claimed.**
+
+Project: Harbor Browser
+
+Repository/home page: https://github.com/Diamondaidan/Harbor-Browser
+
+Maintainer GitHub identity: Diamondaidan
+
+License: GPL-3.0-only for Harbor-authored work. Third-party components retain their licenses.
+
+Description: Windows desktop browser using WPF, .NET Framework 4.8 and Microsoft WebView2, with tab, download, appearance and privacy controls, optional Proton browser protection, and verified updates/recovery.
+
+Signing targets: HarborBrowser.exe, HarborUpdateLauncher.exe and the Harbor installer. Do not sign upstream provider executables or Microsoft dependency installers under Harbor's signing policy.
+
+Proposed build service: GitHub Actions using GitHub-hosted Windows runners, reviewed source, restricted signing artifacts and manual signing approval. Preparation workflows are not a production signing service.
+
+Code signing policy: https://github.com/Diamondaidan/Harbor-Browser/blob/main/CODE-SIGNING-POLICY.md
+
+Privacy information: https://github.com/Diamondaidan/Harbor-Browser/blob/main/PRIVACY.md
+
+## Questions to resolve with the provider
+
+1. Harbor has prior local releases but the public repository is new. Installers are currently draft-only at the owner's request. Does this satisfy the already-released and reputation requirements, or what evidence is needed?
+2. Does the WebView2 SDK/runtime and .NET prerequisite distribution qualify under the system-library exception? Original Microsoft licenses and signatures are preserved.
+3. Can the approved configuration sign Harbor EXEs before packaging and then sign an Inno Setup installer containing those signed EXEs, without signing upstream files?
+4. What exact product/version metadata restrictions, trusted-build policies, signing roles and manual approvals should be configured?
+
+## Owner-only completion
+
+Apply at https://signpath.org/apply after reviewing https://signpath.org/terms. Enter personal contact information and accept any agreement yourself. Do not put identity documents, passwords, API tokens or private keys in this file or GitHub issues.
+
+Confirm GitHub/signing-service MFA. If accepted, configure the provider's GitHub integration and credentials with the minimum required access, update the public policy with the approved attribution, and validate signed builds on a clean Windows system before publication.

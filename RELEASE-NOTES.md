@@ -1,16 +1,14 @@
-# Harbor Browser 0.5.7
+# Harbor Browser 0.6.0 release notes
 
-Regular Harbor release, promoted from the separately tested Proton candidate.
+- Check for updates from the Help menu; updates and backup recovery are also available under Tools.
+- Read release notes, download a verified update and explicitly choose when to close Harbor and open setup. There are no automatic startup checks or silent installations.
+- Update records use Harbor's embedded release public key. Expired, altered, foreign, inconsistent or older release records are refused. Installer size and SHA-256 must match the signed record.
+- Interrupted transfers can resume with matching strong server validators and exact byte ranges. Changed or ignored ranges restart safely or are refused; failed verification never opens the installer.
+- The update helper rechecks the signed record and installer, holds the package against modification, waits for Harbor to exit, then snapshots compatible profile data before opening setup. Windows approval and restart remain user choices.
+- A compatible previous version can be offered only when explicitly approved in the current signed record. Profile format remains 9, shared with 0.5.7. Bookmarks/settings and other Harbor data files are snapshotted; account databases remain in place and are not copied.
+- Update checks/downloads use the Windows connection and pause while Proton or Tor is enabled. Enabling a browser connection cancels pending update traffic.
+- Prepared GitHub Releases hosting for Diamondaidan/Harbor-Browser and Windows code-signing tools. Windows signing remains pending a certificate. Unsigned installers are identified clearly.
 
-- Removes beta wording from Harbor's interface and optional Proton browser controls.
-- Uses the established Harbor installation, Windows browser registration, link forwarding and per-user profile. Earlier beta profiles remain separate; account databases are never copied.
-- Retains Proton sign-in, popup handoff, request-failure, route-monitoring and browser recovery corrections. Proton is optional and off by default in profiles that have never enabled it.
-- Retains explicit recovery: reconnect, wait for Protected, then reload paused pages. Forms and downloads are not replayed automatically.
-- Recognizes upgrades from the exact archived 0.5.3 executable and stable-channel installations. Setup refuses a busy profile or unrelated destination, snapshots Harbor data files, and retains profiles on uninstall.
-- Includes Microsoft-signed offline .NET Framework 4.8 and WebView2 x64 packages. Setup skips usable installed prerequisites and never forces a restart.
+The application retains the established Harbor installation/profile and browser registration. Proton behavior and its limited supported-browser-request scope remain as in 0.5.7; this release does not add system-wide VPN, DNS or anonymity guarantees.
 
-Package target: x64 Windows 10 build 19041 or later / Windows 11, .NET Framework 4.8 or later, WebView2 157 or later. This PC runs Windows 10 build 19045. Harbor's installer is unsigned.
-
-Proton applies to supported Harbor browser requests. Other applications keep their existing connection. Private tabs cannot be used while this connection is enabled. Local/account traffic may bypass the provider as required for operation. A verified route is not a guarantee of anonymity, every protocol or DNS leak prevention. Harbor is independent and does not claim a Proton partnership.
-
-Executed checks and remaining platform limits are recorded in RELEASE-VERIFICATION.md, INSTALLER-VERIFICATION.md and LIVE-VERIFICATION.md. Removing the beta label does not change those limits.
+This build targets x64 Windows 10 build 19041+ / Windows 11 with .NET Framework 4.8+ and WebView2 157+. Actual live hosting, a real newer-release self-update/rollback, genuine missing-prerequisite setup, clean spare-PC installation, network interruption and Windows sleep/reboot remain manual validation items.

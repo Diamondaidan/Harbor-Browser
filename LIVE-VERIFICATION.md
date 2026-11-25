@@ -1,13 +1,9 @@
-# Harbor 0.5.7 live validation
+# Harbor 0.6.0 runtime validation scope
 
-Build-time record, November 16, 2026. Verified candidate app SHA-256: 11618CD58F707AFABAFD985AE785485C2BEF5EB5F49B39ACB4CC9556A4E345E6. Regular release app SHA-256: 349A49B8B835C9F6BE206312EE19BDDF859EEDFB1360FDEAB7373C9ACB4A122B.
+The final build passed the complete owned-profile regression suite, including actual WebView2 browsing/download/recovery/Proton tests and native updater routing-gate checks. Updater fixtures used ephemeral synthetic signing keys, local HTTP, synthetic profile data and harmless native parent/setup programs. Real installer bytes and the production release public key receive a separate non-executing signed-record roundtrip check after packaging.
 
-Executed on the separate candidate: user completed actual Proton sign-in/connect; Harbor's Protected state was observed. Two completed route runs (initial and after an actual graceful process restart) each passed IPv4 and IPv6 in the page, worker and service-worker contexts: all six differed from their corresponding direct control. Both runs observed zero local STUN UDP packets and a successful functional secure WebSocket echo. Each also deliberately requested an unreachable reserved hostname before subsequent requests, with the parent page remaining usable and Protected.
+The installed user browser remains the preserved 0.5.7 release. No 0.6.0 app was launched against that signed-in production profile. Earlier 0.5.7 live connection/disconnect/restart observations remain historical and do not establish an actual 0.6.0 installed sign-in or a live GitHub update.
 
-After restart, sign-in remained available; the user clicked Connect without signing in again. The restored test page stayed paused until explicit Reload, after which all route checks passed. No forms or downloads were replayed. Results contain booleans/status/timing, never saved public addresses or authentication data.
+Remaining: owner publication of GitHub assets; actual GitHub-hosted download/resume; real newer-version self-update and previous-version rollback; actual Windows setup/UAC from the updater; live 0.6.0 Proton account/routing checks; clean/offline spare-PC install and real missing dependencies/restart; Wi-Fi interruption, sleep/reboot and broader Windows 11/hardware checks. Windows code signing remains pending a certificate. Current IPv6 behavior on the installed 0.5.7 Proton connection was unavailable/inconclusive.
 
-The regular release changes identity, profile selection, interface text and installer channel; its complete native suites passed independently. These candidate results do not claim an observed connection against the existing production profile.
-
-Pending at packaging: intentional live disconnect/reconnect, real network interruption, sleep/wake/reboot, final installed-release smoke check, clean/offline spare-PC installation, genuine missing dependencies/restart and actual Windows default-browser choice. Separate updated observations may be recorded beside this immutable package after installation.
-
-Scope: request-level route comparison, limited local WebRTC observation and functional WebSocket echo. This is not a packet-level DNS/protocol/background-traffic audit or a system-wide kill switch certification.
+Native fixture success is not a complete privacy/security audit or certification of every Windows PC. This build preserves the documented limited browser connection scope.

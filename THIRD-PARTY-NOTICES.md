@@ -1,4 +1,4 @@
-# Harbor 0.5.6 Proton Beta — third-party notices
+# Harbor Browser — third-party notices
 
 Harbor is an independent application. Inclusion of third-party code or names does not imply provider endorsement or grant trademark rights.
 
@@ -22,6 +22,10 @@ The six Sentry packages (browser-utils, browser, core, feedback, replay-canvas a
 
 The exact NuGet package `LICENSE.txt` and `NOTICE.txt` are preserved under `WebView2`. These notices apply to the redistributed SDK assemblies and loader. The separately installed WebView2 Runtime has its own terms and installation requirements.
 
+## Tor reference/runtime assets
+
+The source tree retains the unmodified Tor 0.4.9.16 runtime, geographic data and original component notices from an earlier optional integration, plus its matching source archive. See `ThirdParty/TOR-PROVENANCE.md` and `HarborBrowser/Assets/BrowserVpn/TorRuntime/docs`. These are upstream components, not Harbor-authored files. They must not be signed as Harbor-owned executables.
+
 ## Distribution scope
 
-This private beta is unsigned, portable and off by default. It contains neither Tor binaries nor dependency installers. No license or partnership for Harbor itself is invented by these notices. Public distribution requires the owner's remaining review in `DISTRIBUTION-REVIEW.md` in the source package.
+Harbor-authored work is GPL-3.0-only; see `LICENSE` and `LICENSE-NOTICE.md`. This does not replace the licenses above. The original 0.6.0 installer packages contain Microsoft-signed offline prerequisites and the Proton provider. They remain unsigned draft releases until Windows release signing is ready. See `CODE-SIGNING-POLICY.md` and `PRIVACY.md`. Older trial and distribution reports describe historical packages, not the present publication status.
