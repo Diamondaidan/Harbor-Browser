@@ -3,7 +3,7 @@ param()
 $ErrorActionPreference='Stop'
 $root=$PSScriptRoot
 $app=Get-Item -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\HarborBrowser.exe')
-$suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061')
+$suites=@('regression','full','suggestions','recovery','proton','auth-handoff','proton-pending','proton-hotfix2','proton-beta','proton-fallback','proton-guard-handoff','proton-r4','release057','updates','updates-ui','environment061','ui061','proton-off061')
 $results=@()
 foreach($suite in $suites){
  $path=Join-Path $root ($suite+'-release061.log')

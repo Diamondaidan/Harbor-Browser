@@ -195,12 +195,12 @@ internal static partial class Program
                 // The intent file must remain on and the host gate must stay closed.
                 bool removeFailed = false;
                 using (var intentLock = File.Open(Path.Combine(store.RootFolder, "proton-preview.txt"), FileMode.Open, FileAccess.Read, FileShare.None))
-                { try { await main.ChangeProtonPreview(false); } catch (IOException) { removeFailed = true; } }
+                { try { await main.RemoveProtonPreview(); } catch (IOException) { removeFailed = true; } }
                 Check("failed explicit removal does not silently open the regular route", removeFailed && main.ProtonProtection.Enabled && main.ProtonProtection.State != ProtonProtectionPhase.Off);
                 Check("failed removal still blocks ordinary destinations", main.ProtonProtection.ShouldBlock(server.Url("remove-failed"), false));
                 bool guardOffFailed=false;
                 using(var guardIntentLock=File.Open(Path.Combine(store.RootFolder,"browser-protection.txt"),FileMode.Open,FileAccess.Read,FileShare.None))
-                {try{await main.ChangeProtonPreview(false);}catch(IOException){guardOffFailed=true;}}
+                {try{await main.RemoveProtonPreview();}catch(IOException){guardOffFailed=true;}}
                 Check("failed fallback-off persistence leaves the host armed after provider removal",guardOffFailed&&main.ProtonProtection.Enabled&&!((ProtonPreviewService)Field(main,"_protonPreview")).Enabled);
                 await FallbackSocket(core,server,"failed-guard-off");
                 Check("failed fallback-off persistence restores native WebSocket blocking",server.Count("failed-guard-off/websocket")==0);

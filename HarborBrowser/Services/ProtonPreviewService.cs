@@ -23,15 +23,18 @@ namespace HarborBrowser.Services
         private readonly SemaphoreSlim _gate = new SemaphoreSlim(1);
         private readonly CancellationTokenSource _lifetime = new CancellationTokenSource();
         private CancellationTokenSource _operation;
+        private Task<CoreWebView2BrowserExtension> _pendingRegistration;
         private volatile bool _enabled, _desiredEnabled, _disposed, _explicitRemoval;
         private int _intent;
 
         public string PackageFolder { get; }
         public bool Enabled { get { return _enabled; } }
+        public bool HasSavedRegistration { get { return File.Exists(_registration); } }
         public string LastError { get; private set; }
         public string Status { get; private set; } = "Off · regular browser connection";
         public event EventHandler StatusChanged;
         internal TimeSpan OperationTimeout = TimeSpan.FromSeconds(30);
+        internal Func<CoreWebView2Profile, string, Task<CoreWebView2BrowserExtension>> ExtensionAdder;
 
         public ProtonPreviewService(string profile, string packageFolder = null)
         {
@@ -109,6 +112,8 @@ namespace HarborBrowser.Services
                 try
                 {
                     RequireCurrent(intent, operation.Token); ValidatePackage();
+                    await FinishPendingRegistration(operation.Token);
+                    RequireCurrent(intent, operation.Token);
                     var extensions = await Deadline(profile.GetBrowserExtensionsAsync(), operation.Token);
                     var extension = extensions.FirstOrDefault(e => e.Id == ExtensionId);
                     // Reuse a current registration instead of repeatedly reinstalling
@@ -117,20 +122,23 @@ namespace HarborBrowser.Services
                     bool registeredHere = File.Exists(_registration) && string.Equals(File.ReadAllText(_registration).Trim(), packagePath, StringComparison.OrdinalIgnoreCase);
                     if (extension == null || !registeredHere)
                     {
-                        var adding = profile.AddBrowserExtensionAsync(packagePath);
+                        var adding = ExtensionAdder == null ? profile.AddBrowserExtensionAsync(packagePath) : ExtensionAdder(profile, packagePath);
+                        _pendingRegistration = adding;
                         try { extension = await Deadline(adding, operation.Token); }
-                        catch { _ = RemoveLateRegistration(adding); throw; }
+                        catch { _ = ReconcileLateRegistration(adding); throw; }
                     }
                     RequireCurrent(intent, operation.Token);
                     if (extension.Id != ExtensionId)
                     {
                         await Bounded(extension.EnableAsync(false), CancellationToken.None);
                         await Bounded(extension.RemoveAsync(), CancellationToken.None);
+                        _pendingRegistration = null;
                         throw new InvalidDataException("The native Proton extension identity could not be verified.");
                     }
                     if (!extension.IsEnabled) await Bounded(extension.EnableAsync(true), operation.Token);
                     RequireCurrent(intent, operation.Token);
                     File.WriteAllText(_registration, packagePath);
+                    _pendingRegistration = null;
                     LastError = null;
                     SetStatus("Proton integration enabled · sign in and connect in Proton's controls; route not yet verified");
                 }
@@ -139,12 +147,47 @@ namespace HarborBrowser.Services
                     if (Current(intent))
                     {
                         LastError = Friendly(ex);
-                        SetStatus("Proton controls need attention. " + LastError + " Turn off and remove remains available.");
+                        SetStatus("Proton controls need attention. " + LastError + " Turn off protection or remove/reset Proton.");
                     }
                     throw;
                 }
                 finally { if (ReferenceEquals(_operation, operation)) _operation = null; _gate.Release(); }
             }
+        }
+
+        public async Task Disable(CoreWebView2Profile profile)
+        {
+            if (profile == null) throw new ArgumentNullException(nameof(profile));
+            int intent = Interlocked.Increment(ref _intent);
+            _explicitRemoval = false; _desiredEnabled = false;
+            CancelOperation();
+            SetStatus("Turning off protection and keeping Proton's saved sign-in…");
+            await _gate.WaitAsync();
+            try
+            {
+                if (intent != Volatile.Read(ref _intent) || _desiredEnabled)
+                    throw new OperationCanceledException("The Proton change was superseded.");
+                await FinishPendingRegistration(CancellationToken.None);
+                var extension = (await Deadline(profile.GetBrowserExtensionsAsync(), CancellationToken.None)).FirstOrDefault(e => e.Id == ExtensionId);
+                // Disable is persisted by WebView2. Never uninstall or clear
+                // provider storage for the ordinary off/on action.
+                if (extension != null) await Bounded(extension.EnableAsync(false), CancellationToken.None);
+                if (intent != Volatile.Read(ref _intent) || _desiredEnabled)
+                    throw new OperationCanceledException("The Proton change was superseded.");
+                File.WriteAllText(_setting, "off");
+                _enabled = false; LastError = null;
+                SetStatus("Off · regular browser connection restored; Proton's saved sign-in is kept");
+            }
+            catch (Exception ex)
+            {
+                if (intent == Volatile.Read(ref _intent))
+                {
+                    LastError = Friendly(ex);
+                    SetStatus("Turning off protection did not finish. " + LastError + " Retry before ordinary browsing.");
+                }
+                throw;
+            }
+            finally { _gate.Release(); }
         }
 
         public async Task Remove(CoreWebView2Profile profile)
@@ -158,6 +201,7 @@ namespace HarborBrowser.Services
             try
             {
                 // Explicit reversal remains usable after interrupted setup/disposal.
+                await FinishPendingRegistration(CancellationToken.None);
                 var extension = (await Deadline(profile.GetBrowserExtensionsAsync(), CancellationToken.None)).FirstOrDefault(e => e.Id == ExtensionId);
                 if (extension != null)
                 {
@@ -179,6 +223,22 @@ namespace HarborBrowser.Services
                 throw;
             }
             finally { _gate.Release(); }
+        }
+
+        // The caller holds the gate. A timed-out/cancelled native add may still
+        // complete; don't restore the regular route until it is settled.
+        private async Task FinishPendingRegistration(CancellationToken cancellation)
+        {
+            var pending = _pendingRegistration;
+            if (pending == null) return;
+            try
+            {
+                var extension = await Deadline(pending, cancellation);
+                if (extension.Id != ExtensionId) throw new InvalidDataException("The pending Proton extension identity did not match.");
+                if (!_explicitRemoval) File.WriteAllText(_registration, Path.GetFullPath(PackageFolder));
+            }
+            catch (Exception) when (pending.IsFaulted || pending.IsCanceled) { }
+            finally { if (pending.IsCompleted && ReferenceEquals(_pendingRegistration, pending)) _pendingRegistration = null; }
         }
 
         private bool Current(int intent) { return !_disposed && _desiredEnabled && _enabled && intent == Volatile.Read(ref _intent); }
@@ -206,12 +266,20 @@ namespace HarborBrowser.Services
                 finally { deadline.Cancel(); }
             }
         }
-        private async Task RemoveLateRegistration(Task<CoreWebView2BrowserExtension> adding)
+        private async Task ReconcileLateRegistration(Task<CoreWebView2BrowserExtension> adding)
         {
             try
             {
                 var extension = await adding; await _gate.WaitAsync();
-                try { if (_explicitRemoval && !_desiredEnabled && extension.Id == ExtensionId) await Bounded(extension.RemoveAsync(), CancellationToken.None); }
+                try
+                {
+                    if (!_desiredEnabled && extension.Id == ExtensionId)
+                    {
+                        await Bounded(extension.EnableAsync(false), CancellationToken.None);
+                        if (_explicitRemoval) await Bounded(extension.RemoveAsync(), CancellationToken.None);
+                        else if (!_disposed) File.WriteAllText(_registration, Path.GetFullPath(PackageFolder));
+                    }
+                }
                 finally { _gate.Release(); }
             }
             catch { /* The profile may already have closed; no success is reported. */ }

@@ -30,7 +30,7 @@ if($LASTEXITCODE -ge 8){throw 'Portable staging failed.'}
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'RELEASE-NOTES.md') -Destination (Join-Path $stage 'READ-ME-FIRST.md')
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'RELEASE-VERIFICATION.md') -Destination $stage
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'RELEASE-VERIFICATION.json') -Destination $stage
-foreach($report in @('SETUP-README.md','LIVE-VERIFICATION.md','UI-0.6.1-VERIFICATION.md','UPDATING.md','INSTALLER-VERIFICATION.md','LICENSE','LICENSE-NOTICE.md','PRIVACY.md','CODE-SIGNING-POLICY.md','WINDOWS-SIGNING-OPTIONS.md')){
+foreach($report in @('SETUP-README.md','LIVE-VERIFICATION.md','UI-0.6.1-VERIFICATION.md','PROTON-OFF-0.6.1-VERIFICATION.md','UPDATING.md','INSTALLER-VERIFICATION.md','LICENSE','LICENSE-NOTICE.md','PRIVACY.md','CODE-SIGNING-POLICY.md','WINDOWS-SIGNING-OPTIONS.md')){
   if(Test-Path -LiteralPath (Join-Path $releaseRoot $report)){Copy-Item -LiteralPath (Join-Path $releaseRoot $report) -Destination $stage}
 }
 $licensing=Join-Path $stage 'Licensing'

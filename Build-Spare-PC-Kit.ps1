@@ -17,7 +17,7 @@ Get-ChildItem -LiteralPath (Join-Path $root 'Spare-PC-Tools') -File | Copy-Item 
 Copy-Item -LiteralPath $artifact.Installer -Destination $kit
 Copy-Item -LiteralPath (Join-Path $root ('dist\HarborBrowser-0.6.1-'+$artifact.Candidate+'-portable.zip')) -Destination $kit
 Copy-Item -LiteralPath (Join-Path $root 'SETUP-README.md'),(Join-Path $root 'RELEASE-VERIFICATION.md'),(Join-Path $root 'INSTALLER-VERIFICATION.md'),(Join-Path $root 'LIVE-VERIFICATION.md'),(Join-Path $root 'INSTALLER-ARTIFACT.json') -Destination $kit
-foreach($report in @('LOCAL-PACKAGE-VERIFICATION.md','PACKAGED-PAYLOAD-VERIFICATION.json','UI-0.6.1-VERIFICATION.md')){if(Test-Path -LiteralPath (Join-Path $root $report)){Copy-Item -LiteralPath (Join-Path $root $report) -Destination $kit}}
+foreach($report in @('LOCAL-PACKAGE-VERIFICATION.md','PACKAGED-PAYLOAD-VERIFICATION.json','UI-0.6.1-VERIFICATION.md','PROTON-OFF-0.6.1-VERIFICATION.md')){if(Test-Path -LiteralPath (Join-Path $root $report)){Copy-Item -LiteralPath (Join-Path $root $report) -Destination $kit}}
 if($SourceArchive){
  $sourceZip=[IO.Path]::GetFullPath($SourceArchive)
  if(!(Test-Path -LiteralPath $sourceZip -PathType Leaf)){throw 'Source archive was not found.'}

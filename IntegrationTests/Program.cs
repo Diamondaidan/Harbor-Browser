@@ -58,6 +58,8 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--proton-off061")
+                {await ProtonOff061Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Proton off/on data retention and reset checks. Synthetic canaries only; no account login.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--ui061")
                 {await Ui061Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" themed captions, trailing new-tab button and compact VPN checks. Owned profiles only.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--environment061")

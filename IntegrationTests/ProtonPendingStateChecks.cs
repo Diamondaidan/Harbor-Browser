@@ -110,7 +110,7 @@ internal static partial class Program
             try{second?.Close();}catch{}
             popup?.Close();
             if(newTab!=null){CloseTab(main,newTab);main.BrowserTabs.SelectedItem=original.Item;}
-            if(service.Enabled)await main.ChangeProtonPreview(false);
+            await main.RemoveProtonPreview();
         }
         Check("pending-state diagnostic removes its own provider registration",!service.Enabled&&!(await mainCore.Profile.GetBrowserExtensionsAsync()).Any(e=>e.Id==ProtonPreviewService.ExtensionId));
         Check("pending-state diagnostic preserves unrelated native extensions",(await mainCore.Profile.GetBrowserExtensionsAsync()).All(e=>registrations.ContainsKey(e.Id)&&registrations[e.Id]==e.IsEnabled));
