@@ -45,6 +45,8 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--privacy-edge")
+                {await PrivacyEdgeChecks(main,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" focused privacy edge checks.");exit=0;return;}
                 core.SetVirtualHostNameToFolderMapping("media.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
                 core.SetVirtualHostNameToFolderMapping("media-frame.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
                 var loaded=new TaskCompletionSource<bool>();
@@ -149,7 +151,9 @@ internal static partial class Program
                 using(var file=File.Create(Path.Combine(args[0],"compact-header.png")))encoder.Save(file);
                 await EverydayChecks(main,tab,store,core,args[0],args[1]);
                 await CustomizationChecks(main,store,args[0]);
+                await PerformanceChecks(main,args[0],args[1]);
                 await PrivacyChecks(main,store,args[0],args[1]);
+                await PrivacyEdgeChecks(main,args[0],args[1]);
                 Console.WriteLine("ALL PASSED: "+checks+" isolated app/media integration checks.");
                 exit=0;
             }

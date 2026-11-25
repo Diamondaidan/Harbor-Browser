@@ -20,6 +20,7 @@ namespace HarborBrowser
             string script=VideoScriptService.Create(Guid.NewGuid().ToString("N"));
             await core.AddScriptToExecuteOnDocumentCreatedAsync(script);
             core.FrameCreated+=(s,e)=>TrackMediaFrame(tab,e.Frame);
+            core.IsDocumentPlayingAudioChanged+=(s,e)=>{if(!tab.IsClosing&&ReferenceEquals(tab.View.CoreWebView2,core)){tab.SleepReason=null;tab.RetrySleepAfterUtc=default(DateTime);StartTabSuspendTimer(tab);}};
             core.ContainsFullScreenElementChanged+=(s,e)=>{
                 if(SelectedTab==tab&&_presentation!=null&&tab.VideoPopout==null)
                     _presentation.SetVideoFullScreen(core.ContainsFullScreenElement);

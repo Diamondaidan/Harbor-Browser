@@ -1,13 +1,14 @@
 MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\Tests\HarborRegressionTests.csproj]
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\Tests\HarborRegressionTests.csproj]
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
   All projects are up-to-date for restore.
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\Tests\bin\Release\net48\HarborRegressionTests.exe
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\HarborBrowser_bnmzqqhd_wpftmp.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\Tests\bin\Release\net48\HarborRegressionTests.exe
 PASS header wins
 PASS UTF-8 filename
 PASS RFC 5987 language
@@ -279,6 +280,18 @@ PASS recovery dismissal persists
 PASS clean exit does not offer a crash recovery
 PASS corrupt run journal conservatively preserves recovery
 PASS session corruption falls back to atomic backup
+PASS sleep schedule uses original inactivity start
+PASS sleep schedule is due after inactivity delay
+PASS sleep retry does not create a busy loop
+PASS sleep delay respects supported lower bound
+PASS sleep delay respects supported upper bound
+PASS first CPU observation is sampling
+PASS CPU sample normalizes total machine capacity
+PASS PID reuse starts a fresh CPU sample
+PASS CPU counter rollback resets observation
+PASS non-increasing clock does not divide by zero
+PASS departed processes do not retain stale CPU samples
+PASS CPU output is bounded
 PASS 1320 borderless
 PASS 1320 resize border
 PASS 1320 Beacon header logo loaded
@@ -318,5 +331,5 @@ PASS 1320 cog moved below caption
 PASS 1320 cog in address row
 PASS 1320 address still usable
 PASS 1320 caption buttons clickable
-ALL PASSED: 310 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
-Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\Tests\TestResults\20261112-225234
+ALL PASSED: 322 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
+Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\Tests\TestResults\20261113-094531

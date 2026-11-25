@@ -65,7 +65,7 @@ namespace HarborBrowser
                 _browserGeneration++;_pendingBrowserExit=_environmentExited==null?Task.CompletedTask:_environmentExited.Task;
                 foreach(var item in BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).Where(t=>t!=null&&t.NativeContent==null))
                 {
-                    CancelPermissions(item);item.PendingUrl=SafeTabUrl(item)??_settings.HomePage;item.NeedsNewView=true;item.Initialized=false;item.FailureMessage="The browser engine stopped. Your tab is saved.";
+                    CancelPermissions(item);item.PendingUrl=SafeTabUrl(item)??_settings.HomePage;item.NeedsNewView=true;item.Initialized=false;item.IsSuspended=false;item.SleepReason=null;item.FailureMessage="The browser engine stopped. Your tab is saved.";UpdateTabHeader(item);
                 }
                 foreach(var download in _downloads.Where(d=>d.IsActive||d.CanResume)){download.Operation=null;download.IsActive=false;download.CanResume=false;download.Status="Interrupted: browser engine stopped";}
                 foreach(var retained in _retainedDownloadTabs.ToList())try{retained.View.Dispose();}catch{}
@@ -89,7 +89,7 @@ namespace HarborBrowser
                 tab.FailureMessage=null;
                 if(tab.NeedsNewView)
                 {
-                    try{tab.View.Dispose();}catch{}tab.View=new WebView2();ConfigurePrivateView(tab);tab.Initialized=false;tab.Initializing=false;tab.IsSuspended=false;tab.MediaFrames.Clear();tab.ActiveVideoContext=null;tab.TrackerFilterRegistered=false;tab.NeedsNewView=false;
+                    try{tab.View.Dispose();}catch{}tab.View=new WebView2();ConfigurePrivateView(tab);tab.Initialized=false;tab.Initializing=false;tab.IsSuspended=false;tab.SuspensionInProgress=false;tab.SleepReason=null;tab.MediaFrames.Clear();tab.ActiveVideoContext=null;tab.TrackerFilterRegistered=false;tab.NeedsNewView=false;
                     if(SelectedTab==tab)ShowTabContent();await EnsureTabInitializedAsync(tab);
                 }
                 else

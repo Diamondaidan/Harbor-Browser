@@ -1,0 +1,10 @@
+version,scene,tabs,trial,phase,sleeping,processes,app_working_mb,app_private_mb,web_working_mb,web_private_mb,cpu_percent,protected_awake,download_bytes
+0.4.1.0,idle,5,1,Awake,0,10,115.277,90.949,602.457,316.078,1.852,True,0
+0.4.1.0,idle,5,1,Awake,0,10,115.445,90.961,604.918,316.840,3.457,True,0
+0.4.1.0,idle,5,1,Awake,0,10,106.535,81.883,606.980,317.422,1.666,True,0
+0.4.1.0,idle,5,1,Sleeping,4,10,107.105,82.520,599.266,306.723,0.741,True,0
+0.4.1.0,idle,5,1,Sleeping,4,10,106.258,81.652,594.289,301.727,1.093,True,0
+0.4.1.0,idle,5,1,Sleeping,4,10,104.863,80.352,593.734,300.918,1.471,True,0
+0.4.1.0,idle,5,1,Woken,0,10,104.484,79.871,594.133,301.258,1.476,True,0
+0.4.1.0,idle,5,1,Woken,0,10,104.910,80.402,595.102,302.258,2.018,True,0
+0.4.1.0,idle,5,1,Woken,0,10,104.895,80.297,596.039,303.023,1.844,True,0

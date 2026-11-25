@@ -115,7 +115,7 @@
                 <ComboBoxItem Content="10 minutes" Tag="600" />
               </ComboBox>
             </Grid>
-            <TextBlock Text="Sleeping tabs pause page scripts and animations to reduce background CPU and memory use. They wake automatically when selected. Some pages with active work may decline suspension. Downloads and open tabs are retained." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,8" />
+            <TextBlock Text="Sleeping tabs pause page scripts and animations and wake when selected. Playing media, picture in picture and active or paused downloads stay awake. Use the Resource Monitor or a tab's menu to keep a tab awake for this session. Some pages may decline sleep." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,8" />
             <TextBlock Text="New tabs are already lazy-loaded: the browser engine starts only when you first open a tab." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,2" />
           </StackPanel>
         </GroupBox>

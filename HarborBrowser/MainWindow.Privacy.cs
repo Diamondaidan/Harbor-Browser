@@ -27,6 +27,7 @@ namespace HarborBrowser
         private DispatcherTimer _permissionTimer;
         private bool _shuttingDown;
         internal Func<bool> ConfirmPrivateDownloadClose;
+        internal Func<bool> ConfirmPrivateDownload;
         internal string TestBrowserArguments;
         private int _browserGeneration;
         private TaskCompletionSource<bool> _environmentExited;
@@ -39,6 +40,7 @@ namespace HarborBrowser
         private void InitializePrivacy()
         {
             _normalPermissions=new SitePermissionService(_store.LoadPermissions());
+            ConfirmPrivateDownload=()=>MessageBox.Show(this,"Private browsing does not hide downloaded files from this computer. Continue downloading?","Private download",MessageBoxButton.YesNo,MessageBoxImage.Information)==MessageBoxResult.Yes;
             ConfirmPrivateDownloadClose=()=>MessageBox.Show(this,"Closing the last private tab cancels unfinished private downloads. Close and cancel them?","Private downloads",MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes;
         }
         private void ConfigurePrivateView(BrowserTab tab)

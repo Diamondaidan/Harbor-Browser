@@ -1,3 +1,14 @@
+## 0.4.1
+
+- Track inactivity independently per tab instead of restarting every sleep timer on unrelated tab activity.
+- Protect active pages, audible/detected playing media, picture in picture, pending permission requests, and active or paused/resumable downloads from sleep.
+- Recheck selection, navigation and view identity after asynchronous checks; avoid overlapping suspend attempts and retry busy pages with backoff.
+- Reset sleep state/timing after background navigation and preserve in-page state on wake.
+- Add moon/dimming indicators and a per-tab Keep awake choice for the current session.
+- Add a Resource Monitor Tabs view with status/reasons, switch/sleep/wake/Keep awake actions, stable selection/scrolling during refresh and a compact layout for short windows.
+- Add CPU samples for WebView2 processes, monotonic timing, PID-reuse handling and cleanup of stale samples.
+- Add repeatable local benchmarks and tests for muted cross-origin playback, real downloads, private transfer cancellation, permission timeout/navigation, and clear-on-exit across reopening a test app.
+- Correct release metadata to state schema 7. The profile schema and installer identity stay unchanged from 0.4.0.
 ## 0.4.0
 
 - Add a site-permission banner with one-time and remembered Allow/Block choices, exact requesting/embedding-site scopes and cancellation on navigation, tab changes, closing and timeout.

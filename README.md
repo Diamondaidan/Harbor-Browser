@@ -1,6 +1,18 @@
-# Harbor Browser 0.4.0
+# Harbor Browser 0.4.1
 
-## New in 0.4.0: privacy and recovery
+## Performance and resource monitor
+
+Open Cog > Tools > Resource monitor. The Tabs view shows each tab's sleep state and the reason it stays awake. Select a row to switch to that tab, sleep it, wake it, or keep it awake for this session. The Processes view shows Harbor/WebView2 working set, private memory and CPU samples. Row selection and scroll position survive refreshes.
+
+Sleeping tabs show a moon and dimmed title. Selecting a sleeping tab wakes it without reloading the page. Keep awake is a temporary tab choice; it is not restored after closing the tab or restarting Harbor.
+
+Automatic sleep remains controlled by Settings > Performance and memory. The delay now follows each tab's own inactivity time: activity in another tab does not restart it. Active pages, audible media, detected playing HTML video/audio (including muted video and tracked frames), picture in picture, pending permission requests and active or resumable downloads are protected. A busy or unreadable media context conservatively keeps its tab awake. Pages may also decline sleep through WebView2.
+
+The monitor only reads native state while a page sleeps; it does not run scripts just to refresh the table. Waking a background tab restarts its inactivity delay. New/background tabs still load lazily.
+
+PerformanceTests contains a repeatable local workload for 5, 10 and 20 tabs, wake/sleep measurements, playback/download scenarios, and an optional 0.4.0 comparison for the timer-reset problem. See PERFORMANCE.md for measured results and limits; results vary by hardware, runtime and website. This release does not discard tabs or promise a fixed RAM reduction.
+
+## Privacy and recovery (introduced in 0.4.0)
 
 Open Cog > Tools > Site permissions to review, allow, block or reset camera, microphone, location and notification access. Each remembered choice belongs to both the requesting site and the page embedding it. Applying changes reloads matching open pages so previously granted access stops.
 
@@ -52,9 +64,9 @@ Requests are delayed briefly while typing, cancelled when superseded, and stale 
 
 ## Install and data
 
-Close Harbor and run dist/HarborBrowserSetup-0.4.0.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
+Close Harbor and run dist/HarborBrowserSetup-0.4.1.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
 
-Profile schema advances from 6 to 7 for permission rules and recovery metadata. Harbor snapshots the existing profile before migration. Earlier builds protect newer-schema data by disabling saves.
+Profile schema stays at 7, unchanged from 0.4.0. Older profiles are migrated with a snapshot before changes. Harbor snapshots the existing profile before migration. Earlier builds protect newer-schema data by disabling saves.
 
 No installation or upgrade was performed during verification. The installed browser and personal profile were not modified.
 

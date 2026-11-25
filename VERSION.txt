@@ -1,5 +1,5 @@
-Harbor Browser 0.4.0
+Harbor Browser 0.4.1
 Installer upgrade target: Existing Harbor Browser installations sharing AppId {8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}
 Installer AppId: {8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}
 Profile location: %LOCALAPPDATA%\HarborBrowser
-Profile schema: 5 (unchanged)
+Profile schema: 7 (unchanged from 0.4.0)

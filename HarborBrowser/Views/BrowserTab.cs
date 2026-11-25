@@ -30,6 +30,12 @@ namespace HarborBrowser.Views
         public bool Initialized { get; set; }
         public bool Initializing { get; set; }
         public bool IsSuspended { get; set; }
+        public Guid ResourceId {get;}=Guid.NewGuid();
+        public bool KeepAwake {get;set;}
+        public bool SuspensionInProgress {get;set;}
+        public DateTime? InactiveSinceUtc {get;set;}
+        public DateTime RetrySleepAfterUtc {get;set;}
+        public string SleepReason {get;set;}
         public bool IsClosing { get; set; }
         public bool IsPrivate { get; set; }
         public string PrivateSessionId {get;set;}

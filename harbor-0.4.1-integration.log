@@ -1,11 +1,11 @@
 MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\IntegrationTests\HarborIntegrationTests.csproj]
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\IntegrationTests\HarborIntegrationTests.csproj]
   All projects are up-to-date for restore.
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborIntegrationTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\IntegrationTests\bin\Release\net48\HarborIntegrationTests.exe
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborIntegrationTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\IntegrationTests\bin\Release\net48\HarborIntegrationTests.exe
 PASS cross-origin iframe video discovered
 PASS group bar absent
 PASS caption and tabs share same row
@@ -157,10 +157,10 @@ PASS short Downloads page scrolls all content
 PASS download controls reachable on small screen
 INFO before resume: Interrupted UserPaused CanResume=True
 PASS download resume button enabled
-INFO Range: bytes=622592-
-INFO fixture request: GET /archive HTTP/1.1; start=622592
-INFO after resume: InProgress ServerContentLengthMismatch CanResume=False UI=Downloading 30%
-INFO fixture sent 1475005 bytes
+INFO Range: bytes=589824-
+INFO fixture request: GET /archive HTTP/1.1; start=589824
+INFO after resume: InProgress ServerContentLengthMismatch CanResume=False UI=Downloading 28%
+INFO fixture sent 1507773 bytes
 PASS resumed transfer completes
 PASS resume retains one download row and original filename
 PASS resume reconnects after transfer connection closes
@@ -209,6 +209,35 @@ PASS Home Escape dismisses completion list
 PASS online toggle also prevents Home requests
 PASS private Home makes no online requests
 PASS private Home hides customization action
+PASS unrelated activity preserves inactivity deadline
+PASS inactive fixture actually suspends
+PASS sleeping tab has a visible moon and dimming
+PASS selecting wakes tab without losing in-page state
+PASS Keep awake prevents automatic and manual sleep
+PASS allow sleep removes the exception
+PASS background navigation resets sleeping state and restarts timer
+PASS overdue automatic sleep timer really suspends tab
+PASS switching active during sleep check keeps page awake
+PASS Light resource monitor shows sleeping tab status
+PASS Light monitor wake preserves selected page
+PASS Light monitor toggles Keep awake
+PASS Light refresh preserves row identity and selection
+PASS Light monitor sleeps the selected background tab
+PASS Light short monitor keeps controls reachable
+PASS Dark resource monitor shows sleeping tab status
+PASS Dark monitor wake preserves selected page
+PASS Dark monitor toggles Keep awake
+PASS Dark refresh preserves row identity and selection
+PASS Dark monitor sleeps the selected background tab
+PASS Dark short monitor keeps controls reachable
+PASS muted cross-origin video remains awake
+PASS protected background video is still playing
+INFO fixture request: GET /sleep-protection HTTP/1.1; start=0
+PASS actual active download protects its source tab
+PASS paused download also protects its source tab
+PASS resource monitor samples WebView2 process CPU
+INFO fixture connection closed: Unable to write data to the transport connection: An established connection was aborted by the software in your host machine.
+PASS disabling automatic sleep wakes existing sleepers
 PASS camera request uses Harbor permission banner
 PASS Block once denies camera without saving a rule
 PASS remembered microphone block persists in normal profile
@@ -256,8 +285,24 @@ PASS actual renderer crash shows a recoverable page
 PASS renderer reload restores original tab and URL
 PASS address navigation also recovers a failed renderer
 PASS actual browser-engine crash preserves normal tabs for recovery
+PASS resource monitor distinguishes failed tabs from sleeping tabs
 PASS engine recovery replaces broken control
 PASS browser engine can navigate after recreation
 PASS resource report works after engine recovery
-ALL PASSED: 242 isolated app/media integration checks.
-Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.0\IntegrationTests\TestResults\20261112-225121
+PASS permission prompt timeout is configured for one minute
+PASS actual dispatcher timeout denies the pending request
+PASS navigation cancels pending permission and banner
+INFO fixture request: GET /private-cancel HTTP/1.1; start=0
+INFO fixture sent 2097597 bytes
+PASS real private paused download is scoped and resumable
+PASS declining last-private-tab close preserves real paused download
+PASS confirming close ends real private transfer and removes row
+INFO fixture request: GET /private-complete HTTP/1.1; start=0
+INFO fixture sent 2097597 bytes
+PASS private completion cleanup retains downloaded file
+PASS clear-on-exit fixture saves real site data
+PASS privacy exit waits for cleanup and marks journal clean 0
+PASS reopened app confirms exit cookies and DOM storage were cleared
+PASS privacy exit waits for cleanup and marks journal clean 1
+ALL PASSED: 281 isolated app/media integration checks.
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\IntegrationTests\TestResults\20261113-094636

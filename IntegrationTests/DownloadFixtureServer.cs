@@ -12,13 +12,16 @@ internal sealed class DownloadFixtureServer : IDisposable
 {
     private readonly TcpListener listener=new TcpListener(IPAddress.Loopback,0);
     private volatile bool stopped;
+    private readonly int chunkDelay;
     private readonly ConcurrentDictionary<TcpClient,byte> clients=new ConcurrentDictionary<TcpClient,byte>();
     public byte[] Payload {get;private set;}
     public string Url {get;private set;}
     public int RangeRequests;
     public int TransferRequests;
-    public DownloadFixtureServer()
+    public int OpenConnections {get{return clients.Count;}}
+    public DownloadFixtureServer(int chunkDelayMilliseconds=40)
     {
+        chunkDelay=Math.Max(1,chunkDelayMilliseconds);
         using(var stream=new MemoryStream())
         {
             using(var zip=new ZipArchive(stream,ZipArchiveMode.Create,true))
@@ -58,7 +61,7 @@ internal sealed class DownloadFixtureServer : IDisposable
                 if(ranged)header+="Content-Range: bytes "+start+"-"+end+"/"+Payload.Length+"\r\n";
                 var encoded=Encoding.ASCII.GetBytes(header+"\r\n");await stream.WriteAsync(encoded,0,encoded.Length).ConfigureAwait(false);
                 for(int offset=(int)start;offset<=end&&!stopped;offset+=32768)
-                {await stream.WriteAsync(Payload,offset,(int)Math.Min(32768,end-offset+1)).ConfigureAwait(false);await Task.Delay(40).ConfigureAwait(false);}
+                {await stream.WriteAsync(Payload,offset,(int)Math.Min(32768,end-offset+1)).ConfigureAwait(false);await Task.Delay(chunkDelay).ConfigureAwait(false);}
                 Console.WriteLine("INFO fixture sent "+(end-start+1)+" bytes");
             }
         }

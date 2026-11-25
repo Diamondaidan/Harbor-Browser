@@ -1,0 +1,49 @@
+MSBuild version 17.14.60+43b635718 for .NET Framework
+
+  Determining projects to restore...
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\PerformanceTests\HarborPerformanceTests.csproj]
+  Restored C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\PerformanceTests\HarborPerformanceTests.csproj (in 781 ms).
+  1 of 2 projects are up-to-date for restore.
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborPerformanceTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\PerformanceTests\bin\Release\net48\HarborIntegrationTests.exe
+PASS benchmark 0.4.1.0 idle tabs=5 trial=1 sleeping=4
+PASS benchmark 0.4.1.0 idle tabs=10 trial=1 sleeping=9
+PASS benchmark 0.4.1.0 idle tabs=20 trial=1 sleeping=19
+PASS benchmark 0.4.1.0 idle tabs=5 trial=2 sleeping=4
+PASS benchmark 0.4.1.0 idle tabs=10 trial=2 sleeping=9
+PASS benchmark 0.4.1.0 idle tabs=20 trial=2 sleeping=19
+PASS benchmark 0.4.0.0 automatic tabs=10 trial=1 sleeping=0
+PASS benchmark 0.4.1.0 automatic tabs=10 trial=1 sleeping=9
+PASS benchmark 0.4.0.0 automatic tabs=10 trial=2 sleeping=0
+PASS benchmark 0.4.1.0 automatic tabs=10 trial=2 sleeping=9
+PASS benchmark 0.4.1.0 video tabs=10 trial=1 sleeping=8
+INFO fixture request: GET /benchmark HTTP/1.1; start=0
+INFO fixture sent 2097597 bytes
+PASS benchmark 0.4.1.0 download tabs=10 trial=1 sleeping=8
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1\PerformanceTests\TestResults\20261113-093316
+
+Version Scene     Tabs Phase    Sleeping CpuPercent WebWorkingMB WebPrivateMB
+------- -----     ---- -----    -------- ---------- ------------ ------------
+0.4.0.0 automatic   10 Awake        0.00       2.97       978.31       560.24
+0.4.0.0 automatic   10 Sleeping     0.00       2.06       963.38       537.29
+0.4.0.0 automatic   10 Woken        0.00       2.10       961.89       533.59
+0.4.1.0 automatic   10 Awake        0.00       2.72       978.11       556.88
+0.4.1.0 automatic   10 Sleeping     9.00       2.11       958.19       522.85
+0.4.1.0 automatic   10 Woken        0.00       3.15       962.60       527.08
+0.4.1.0 download    10 Awake        0.00       2.10       990.83       570.77
+0.4.1.0 download    10 Sleeping     8.00       2.93       975.03       544.57
+0.4.1.0 download    10 Woken        0.00       3.21       971.31       538.45
+0.4.1.0 idle         5 Awake        0.00       1.89       612.07       332.76
+0.4.1.0 idle         5 Sleeping     4.00       1.59       600.85       314.70
+0.4.1.0 idle         5 Woken        0.00       1.57       598.39       312.18
+0.4.1.0 idle        10 Awake        0.00       2.55       984.06       558.98
+0.4.1.0 idle        10 Sleeping     9.00       3.19       964.12       527.48
+0.4.1.0 idle        10 Woken        0.00       2.74       963.92       526.07
+0.4.1.0 idle        20 Awake        0.00       4.15      1710.82       978.03
+0.4.1.0 idle        20 Sleeping    19.00       5.86      1681.22       927.23
+0.4.1.0 idle        20 Woken        0.00       4.89      1693.72       939.85
+0.4.1.0 video       10 Awake        0.00       3.16      1023.27       576.55
+0.4.1.0 video       10 Sleeping     8.00       2.99      1013.83       556.15
+0.4.1.0 video       10 Woken        0.00       2.63      1014.22       556.47
+

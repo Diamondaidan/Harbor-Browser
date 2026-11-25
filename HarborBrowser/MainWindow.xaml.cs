@@ -40,8 +40,8 @@ namespace HarborBrowser
         private bool _confirmedCloseWithActiveDownloads;
         private DispatcherTimer _downloadNotificationTimer;
         private long _blockedTrackerRequests;
-        private TimeSpan? _lastHarborCpuTime;
-        private DateTime? _lastHarborCpuSampleUtc;
+
+
 
 
         public MainWindow() : this(new BrowserDataStore(), null) { }
@@ -336,6 +336,7 @@ namespace HarborBrowser
             menu.Items.Add(group);
             menu.Items.Add(new Separator());
             AddContextItem(menu, "Move left (Ctrl+Shift+Page Up)", (s, e) => MoveTabRelative(tab, -1));
+            AddContextItem(menu, "Keep this tab awake / allow sleep", (s,e) => { SetTabKeepAwake(tab, !tab.KeepAwake); SetStatus(tab.KeepAwake ? "Tab kept awake for this session" : "Automatic sleep allowed"); });
             AddContextItem(menu, "Move right (Ctrl+Shift+Page Down)", (s, e) => MoveTabRelative(tab, 1));
             AddContextItem(menu, "Close tab", (s, e) => CloseTab(tab));
             AddContextItem(menu, "Close other tabs", (s, e) => CloseOtherTabs(tab));
@@ -442,6 +443,7 @@ namespace HarborBrowser
                 {
                     if (!current()) return;
                     tab.NavigationGeneration++;
+                    ResetTabSleepOnNavigation(tab);
                     bool wasFailed = tab.FailureMessage != null;
                     tab.FailureMessage = null;
                     if (wasFailed && SelectedTab == tab) ShowTabContent();
@@ -541,8 +543,7 @@ namespace HarborBrowser
             if (tab != null && tab.IsClosing) { e.Cancel = true; return; }
             if (tab != null && tab.IsPrivate)
             {
-                if (MessageBox.Show(this, "Private browsing does not hide downloaded files from this computer. Continue downloading?",
-                    "Private download", MessageBoxButton.YesNo, MessageBoxImage.Information) != MessageBoxResult.Yes)
+                if (!ConfirmPrivateDownload())
                 {
                     e.Cancel = true;
                     SetStatus("Private download cancelled");
@@ -830,7 +831,8 @@ namespace HarborBrowser
                 return;
 
             string title = string.IsNullOrWhiteSpace(tab.PageTitle) ? "New tab" : tab.PageTitle;
-            tab.HeaderText.Text = title;
+            tab.HeaderText.Text = (tab.IsSuspended ? "☾ " : "") + title;
+            tab.Item.Opacity = tab.IsSuspended ? 0.65 : 1.0;
             tab.HeaderText.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             tab.CloseButton.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             tab.Item.Width = tab.IsPinned ? 43 : double.NaN;
@@ -840,6 +842,7 @@ namespace HarborBrowser
             if (tab.IsPinned) description += " • Pinned";
             if (!string.IsNullOrWhiteSpace(tab.GroupName)) description += " • " + tab.GroupName;
             if (tab.IsSuspended) description += " • Sleeping";
+            if (tab.KeepAwake) description += " • Kept awake for this session";
             tab.Item.ToolTip = description + " • " + url;
             if (tab.Item.ContextMenu != null && tab.Item.ContextMenu.Items.Count > 1)
             {
@@ -869,129 +872,6 @@ namespace HarborBrowser
                 tab.FallbackIcon.Visibility = Visibility.Collapsed;
             }
             catch (Exception ex) { Debug.WriteLine("Could not load tab favicon: " + ex.Message); }
-        }
-
-        private void UpdateTabActivity()
-        {
-            BrowserTab active = SelectedTab;
-            foreach (TabItem item in BrowserTabs.Items)
-            {
-                BrowserTab tab = item.Tag as BrowserTab;
-                if (tab == null || tab.IsClosing)
-                    continue;
-
-                if (tab == active)
-                {
-                    if (tab.SuspendTimer != null)
-                        tab.SuspendTimer.Stop();
-                    ResumeTabIfNeeded(tab);
-                }
-                else if (_settings.SuspendInactiveTabs && tab.Initialized && !tab.IsSuspended)
-                {
-                    StartTabSuspendTimer(tab);
-                }
-                else
-                {
-                    if (tab.SuspendTimer != null)
-                        tab.SuspendTimer.Stop();
-                    if (!_settings.SuspendInactiveTabs)
-                        ResumeTabIfNeeded(tab);
-                }
-            }
-        }
-
-        private void StartTabSuspendTimer(BrowserTab tab)
-        {
-            if (tab == null || tab.IsClosing || tab.VideoPopout != null || tab == SelectedTab || !tab.Initialized || tab.SuspendTimer == null)
-                return;
-
-            int delay = Math.Max(15, Math.Min(600, _settings.InactiveTabSuspendDelaySeconds));
-            tab.SuspendTimer.Stop();
-            tab.SuspendTimer.Interval = TimeSpan.FromSeconds(delay);
-            tab.SuspendTimer.Start();
-        }
-
-        private void ResumeTabIfNeeded(BrowserTab tab)
-        {
-            if (tab == null || !tab.Initialized || tab.View == null || tab.View.CoreWebView2 == null)
-                return;
-
-            try
-            {
-                CoreWebView2 core = tab.View.CoreWebView2;
-
-                if (tab.IsSuspended || core.IsSuspended)
-                {
-                    if (core.IsSuspended)
-                        core.Resume();
-                    tab.IsSuspended = false;
-                    UpdateTabHeader(tab);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine("Harbor could not resume a sleeping tab: " + ex);
-            }
-        }
-
-        private async Task SuspendTabIfInactiveAsync(BrowserTab tab)
-        {
-            if (!_settings.SuspendInactiveTabs || tab == null || tab.IsClosing || tab.VideoPopout != null ||
-                tab == SelectedTab || !tab.Initialized || tab.View == null || tab.View.CoreWebView2 == null)
-                return;
-
-            try
-            {
-                CoreWebView2 core = tab.View.CoreWebView2;
-
-                if (core.IsSuspended)
-                {
-                    tab.IsSuspended = true;
-                    UpdateTabHeader(tab);
-                    return;
-                }
-
-                // TrySuspendAsync is best-effort. WebView2 may decline to suspend a page
-                // that has active work, audio, downloads, or other blocking activity.
-                bool suspended = await core.TrySuspendAsync();
-                tab.IsSuspended = suspended && core.IsSuspended;
-
-                // The user may have switched back while the async request was pending.
-                if (tab == SelectedTab && core.IsSuspended)
-                {
-                    core.Resume();
-                    tab.IsSuspended = false;
-                }
-
-                UpdateTabHeader(tab);
-                if (!tab.IsSuspended && tab != SelectedTab && !tab.IsClosing)
-                    StartTabSuspendTimer(tab);
-            }
-            catch (Exception ex)
-            {
-                // Suspension is an optimization, never a reason to break browsing.
-                Debug.WriteLine("Harbor could not suspend an inactive tab: " + ex);
-                tab.IsSuspended = false;
-                if (tab != SelectedTab && !tab.IsClosing)
-                    StartTabSuspendTimer(tab);
-            }
-        }
-
-        private async void SuspendInactiveTabsNow_Click(object sender, RoutedEventArgs e)
-        {
-            var pending = new List<Task>();
-            foreach (TabItem item in BrowserTabs.Items)
-            {
-                BrowserTab tab = item.Tag as BrowserTab;
-                if (tab == null || tab == SelectedTab || !tab.Initialized || tab.IsClosing)
-                    continue;
-                if (tab.SuspendTimer != null)
-                    tab.SuspendTimer.Stop();
-                pending.Add(SuspendTabIfInactiveAsync(tab));
-            }
-            await Task.WhenAll(pending);
-            UpdateTabActivity();
-            SetStatus("Inactive tabs checked for sleep");
         }
 
         private void AddressBox_KeyDown(object sender, KeyEventArgs e)
@@ -1630,15 +1510,18 @@ namespace HarborBrowser
 
         private void ResourceMonitor_Click(object sender, RoutedEventArgs e)
         {
-            var monitor = new ResourceMonitorWindow(BuildResourceReport) { Owner = this };
+            var monitor = new ResourceMonitorWindow(BuildResourceReport, MonitorActions()) { Owner = this };
             monitor.Show();
         }
 
         private string BuildResourceReport()
         {
             var lines = new List<string>();
+            var sampledIds = new List<int>();
+            long sampleTime = Stopwatch.GetTimestamp();
             using (Process self = Process.GetCurrentProcess())
             {
+                sampledIds.Add(self.Id);
                 lines.Add("HARBOR APPLICATION");
                 lines.Add("  PID:             " + self.Id);
                 lines.Add("  Working set:     " + FormatMemory(self.WorkingSet64));
@@ -1672,11 +1555,12 @@ namespace HarborBrowser
                         {
                             using (Process process = Process.GetProcessById(info.ProcessId))
                             {
+                                sampledIds.Add(process.Id);
                                 working += process.WorkingSet64;
                                 privateBytes += process.PrivateMemorySize64;
                                 found++;
                                 lines.Add("  PID " + info.ProcessId.ToString().PadRight(7) + " " + info.Kind.ToString().PadRight(12) +
-                                    " WS " + FormatMemory(process.WorkingSet64).PadLeft(10) + "  Private " + FormatMemory(process.PrivateMemorySize64));
+                                    " WS " + FormatMemory(process.WorkingSet64).PadLeft(10) + "  Private " + FormatMemory(process.PrivateMemorySize64) + "  CPU " + SampleProcessCpu(process, sampleTime));
                             }
                         }
                         catch (ArgumentException) { }
@@ -1689,39 +1573,14 @@ namespace HarborBrowser
             }
             lines.Add(string.Empty);
             lines.Add("Note: WebView2 can share renderer processes between tabs. Memory is therefore shown by process, not guessed per tab.");
+            _processCpu.Retain(sampledIds);
+            lines.Add("CPU is a sample of total machine capacity; shared working-set pages may be counted more than once.");
             lines.Add("Auto-refresh: every 2 seconds.");
             lines.Add("Snapshot: " + DateTime.Now.ToString("G"));
             return string.Join(Environment.NewLine, lines);
         }
 
-        private string SampleHarborCpu(Process process)
-        {
-            DateTime now = DateTime.UtcNow;
-            TimeSpan cpuNow;
-            try
-            {
-                process.Refresh();
-                cpuNow = process.TotalProcessorTime;
-            }
-            catch (Exception ex)
-            {
-                return "Unavailable: " + ex.Message;
-            }
-            string result = "Sampling…";
-            if (_lastHarborCpuTime.HasValue && _lastHarborCpuSampleUtc.HasValue)
-            {
-                double elapsedMs = (now - _lastHarborCpuSampleUtc.Value).TotalMilliseconds;
-                double cpuMs = (cpuNow - _lastHarborCpuTime.Value).TotalMilliseconds;
-                if (elapsedMs > 0 && cpuMs >= 0)
-                {
-                    double percent = cpuMs / (elapsedMs * Math.Max(1, Environment.ProcessorCount)) * 100.0;
-                    result = Math.Max(0, Math.Min(100, percent)).ToString("N1") + "% of total machine capacity";
-                }
-            }
-            _lastHarborCpuTime = cpuNow;
-            _lastHarborCpuSampleUtc = now;
-            return result;
-        }
+        private string SampleHarborCpu(Process process) { return SampleProcessCpu(process, Stopwatch.GetTimestamp()); }
 
         private static string FormatMemory(long bytes)
         {
@@ -2130,7 +1989,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.4.0\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.4.1\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

@@ -114,6 +114,7 @@ internal static partial class Program
         await LoadPrivacy(normal,fixtures,"?before-engine=1");
         crash=core.CallDevToolsProtocolMethodAsync("Browser.crash","{}");observed=crash.ContinueWith(t=>{var error=t.Exception;},TaskContinuationOptions.OnlyOnFaulted);
         await Wait(()=>normal.NeedsNewView);Check("actual browser-engine crash preserves normal tabs for recovery",store.LoadSession().Tabs.Any(t=>t.Url.StartsWith(origin))&&normal.FailureMessage!=null);
+        var failedRows=main.BuildTabResourceRows();Check("resource monitor distinguishes failed tabs from sleeping tabs",main.BrowserTabs.Items.Cast<TabItem>().Select(i=>(BrowserTab)i.Tag).Where(t=>t.NeedsNewView).All(t=>failedRows.Single(r=>r.Id==t.ResourceId).State=="Needs reload"&&!failedRows.Single(r=>r.Id==t.ResourceId).CanWake));
         await main.RecoverTab(normal);await Wait(()=>normal.Initialized&&normal.FailureMessage==null);Check("engine recovery replaces broken control",!ReferenceEquals(oldView,normal.View));
         // Test virtual-host mappings belong to the old engine and must be reinstalled after a crash.
         await Task.Delay(300);await LoadPrivacy(normal,fixtures,"?engine=recovered");Check("browser engine can navigate after recreation",await normal.View.CoreWebView2.ExecuteScriptAsync("document.title")=="\"Harbor privacy fixture\"");
