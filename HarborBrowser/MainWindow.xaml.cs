@@ -60,6 +60,55 @@ namespace HarborBrowser
             BookmarksBar.ContextMenu = BuildBookmarksBarContextMenu();
         }
 
+
+        private void MinimizeWindow_Click(object sender, RoutedEventArgs e)
+        {
+            SystemCommands.MinimizeWindow(this);
+        }
+
+        private void MaximizeWindow_Click(object sender, RoutedEventArgs e)
+        {
+            if (WindowState == WindowState.Maximized)
+                SystemCommands.RestoreWindow(this);
+            else
+                SystemCommands.MaximizeWindow(this);
+        }
+
+        private void CloseWindow_Click(object sender, RoutedEventArgs e)
+        {
+            SystemCommands.CloseWindow(this);
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (MaximizeWindowButton == null || WindowFrame == null) return;
+            bool maximized = WindowState == WindowState.Maximized;
+            MaximizeWindowButton.Content = maximized ? "\uE923" : "\uE922";
+            MaximizeWindowButton.ToolTip = maximized ? "Restore down" : "Maximize";
+            System.Windows.Automation.AutomationProperties.SetName(
+                MaximizeWindowButton, maximized ? "Restore down" : "Maximize");
+            // WindowChrome retains the native resize frame; keep content inside it when maximized.
+            WindowFrame.Padding = maximized ? SystemParameters.WindowResizeBorderThickness : new Thickness(0);
+        }
+
+        private string RepairCompletedDownload(DownloadEntry entry)
+        {
+            try
+            {
+                string repairedPath = DownloadFileNameService.RepairCompletedFile(entry.FilePath,
+                    _downloads.Where(d => d != entry).Select(d => d.FilePath));
+                entry.FilePath = repairedPath;
+                entry.FileName = Path.GetFileName(repairedPath);
+                return "";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Download filename recovery failed: " + ex.Message);
+                // The completed bytes remain available under the original name.
+                return " (filename recovery unavailable)";
+            }
+        }
+
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             SearchEngineBox.ItemsSource = SearchEngineService.Engines;
@@ -466,9 +515,9 @@ namespace HarborBrowser
             try
             {
                 Directory.CreateDirectory(_store.DownloadsFolder);
-                string suggestedName = GetSuggestedDownloadFileName(operation);
+                string suggestedName = DownloadFileNameService.Suggest(operation.ContentDisposition, e.ResultFilePath, operation.Uri, operation.MimeType);
                 IEnumerable<string> reservedPaths = _downloads.Select(d => d.FilePath);
-                string safeName = MakeUniqueFileName(_store.DownloadsFolder, suggestedName, reservedPaths);
+                string safeName = DownloadFileNameService.MakeUnique(_store.DownloadsFolder, suggestedName, reservedPaths);
                 string fullPath = Path.Combine(_store.DownloadsFolder, safeName);
 
                 // WebView2 requires an absolute path that does not already exist.
@@ -505,46 +554,6 @@ namespace HarborBrowser
             }
         }
 
-        private static string GetSuggestedDownloadFileName(CoreWebView2DownloadOperation operation)
-        {
-            if (operation != null && !string.IsNullOrWhiteSpace(operation.ContentDisposition))
-            {
-                try
-                {
-                    ContentDispositionHeaderValue disposition;
-                    if (ContentDispositionHeaderValue.TryParse(operation.ContentDisposition, out disposition))
-                    {
-                        string headerName = !string.IsNullOrWhiteSpace(disposition.FileNameStar)
-                            ? disposition.FileNameStar
-                            : disposition.FileName;
-                        if (!string.IsNullOrWhiteSpace(headerName))
-                        {
-                            headerName = headerName.Trim().Trim('"');
-                            int encodedNameSeparator = headerName.IndexOf("''", StringComparison.Ordinal);
-                            if (encodedNameSeparator >= 0)
-                                headerName = headerName.Substring(encodedNameSeparator + 2);
-                            return Uri.UnescapeDataString(headerName);
-                        }
-                    }
-                }
-                catch { }
-            }
-
-            try
-            {
-                Uri downloadUri;
-                if (operation != null && Uri.TryCreate(operation.Uri, UriKind.Absolute, out downloadUri))
-                {
-                    string fromUrl = Path.GetFileName(downloadUri.LocalPath);
-                    if (!string.IsNullOrWhiteSpace(fromUrl))
-                        return Uri.UnescapeDataString(fromUrl);
-                }
-            }
-            catch { }
-
-            return "download";
-        }
-
         private void QueueDownloadUpdate(DownloadEntry entry, CoreWebView2DownloadOperation operation)
         {
             try
@@ -567,9 +576,10 @@ namespace HarborBrowser
                 switch (operation.State)
                 {
                     case CoreWebView2DownloadState.Completed:
+                        string filenameNote = RepairCompletedDownload(entry);
                         entry.Status = "Complete";
-                        SetStatus("Download complete: " + entry.FileName);
-                        ShowDownloadNotification("Download complete: " + entry.FileName, 100, false);
+                        SetStatus("Download complete: " + entry.FileName + filenameNote);
+                        ShowDownloadNotification("Download complete: " + entry.FileName + filenameNote, 100, false);
                         break;
 
                     case CoreWebView2DownloadState.Interrupted:
@@ -668,33 +678,6 @@ namespace HarborBrowser
                 result.Append(value[i]);
             }
             return result.ToString();
-        }
-
-        private static string MakeUniqueFileName(string folder, string fileName, IEnumerable<string> reservedPaths)
-        {
-            string cleaned = Path.GetFileName(fileName ?? "download");
-            if (string.IsNullOrWhiteSpace(cleaned))
-                cleaned = "download";
-            foreach (char invalid in Path.GetInvalidFileNameChars())
-                cleaned = cleaned.Replace(invalid, '_');
-            if (cleaned == "." || cleaned == ".." || string.IsNullOrWhiteSpace(cleaned))
-                cleaned = "download";
-
-            var reserved = new HashSet<string>(reservedPaths ?? Enumerable.Empty<string>(), StringComparer.OrdinalIgnoreCase);
-            string candidate = Path.Combine(folder, cleaned);
-            if (!File.Exists(candidate) && !reserved.Contains(candidate))
-                return cleaned;
-
-            string name = Path.GetFileNameWithoutExtension(cleaned);
-            string extension = Path.GetExtension(cleaned);
-            int index = 2;
-            do
-            {
-                cleaned = name + " (" + index + ")" + extension;
-                candidate = Path.Combine(folder, cleaned);
-                index++;
-            } while (File.Exists(candidate) || reserved.Contains(candidate));
-            return cleaned;
         }
 
         private void RecordHistory(BrowserTab tab, string url, string title)
@@ -2017,7 +2000,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.3.1\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.3.2\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

@@ -1,0 +1,57 @@
+PASS header wins
+PASS UTF-8 filename
+PASS RFC 5987 language
+PASS literal percent filename
+PASS WebView2 suggested name
+PASS URL fallback
+PASS MIME extension
+PASS generic MIME extension
+PASS explicit extension preserved
+PASS empty fallback
+PASS reserved CON
+PASS reserved COM1
+PASS reserved superscript
+PASS non-device COM10
+PASS trailing dots and spaces
+PASS traversal
+PASS invalid characters
+PASS long name bounded
+PASS long extension retained
+PASS case-insensitive reservation
+PASS directory collision
+PASS existing file collision
+PASS actual downloaded ZIP extension
+PASS actual ZIP bytes preserved
+PASS repair is idempotent
+PASS actual archive still readable
+PASS PDF recovery avoids overwrite
+PASS PDF collision bytes preserved
+PASS PNG signature
+PASS JPEG signature
+PASS unknown data preserved
+PASS MZ alone not executable
+PASS Office docx ZIP
+PASS Office xlsx ZIP
+PASS Office pptx ZIP
+PASS EPUB ZIP
+PASS PE executable
+PASS PE DLL not executable
+PASS 1320 borderless
+PASS 1320 resize border
+PASS 1320 caption buttons aligned
+PASS 1320 buttons ordered
+PASS 1320 close inside frame
+PASS 1320 cog moved below caption
+PASS 1320 cog in address row
+PASS 1320 address still usable
+PASS 1320 caption buttons clickable
+PASS 800 borderless
+PASS 800 resize border
+PASS 800 caption buttons aligned
+PASS 800 buttons ordered
+PASS 800 close inside frame
+PASS 800 cog moved below caption
+PASS 800 cog in address row
+PASS 800 address still usable
+PASS 800 caption buttons clickable
+ALL PASSED: 56 checks. Layout PNGs are offline WPF renders, not desktop screenshots.

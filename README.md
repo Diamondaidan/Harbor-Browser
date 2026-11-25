@@ -1,16 +1,17 @@
-# Harbor Browser 0.3.1
+# Harbor Browser 0.3.2
 
 Harbor is a compact Windows desktop browser shell built with WPF, .NET Framework 4.8, and Microsoft Edge WebView2.
 
-## 0.3.1 highlights
+## 0.3.2 highlights
 
-- Show a visible download notification when a download starts, with live byte and percentage progress and clear completion or interruption messages.
-- Use the server's Content-Disposition filename when available, fall back to the URL filename, and reserve paths across active downloads to prevent same-name collisions.
-- Add cancel and resumable-download actions to the Downloads menu. Interrupted downloads now show WebView2's interruption reason.
-- Ask before closing Harbor while downloads are active, since closing the browser can interrupt them.
-- Smooth Settings mouse-wheel scrolling with eased movement while preserving normal scrollbar dragging and touch panning.
-- Explain Developer Tools in Settings, including how to open them with F12 or Ctrl+Shift+I.
-- Preserve the 0.3.0 modular architecture, menu cleanup, Settings layout, installer identity, and profile schema.
+- Replace the separate Windows title bar with window controls in Harbor's existing top row.
+- Move the gear menu to the right end of the address bar.
+- Retain native caption dragging, double-click maximize/restore, resize borders and Alt+Space system menu.
+- Preserve WebView2-suggested filenames and recover missing/generic extensions from known MIME types.
+- Recover ZIP, PDF, image, archive and executable extensions from completed file signatures when needed.
+- Distinguish common ZIP-based Office, EPUB, JAR and APK formats.
+- Clean Windows reserved device names, trailing dots/spaces and long filenames; avoid file and folder collisions.
+- Preserve the installer identity, profile location and schema 5.
 
 ## Existing browser features
 
@@ -25,13 +26,13 @@ Harbor is a compact Windows desktop browser shell built with WPF, .NET Framework
 
 ## Upgrade compatibility
 
-Version 0.3.1 preserves installer AppId `{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}`, the existing installation directory behavior, and `%LOCALAPPDATA%\HarborBrowser`. Profile schema 5 is unchanged, so no profile migration is needed. Install 0.3.1 directly over the existing Harbor installation; do not uninstall first. The installer backs up the profile before replacing files.
+Version 0.3.2 preserves installer AppId `{8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}`, the existing installation directory behavior, and `%LOCALAPPDATA%\HarborBrowser`. Profile schema 5 is unchanged, so no profile migration is needed. Install 0.3.2 directly over the existing Harbor installation; do not uninstall first. The installer backs up the profile before replacing files.
 
 ## Build
 
 On Windows, install Visual Studio 2022 Build Tools or Community with .NET desktop build tools and the .NET Framework 4.8 Developer Pack, plus Inno Setup 7. Run `MAKE-SETUP.bat`. The build script verifies Microsoft's signed .NET Framework 4.8 and WebView2 Evergreen x64 standalone prerequisite installers before embedding them.
 
-The finished installer is written to `dist\HarborBrowserSetup-0.3.1.exe`. Previously downloaded, verified installers can be copied into `Installer\redist` to avoid downloading them again:
+The finished installer is written to `dist\HarborBrowserSetup-0.3.2.exe`. Previously downloaded, verified installers can be copied into `Installer\redist` to avoid downloading them again:
 
 - `ndp48-x86-x64-allos-enu.exe`
 - `MicrosoftEdgeWebView2RuntimeInstallerX64.exe`

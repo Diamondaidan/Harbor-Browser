@@ -3,7 +3,71 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Harbor Browser" Height="850" Width="1320" MinHeight="560" MinWidth="800"
         WindowStartupLocation="CenterScreen" Background="#FFFFFF" FontFamily="Segoe UI" FontSize="12.5"
+        WindowStyle="None" ResizeMode="CanResize" StateChanged="Window_StateChanged"
         Loaded="Window_Loaded" Closing="Window_Closing" PreviewKeyDown="Window_PreviewKeyDown">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="29" ResizeBorderThickness="6" CornerRadius="0"
+                      GlassFrameThickness="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+    <Window.Resources>
+        <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="46" />
+            <Setter Property="Height" Value="29" />
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="10" />
+            <Setter Property="Foreground" Value="#334956" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#DFE7EC" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#CBD7DF" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#CBD7DF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="CloseCaptionButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Surface" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#C42B1C" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#A92318" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Surface" Property="Background" Value="#C42B1C" />
+                                <Setter Property="Foreground" Value="White" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Border x:Name="WindowFrame" BorderBrush="#CBD4DC" BorderThickness="1">
+
     <DockPanel LastChildFill="True">
         <StatusBar x:Name="BottomStatus" DockPanel.Dock="Bottom" Height="25" Background="#EEF2F5" BorderBrush="#CBD4DC" BorderThickness="0,1,0,0">
             <StatusBarItem>
@@ -11,7 +75,7 @@
             </StatusBarItem>
             <Separator />
             <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock Text="Harbor 0.3.1  •  WebView2" Foreground="#71808B" />
+                <TextBlock Text="Harbor 0.3.2  •  WebView2" Foreground="#71808B" />
             </StatusBarItem>
         </StatusBar>
 
@@ -29,12 +93,17 @@
             </Grid>
         </Border>
 
-        <!-- Compact title/menu strip. All traditional menus live inside the gear menu. -->
+        <!-- Native caption gestures work on the unused space in this compact header. -->
         <Border DockPanel.Dock="Top" Height="35" Background="#F4F6F8" BorderBrush="#D9E0E5" BorderThickness="0,0,0,1">
-            <DockPanel LastChildFill="True" Margin="8,0,7,0">
-                <Button x:Name="GearMenuButton" DockPanel.Dock="Right" Content="⚙" FontSize="19"
-                        Width="34" Height="29" Padding="0" Margin="0,2,0,2" ToolTip="Harbor menu"
-                        Background="Transparent" BorderThickness="0" Click="GearMenuButton_Click" />
+            <DockPanel LastChildFill="True" Margin="8,2,0,3">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button x:Name="MinimizeWindowButton" Content="&#xE921;" Style="{StaticResource CaptionButtonStyle}"
+                            ToolTip="Minimize" AutomationProperties.Name="Minimize" Click="MinimizeWindow_Click" />
+                    <Button x:Name="MaximizeWindowButton" Content="&#xE922;" Style="{StaticResource CaptionButtonStyle}"
+                            ToolTip="Maximize" AutomationProperties.Name="Maximize" Click="MaximizeWindow_Click" />
+                    <Button x:Name="CloseWindowButton" Content="&#xE8BB;" Style="{StaticResource CloseCaptionButtonStyle}"
+                            ToolTip="Close" AutomationProperties.Name="Close" Click="CloseWindow_Click" />
+                </StackPanel>
                 <TextBlock Text="HARBOR" VerticalAlignment="Center" FontSize="11" FontWeight="Bold"
                            Foreground="#52738A" Margin="4,0,0,0" />
             </DockPanel>
@@ -87,6 +156,7 @@
                     <ColumnDefinition Width="35" />
                     <ColumnDefinition Width="46" />
                     <ColumnDefinition Width="145" />
+                    <ColumnDefinition Width="35" />
                 </Grid.ColumnDefinitions>
                 <Button Grid.Column="0" Content="◀" ToolTip="Back" Click="Back_Click" Margin="1" />
                 <Button Grid.Column="1" Content="▶" ToolTip="Forward" Click="Forward_Click" Margin="1" />
@@ -101,6 +171,10 @@
                 <Button Grid.Column="6" Content="Go" Click="Go_Click" Margin="2,1" />
                 <ComboBox x:Name="SearchEngineBox" Grid.Column="7" Margin="4,1,1,1" VerticalContentAlignment="Center"
                           SelectedValuePath="Id" SelectionChanged="SearchEngineBox_SelectionChanged" />
+                <Button x:Name="GearMenuButton" Grid.Column="8" Content="⚙" FontSize="19" Padding="0"
+                        Margin="1" ToolTip="Harbor menu" AutomationProperties.Name="Harbor menu"
+                        Background="Transparent" BorderThickness="0" Click="GearMenuButton_Click" />
+
             </Grid>
         </Border>
 
@@ -114,4 +188,5 @@
              and VPN controls are available from the Harbor gear menu. -->
         <ContentControl x:Name="BrowserContentHost" Background="#FFFFFF" />
     </DockPanel>
+    </Border>
 </Window>

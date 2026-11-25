@@ -1,3 +1,14 @@
+## 0.3.2
+
+- Replace the separate Windows title bar with window controls in Harbor's existing top row.
+- Move the gear menu to the right end of the address bar.
+- Retain native caption dragging, double-click maximize/restore, resize borders and Alt+Space system menu.
+- Preserve WebView2-suggested filenames and recover missing/generic extensions from known MIME types.
+- Recover ZIP, PDF, image, archive and executable extensions from completed file signatures when needed.
+- Distinguish common ZIP-based Office, EPUB, JAR and APK formats.
+- Clean Windows reserved device names, trailing dots/spaces and long filenames; avoid file and folder collisions.
+- Preserve the installer identity, profile location and schema 5.
+
 ## 0.3.1
 
 - Add a visible download-start notification and live download progress feedback independent of the status bar.
