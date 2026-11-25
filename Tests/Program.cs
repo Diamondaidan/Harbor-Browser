@@ -106,6 +106,7 @@ internal static partial class Program
 
             HomeChecks();
             NewTabAndAppearanceChecks();
+            VideoWindowChecks();
             Layout(args[4], 1320, 850);
             Layout(args[4], 800, 560);
             AppearanceService.ApplyApplication(new HarborBrowser.Models.BrowserSettings {ThemeMode="Dark"});
@@ -162,7 +163,7 @@ internal static partial class Program
     private static void Layout(string path, int width, int height, string suffix = "")
     {
         var doc = XDocument.Load(path);
-        string[] events = { "Loaded", "Closing", "PreviewKeyDown", "StateChanged", "Click", "SelectionChanged", "KeyDown", "DragOver", "Drop", "DragLeave" };
+        string[] events = { "Loaded", "Closing", "PreviewKeyDown", "StateChanged", "Click", "SelectionChanged", "KeyDown", "DragOver", "Drop", "DragLeave", "PreviewMouseLeftButtonDown", "PreviewMouseWheel" };
         // Strip handlers only for an offline layout render; no browser/profile is instantiated.
         foreach (var attr in doc.Descendants().Attributes().Where(a =>
             (a.Name.NamespaceName == "http://schemas.microsoft.com/winfx/2006/xaml" && a.Name.LocalName == "Class") ||
@@ -192,6 +193,9 @@ internal static partial class Program
         var cog = gear.TransformToAncestor(frame).Transform(new Point());
         var bar = address.TransformToAncestor(frame).Transform(new Point());
         Check(width + " caption buttons aligned", Math.Abs(min.Y - end.Y) < 1 && Math.Abs(max.Y - min.Y) < 1);
+        Check(width + " tabs share caption row", Math.Abs(tabs.TransformToAncestor(frame).Transform(new Point()).Y-end.Y)<4);
+        Check(width + " group bar removed", window.FindName("TabGroupFilterBox")==null);
+        Check(width + " picture-in-picture toolbar exists", window.FindName("PictureInPictureButton")!=null);
         Check(width + " buttons ordered", min.X < max.X && max.X < end.X);
         Check(width + " close inside frame", end.X + close.ActualWidth <= width);
         Check(width + " cog moved below caption", cog.Y > end.Y + close.ActualHeight);

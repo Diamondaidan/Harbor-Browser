@@ -1,31 +1,42 @@
-# Harbor Browser 0.3.4 verification
+# Harbor Browser 0.3.5 verification
 
-Date: November 12, 2026 (America/Chicago).
+Verified November 12, 2026 (America/Chicago).
 
-## Executed and passed
+## Executed results
 
-- Windows Release build: zero warnings, zero errors.
+- Windows .NET Framework 4.8 Release build: passed, zero warnings and zero errors.
 - Inno Setup installer compilation: passed.
-- Microsoft .NET Framework 4.8 and WebView2 x64 bundled prerequisite size/signature checks: passed using previously cached packages.
-- Compiled app and staged installer payload executable SHA-256 match.
-- 144 regression checks: passed.
-- 28 isolated WebView2 browser checks: passed.
+- Cached .NET Framework 4.8 and WebView2 x64 offline prerequisite signature/size validation: passed.
+- Compiled executable and installer payload executable SHA-256: identical.
+- 176 regression checks: passed.
+- 28 isolated WebView2 home-page checks: passed.
+- 36 isolated full-app/media integration checks: passed.
+- Total: 240 passed checks.
 
-Regression coverage includes the previous filename recovery, home-page and layout tests; new-tab insertion; forward/backward movement; pinned-tab boundaries; self-drop; exhaustive permutation, stable-neighbor and pin-boundary invariants across 3,000 moves; HSV/hex conversion; separate palettes; JSON round trips; legacy-profile defaults; invalid values; automatic accent contrast; trusted theme-message parsing; embedded header-logo loading; and minimum/normal layouts.
+The regression suite includes previous filename, settings, appearance, home-page and tab-order checks, plus monitor/work-area geometry, taskbar edges on all sides, scaled auto-hide reserve space, media-script parsing, isolated profile storage and the compact title-row layout.
 
-The Settings tests instantiate real SettingsWindow dialogs with a temporary test application. They exercise mode selection, wheel-to-hex synchronization, invalid-color save prevention, successful Save, Cancel isolation and reset behavior. They do not load the user's Harbor profile.
+The full-app test constructs the real MainWindow with a dedicated test profile and injected offscreen monitor bounds. It loads a generated live canvas video in a cross-origin iframe. No personal browsing profile or internet video service is used. The test activates its own offscreen window and uses a simulated user gesture to request fullscreen on the actual video element; an initial inactive-window attempt was rejected by the browser, as expected.
 
-The WebView2 checks load the staged home-page assets in a separate test host/profile. They verify custom accent/text colors and the actual search-button color, app mode reaching Home, Home requesting mode changes, private-mode isolation, and the previous search/bookmark/responsive-layout cases. External search destinations are intercepted rather than fetched. No external request was made during home-page loading.
+Integration checks confirm:
+- Cross-origin video discovery.
+- Removal of the group bar; tabs and caption controls in the same row; Beacon window/header icon resources.
+- Browser fullscreen uses the work area; video fullscreen uses the whole monitor rectangle.
+- Toolbars/status/borders disappear for video fullscreen.
+- Switching away restores chrome; nested browser/video fullscreen exits preserve the prior mode.
+- Normal minimum sizes return after exiting fullscreen.
+- Picture-in-picture opens, stays on top, preserves the original WebView/player and playback position, and exits video fullscreen.
+- Parent frame/video layouts and original controls are restored on return.
+- No scrollbars in the final PiP page/frame; play/pause and mute buttons work.
+- Cog-based group assignment/filtering, right-side new tabs, tab movement and saved order.
 
-An initial browser run under restricted access timed out starting the test browser. The same suite passed after granting the WebView2 runtime the required access.
+Fullscreen and picture-in-picture viewports were captured from the live test player and inspected. A visual check found an unwanted PiP scrollbar; ancestor overflow handling was corrected and the no-scrollbar checks passed afterward. Compact-header previews were also inspected.
 
-Dark Settings and shell previews were visually inspected. WPF previews are offline renders. The custom-color Home preview is captured from the isolated WebView2 test host. They are not screenshots of the user's installed Harbor window.
+The installed 0.3.4 executable was inspected read-only and its extracted icon was already Beacon. The 0.3.5 installer uses a versioned icon file and an explicit app identity to address stale shortcut/taskbar references.
 
-## Still requires live desktop verification
+## Limits
 
-- Native mouse drag-and-drop, overflow edge scrolling, keyboard shortcuts while focus is inside a real webpage, and full session restore in the installed browser.
-- Desktop/taskbar icon-cache refresh after installation.
-- Installer execution/upgrade/uninstall.
-- Full browser network-download events, sleep/wake behavior and resource-monitor operation.
+No installation/upgrade/uninstall was run on the user's system. The installed browser/profile and earlier project versions remain unchanged.
 
-The implementation uses tested ordering/palette services, but these checks do not constitute an end-to-end test of the installed Harbor application. The installer was built and not run. Earlier version folders, installed app/profile and synced sources were not modified.
+Offscreen monitor geometry lets the app tests verify actual native window rectangles without covering the user's desktop. It does not verify physical mouse movement against the real Windows taskbar, multi-monitor hot-plug/DPI changes, existing pinned shortcut cache refresh, every website/player, protected video services, or actual desktop drag gestures. Those remain live-desktop checks.
+
+Video fullscreen uses the documented WebView2 [fullscreen-element event](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.containsfullscreenelementchanged). Window sizing uses monitor and work-area rectangles as described in Microsoft's [multiple-monitor guidance](https://learn.microsoft.com/en-us/windows/win32/gdi/positioning-objects-on-multiple-display-monitors). Shortcut icon and app identity settings follow the [Inno Setup Icons documentation](https://jrsoftware.org/ishelp/topic_iconssection.htm).

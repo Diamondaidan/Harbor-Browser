@@ -2,8 +2,8 @@ MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
   All projects are up-to-date for restore.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.4\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.4\Tests\bin\Release\net48\HarborRegressionTests.exe
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.5\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.5\Tests\bin\Release\net48\HarborRegressionTests.exe
 PASS header wins
 PASS UTF-8 filename
 PASS RFC 5987 language
@@ -118,10 +118,36 @@ PASS saved light palette unchanged
 PASS Cancel discards preview
 PASS reset color restores mode default
 PASS settings dark background applied
+PASS maximize excludes taskbar
+PASS video fullscreen retains complete monitor
+PASS bottom taskbar edge recognized
+PASS interior does not expose taskbar
+PASS other monitor cursor ignored
+PASS negative monitor max X
+PASS top taskbar max offset
+PASS negative top edge recognized
+PASS left taskbar leaves usable width
+PASS left taskbar edge recognized
+PASS right taskbar edge recognized
+PASS right taskbar work area used
+PASS auto-hide taskbar space at edge 0
+PASS auto-hide taskbar space at edge 1
+PASS auto-hide taskbar space at edge 2
+PASS auto-hide taskbar space at edge 3
+PASS ready video score parsed
+PASS no-video probe ignored
+PASS bad video probe ignored
+PASS video script embedded
+PASS video command allowlist
+PASS isolated profile settings save/load
+PASS isolated profile path honored
 PASS 1320 borderless
 PASS 1320 resize border
 PASS 1320 Beacon header logo loaded
 PASS 1320 caption buttons aligned
+PASS 1320 tabs share caption row
+PASS 1320 group bar removed
+PASS 1320 picture-in-picture toolbar exists
 PASS 1320 buttons ordered
 PASS 1320 close inside frame
 PASS 1320 cog moved below caption
@@ -132,6 +158,9 @@ PASS 800 borderless
 PASS 800 resize border
 PASS 800 Beacon header logo loaded
 PASS 800 caption buttons aligned
+PASS 800 tabs share caption row
+PASS 800 group bar removed
+PASS 800 picture-in-picture toolbar exists
 PASS 800 buttons ordered
 PASS 800 close inside frame
 PASS 800 cog moved below caption
@@ -142,11 +171,14 @@ PASS 1320 borderless
 PASS 1320 resize border
 PASS 1320 Beacon header logo loaded
 PASS 1320 caption buttons aligned
+PASS 1320 tabs share caption row
+PASS 1320 group bar removed
+PASS 1320 picture-in-picture toolbar exists
 PASS 1320 buttons ordered
 PASS 1320 close inside frame
 PASS 1320 cog moved below caption
 PASS 1320 cog in address row
 PASS 1320 address still usable
 PASS 1320 caption buttons clickable
-ALL PASSED: 144 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
-Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.4\Tests\TestResults\20261112-143418
+ALL PASSED: 176 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
+Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.5\Tests\TestResults\20261112-191213

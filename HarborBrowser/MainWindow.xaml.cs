@@ -43,10 +43,14 @@ namespace HarborBrowser
         private DateTime? _lastHarborCpuSampleUtc;
 
 
-        public MainWindow()
+        public MainWindow() : this(new BrowserDataStore(), null) { }
+
+        internal MainWindow(BrowserDataStore store, Func<IntPtr, MonitorLayout> monitorProvider = null)
         {
             InitializeComponent();
-            _store = new BrowserDataStore();
+            _store = store ?? throw new ArgumentNullException(nameof(store));
+            _monitorProvider = monitorProvider;
+            InitializePresentation();
             _settings = _store.LoadSettings();
             AppearanceService.Normalize(_settings); AppearanceService.ApplyApplication(_settings);
             bool homeDefaultsUpdated = HomePageService.UpgradeDefaults(_settings);
@@ -90,8 +94,8 @@ namespace HarborBrowser
             MaximizeWindowButton.ToolTip = maximized ? "Restore down" : "Maximize";
             System.Windows.Automation.AutomationProperties.SetName(
                 MaximizeWindowButton, maximized ? "Restore down" : "Maximize");
-            // WindowChrome retains the native resize frame; keep content inside it when maximized.
-            WindowFrame.Padding = maximized ? SystemParameters.WindowResizeBorderThickness : new Thickness(0);
+            // The native window hook constrains maximized bounds to the monitor work area.
+            WindowFrame.Padding = new Thickness(0);
         }
 
         private string RepairCompletedDownload(DownloadEntry entry)
@@ -188,7 +192,7 @@ namespace HarborBrowser
                     tab.View.CoreWebView2.Profile.PreferredColorScheme = _settings.ThemeMode == "Dark" ? CoreWebView2PreferredColorScheme.Dark : CoreWebView2PreferredColorScheme.Light;
             }
             BookmarksBar.Visibility = _settings.ShowBookmarksBar ? Visibility.Visible : Visibility.Collapsed;
-            BottomStatus.Visibility = _settings.ShowStatusBar ? Visibility.Visible : Visibility.Collapsed;
+            BottomStatus.Visibility = _settings.ShowStatusBar && (_presentation == null || !_presentation.IsFullScreen) ? Visibility.Visible : Visibility.Collapsed;
             SearchEngineBox.SelectedValue = _settings.SearchEngineId;
             UpdateBookmarkButtonState();
         }
@@ -218,18 +222,9 @@ namespace HarborBrowser
 
         private void RefreshGroupFilterBox(string preferredValue)
         {
-            if (TabGroupFilterBox == null) return;
-            if (preferredValue == null) preferredValue = Convert.ToString(TabGroupFilterBox.SelectedValue);
-            TabGroupFilterBox.Items.Clear();
-            TabGroupFilterBox.Items.Add(new ComboBoxItem { Content = "All tabs", Tag = "*" });
-            TabGroupFilterBox.Items.Add(new ComboBoxItem { Content = "Ungrouped", Tag = "" });
-            foreach (string group in _tabGroups.OrderBy(g => g, StringComparer.CurrentCultureIgnoreCase))
-                TabGroupFilterBox.Items.Add(new ComboBoxItem { Content = group, Tag = group });
-            ComboBoxItem match = TabGroupFilterBox.Items.Cast<ComboBoxItem>()
-                .FirstOrDefault(item => string.Equals(Convert.ToString(item.Tag), preferredValue, StringComparison.OrdinalIgnoreCase));
-            TabGroupFilterBox.SelectedItem = match ?? TabGroupFilterBox.Items[0];
+            string value=preferredValue??_activeGroupFilter;
+            _activeGroupFilter=value=="*"||value==""?value:_tabGroups.FirstOrDefault(g=>string.Equals(g,value,StringComparison.OrdinalIgnoreCase))??"*";
         }
-
         private BrowserTab SelectedTab
         {
             get
@@ -412,6 +407,7 @@ namespace HarborBrowser
 
                 await tab.View.EnsureCoreWebView2Async(_environment);
                 CoreWebView2 core = tab.View.CoreWebView2;
+                await InitializeVideoFeatures(tab, core);
 
                 string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
                 core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
@@ -440,6 +436,7 @@ namespace HarborBrowser
 
                 core.NavigationStarting += (s, args) =>
                 {
+                    if (tab.VideoPopout != null) tab.VideoPopout.Close();
                     if (SelectedTab == tab)
                     {
                         AddressBox.Text = HomePageService.DisplayUrl(args.Uri);
@@ -660,7 +657,7 @@ namespace HarborBrowser
             DownloadNotificationText.Text = message;
             DownloadNotificationProgress.IsIndeterminate = inProgress && progress <= 0;
             DownloadNotificationProgress.Value = Math.Max(0, Math.Min(100, progress));
-            DownloadNotificationBar.Visibility = Visibility.Visible;
+            DownloadNotificationBar.Visibility = _presentation != null && _presentation.IsFullScreen ? Visibility.Collapsed : Visibility.Visible;
 
             if (_downloadNotificationTimer == null)
             {
@@ -765,7 +762,7 @@ namespace HarborBrowser
                 AddressBox.Text = HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri);
             else
                 AddressBox.Text = string.Empty;
-            BrowserContentHost.Content = tab.View;
+            ShowTabContent();
             UpdateBookmarkButtonState();
 
             UpdateTabActivity();
@@ -854,7 +851,7 @@ namespace HarborBrowser
 
         private void StartTabSuspendTimer(BrowserTab tab)
         {
-            if (tab == null || tab.IsClosing || tab == SelectedTab || !tab.Initialized || tab.SuspendTimer == null)
+            if (tab == null || tab.IsClosing || tab.VideoPopout != null || tab == SelectedTab || !tab.Initialized || tab.SuspendTimer == null)
                 return;
 
             int delay = Math.Max(15, Math.Min(600, _settings.InactiveTabSuspendDelaySeconds));
@@ -888,7 +885,7 @@ namespace HarborBrowser
 
         private async Task SuspendTabIfInactiveAsync(BrowserTab tab)
         {
-            if (!_settings.SuspendInactiveTabs || tab == null || tab.IsClosing ||
+            if (!_settings.SuspendInactiveTabs || tab == null || tab.IsClosing || tab.VideoPopout != null ||
                 tab == SelectedTab || !tab.Initialized || tab.View == null || tab.View.CoreWebView2 == null)
                 return;
 
@@ -1004,6 +1001,7 @@ namespace HarborBrowser
             if (tab == null)
                 return;
             tab.IsClosing = true;
+            if (tab.VideoPopout != null) tab.VideoPopout.Close();
             if (tab.SuspendTimer != null)
                 tab.SuspendTimer.Stop();
             BrowserTabs.Items.Remove(tab.Item);
@@ -1022,6 +1020,9 @@ namespace HarborBrowser
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.F11) { FullScreenShortcut(); e.Handled = true; return; }
+            if (e.Key == Key.Escape && _presentation != null && _presentation.IsFullScreen) { EscapeFullScreen(); e.Handled = true; return; }
+            if (e.Key == Key.P && (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == (ModifierKeys.Control | ModifierKeys.Shift)) { PictureInPicture_Click(sender,e); e.Handled = true; return; }
             if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == (ModifierKeys.Control | ModifierKeys.Shift) && (e.Key == Key.PageUp || e.Key == Key.PageDown))
             { MoveTabRelative(SelectedTab, e.Key == Key.PageUp ? -1 : 1); e.Handled = true; return; }
             if ((Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == (ModifierKeys.Control | ModifierKeys.Shift) && e.Key == Key.N)
@@ -1295,15 +1296,15 @@ namespace HarborBrowser
             AddGroupNameIfMissing(tab.GroupName);
             tab.Item.ContextMenu = BuildTabContextMenu(tab);
             UpdateTabHeader(tab);
-            RefreshGroupFilterBox(Convert.ToString(TabGroupFilterBox.SelectedValue));
+            RefreshGroupFilterBox(_activeGroupFilter);
             ApplyTabGroupFilter();
             SaveSession();
         }
 
         private string GetSelectedGroupForNewTab()
         {
-            if (TabGroupFilterBox == null) return null;
-            string filter = Convert.ToString(TabGroupFilterBox.SelectedValue);
+
+            string filter = _activeGroupFilter;
             if (string.IsNullOrEmpty(filter) || filter == "*" || !_tabGroups.Contains(filter)) return null;
             return filter;
         }
@@ -1311,16 +1312,11 @@ namespace HarborBrowser
         private bool IsTabVisibleForCurrentGroup(BrowserTab tab)
         {
             if (tab == null) return false;
-            string filter = TabGroupFilterBox == null ? "*" : Convert.ToString(TabGroupFilterBox.SelectedValue);
+            string filter = _activeGroupFilter;
             if (filter == null || filter == "*") return true;
             if (tab.IsPinned) return true;
             if (filter.Length == 0) return string.IsNullOrWhiteSpace(tab.GroupName);
             return string.Equals(tab.GroupName, filter, StringComparison.OrdinalIgnoreCase);
-        }
-
-        private void TabGroupFilterBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (_ready) ApplyTabGroupFilter();
         }
 
         private void ApplyTabGroupFilter()
@@ -1345,35 +1341,21 @@ namespace HarborBrowser
                 BrowserTabs.SelectedItem = firstVisible;
             else if (selected == null && firstVisible != null)
                 BrowserTabs.SelectedItem = firstVisible;
-            if (BrowserContentHost != null)
-                BrowserContentHost.Content = SelectedTab == null ? null : SelectedTab.View;
+            if (BrowserContentHost != null) ShowTabContent();
 
-            if (TabGroupFilterStatus != null)
-                TabGroupFilterStatus.Text = visible + " of " + BrowserTabs.Items.Count + " tabs";
-            if (visible == 0 && TabGroupFilterBox != null && TabGroupFilterBox.SelectedIndex > 0)
+
+            if (visible == 0 && _activeGroupFilter != "*")
                 SetStatus("No tabs in this group. New tabs will be added to the selected group.");
         }
 
         private void ManageTabGroups_Click(object sender, RoutedEventArgs e)
         {
-            var menu = new ContextMenu();
-            AddContextItem(menu, "Add group…", (s, args) => AddTabGroup());
-            string selected = Convert.ToString(TabGroupFilterBox.SelectedValue);
-            bool validSelectedGroup = !string.IsNullOrWhiteSpace(selected) && selected != "*" && _tabGroups.Contains(selected);
-            var rename = new MenuItem { Header = "Rename selected group…", IsEnabled = validSelectedGroup };
-            rename.Click += (s, args) => RenameTabGroup(selected);
-            menu.Items.Add(rename);
-            var remove = new MenuItem { Header = "Remove selected group", IsEnabled = validSelectedGroup };
-            remove.Click += (s, args) => RemoveTabGroup(selected);
-            menu.Items.Add(remove);
-            menu.PlacementTarget = sender as UIElement ?? ManageGroupsButtonFallback();
-            menu.Placement = PlacementMode.Bottom;
-            menu.IsOpen = true;
+            var menu=new ContextMenu();
+            menu.Items.Add(CreateTabGroupsMenu());menu.PlacementTarget=GearMenuButton;menu.Placement=PlacementMode.Bottom;menu.IsOpen=true;
         }
-
         private UIElement ManageGroupsButtonFallback()
         {
-            return TabGroupFilterBox;
+            return GearMenuButton;
         }
 
         private static bool IsReservedGroupName(string name)
@@ -1800,6 +1782,7 @@ namespace HarborBrowser
             }
             menu.Items.Add(downloads);
 
+            menu.Items.Add(CreateTabGroupsMenu());
             MenuItem vpn = CreateGearSubmenu("VPN");
             List<string> profiles = VpnService.GetConfiguredProfiles();
             if (profiles.Count > 0)
@@ -1832,6 +1815,8 @@ namespace HarborBrowser
             menu.Items.Add(vpn);
 
             MenuItem tools = CreateGearSubmenu("Tools");
+            AddGearCommand(tools, "Browser full screen (F11)", FullScreen_Click);
+            AddGearCommand(tools, "Picture in picture (Ctrl+Shift+P)", PictureInPicture_Click);
             AddGearCommand(tools, "Resource monitor", ResourceMonitor_Click);
             AddGearCommand(tools, "Manage cookies for this site", ManageCookies_Click);
             menu.Items.Add(tools);
@@ -2055,7 +2040,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.3.4\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.3.5\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2141,6 +2126,7 @@ namespace HarborBrowser
                 BrowserTab tab = item.Tag as BrowserTab;
                 if (tab == null || tab.View == null) continue;
                 tab.IsClosing = true;
+            if (tab.VideoPopout != null) tab.VideoPopout.Close();
                 if (tab.SuspendTimer != null) tab.SuspendTimer.Stop();
                 try
                 {

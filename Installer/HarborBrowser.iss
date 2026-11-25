@@ -3,7 +3,7 @@
 ; signed offline .NET Framework 4.8 and WebView2 Evergreen installers.
 
 #ifndef AppVersion
-  #define AppVersion "0.3.4"
+  #define AppVersion "0.3.5"
 #endif
 
 #define AppName "Harbor Browser"
@@ -24,7 +24,7 @@ UsePreviousGroup=yes
 DefaultGroupName={#AppName}
 DisableProgramGroupPage=yes
 UninstallDisplayName={#AppName}
-UninstallDisplayIcon={app}\{#AppExeName}
+UninstallDisplayIcon={app}\Branding\HarborBeacon-{#AppVersion}.ico
 SetupIconFile=assets\HarborBrowser.ico
 OutputDir=..\dist
 OutputBaseFilename=HarborBrowserSetup-{#AppVersion}
@@ -38,6 +38,7 @@ MinVersion=10.0.16299
 CloseApplications=yes
 RestartApplications=no
 SetupLogging=yes
+ChangesAssociations=yes
 Uninstallable=yes
 VersionInfoCompany={#AppPublisher}
 VersionInfoDescription=Harbor Browser Setup
@@ -59,9 +60,11 @@ Source: "{#PayloadDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 Source: "{#RedistDir}\ndp48-x86-x64-allos-enu.exe"; Flags: dontcopy
 Source: "{#RedistDir}\MicrosoftEdgeWebView2RuntimeInstallerX64.exe"; Flags: dontcopy
 
+Source: "{#PayloadDir}\Branding\HarborBeacon.ico"; DestDir: "{app}\Branding"; DestName: "HarborBeacon-{#AppVersion}.ico"; Flags: ignoreversion
+
 [Icons]
-Name: "{group}\Harbor Browser"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"
-Name: "{autodesktop}\Harbor Browser"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{group}\Harbor Browser"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-{#AppVersion}.ico"; AppUserModelID: "HarborBrowser.Desktop"
+Name: "{autodesktop}\Harbor Browser"; Filename: "{app}\{#AppExeName}"; WorkingDir: "{app}"; IconFilename: "{app}\Branding\HarborBeacon-{#AppVersion}.ico"; AppUserModelID: "HarborBrowser.Desktop"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\{#AppExeName}"; Description: "Launch Harbor Browser"; Flags: postinstall nowait skipifsilent

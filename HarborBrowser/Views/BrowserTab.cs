@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.Web.WebView2.Core;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.Web.WebView2.Wpf;
@@ -8,6 +12,10 @@ namespace HarborBrowser.Views
     // changes can evolve without enlarging the main window's code-behind.
     internal sealed class BrowserTab
     {
+        public readonly List<CoreWebView2Frame> MediaFrames = new List<CoreWebView2Frame>();
+        public PictureInPictureWindow VideoPopout { get; set; }
+        public Func<string,Task<string>> ActiveVideoContext { get; set; }
+        public bool OpeningPopout { get; set; }
         public TabItem Item { get; set; }
         public WebView2 View { get; set; }
         public TextBlock HeaderText { get; set; }

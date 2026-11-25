@@ -18,16 +18,17 @@ namespace HarborBrowser.Services
         public string BackupsFolder { get; private set; }
         public bool IsReadOnlyForNewerDataVersion { get; private set; }
 
-        public BrowserDataStore()
-        {
-            RootFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HarborBrowser");
-            DownloadsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "Harbor Browser");
-            BackupsFolder = Path.Combine(RootFolder, "Backups");
-            Directory.CreateDirectory(RootFolder);
-            Directory.CreateDirectory(DownloadsFolder);
-            EnsureDataSchema();
-        }
+        public BrowserDataStore() : this(
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HarborBrowser"),
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads", "Harbor Browser")) { }
 
+        public BrowserDataStore(string rootFolder,string downloadsFolder)
+        {
+            RootFolder=Path.GetFullPath(rootFolder);
+            DownloadsFolder=Path.GetFullPath(downloadsFolder);
+            BackupsFolder=Path.Combine(RootFolder,"Backups");
+            Directory.CreateDirectory(RootFolder);Directory.CreateDirectory(DownloadsFolder);EnsureDataSchema();
+        }
         public BrowserSettings LoadSettings()
         {
             return Load("settings.json", new BrowserSettings());

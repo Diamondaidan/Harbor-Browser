@@ -6,9 +6,9 @@
     <LangVersion>7.3</LangVersion>
     <Nullable>disable</Nullable>
     <AssemblyName>HarborBrowser</AssemblyName>
-    <Version>0.3.4</Version>
-    <AssemblyVersion>0.3.4.0</AssemblyVersion>
-    <FileVersion>0.3.4.0</FileVersion>
+    <Version>0.3.5</Version>
+    <AssemblyVersion>0.3.5.0</AssemblyVersion>
+    <FileVersion>0.3.5.0</FileVersion>
     <ApplicationIcon>HarborBrowser.ico</ApplicationIcon>
     <RootNamespace>HarborBrowser</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -32,4 +32,5 @@
     <Content Include="Assets\Home\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup><Resource Include="HarborBrowser.ico"/><Resource Include="Assets\Home\beacon.png"/></ItemGroup>
+  <ItemGroup><EmbeddedResource Include="Assets\Media\media.js"/><Content Include="Branding\*.ico" CopyToOutputDirectory="PreserveNewest"/></ItemGroup>
 </Project>

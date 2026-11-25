@@ -1,40 +1,47 @@
-# Harbor Browser 0.3.4
+# Harbor Browser 0.3.5
 
-## What's new
+## Video fullscreen and taskbar access
 
-- Regular new tabs append on the right. Pinned tabs remain together on the left.
-- Drag tab headers to reorder them. A colored insertion edge shows the target position. Drag near either end of an overflowing strip to scroll it.
-- Tab context menus include Move left and Move right. Ctrl+Shift+Page Up and Ctrl+Shift+Page Down provide the same commands. These moves respect the current group filter and the pinned-tab boundary.
-- Reordering preserves the selected browser control and saves the new order for session restore.
-- The selected Beacon icon is embedded in the executable and installer, set on the main window, and displayed beside HARBOR in the upper-left corner.
-- Settings now has Appearance controls for Light and Dark mode, plus independent custom palettes for each mode.
+A site's fullscreen video button now expands the player to the current monitor and hides Harbor's toolbars, status bar and border. Escape exits video fullscreen and restores the previous window placement. Moving away from the fullscreen video tab restores the browser controls.
 
-## Customizing appearance
+F11 toggles browser fullscreen, which hides Harbor's controls while keeping the taskbar's work area available. Normal maximization also respects the current monitor's work area. In video fullscreen, move the pointer to the taskbar's screen edge to temporarily reveal space for the taskbar; move back into the video to fill the monitor again.
 
-Open the cog menu, choose Settings, then Appearance.
+The window uses per-monitor DPI awareness and saves/restores its window placement and resizing constraints. These behaviors do not modify Windows taskbar settings.
 
-1. Choose Light or Dark.
-2. Select the color target: Accent, Window background, Panels, Input fields, or Text.
-3. Choose hue and saturation on the color wheel. Use Brightness to set lighter/darker shades, or enter a hex value such as #A95627. The wheel also supports arrow-key adjustment.
-4. Preview changes in the Settings window. Save settings applies them throughout Harbor. Cancel discards the draft.
-5. Reset this color restores only the selected target. Reset this mode restores that mode's default palette.
+## Picture in picture
 
-Light and dark custom palettes are independent and persist in settings. Invalid hex values prevent saving. A contrast warning appears when chosen text and surfaces may be difficult to read. Accent foreground color is selected automatically for contrast.
+Start a video, then choose the square picture-in-picture button beside the cog, Cog > Tools > Picture in picture, Ctrl+Shift+P, or Picture in picture in the video context menu.
 
-The palette covers Harbor's header, tab strip, navigation, bookmarks/status/download bars, menus, dialogs and home page. WebView2 dialogs/menus and websites that support prefers-color-scheme follow the chosen mode. Website designs and Windows-owned message boxes/title bars retain their own styling.
+Harbor moves the original browser/player into a floating, resizable, always-on-top window. It retains the playing page and session rather than opening a second copy. Play/pause, mute/unmute and Return to tab are available. Closing the floating window returns the player to its tab and restores the page layout. Pop-out tabs are kept awake.
 
-Morning/Blue hour buttons on Harbor Home also change the app mode in normal tabs. In a private tab they change only that page and do not save an app-mode change.
+The video helper supports HTML video in the main page and nested/cross-origin frames. Player behavior varies by website; service-specific players and protected streams have not all been tested.
 
-## Install or build
+## Compact header and groups
 
-The supplied installer is dist/HarborBrowserSetup-0.3.4.exe. It was built, not installed, during verification. Close Harbor and install over the existing version. The installer AppId, existing profile location and schema 5 are preserved.
+Tabs now share the title row with the Beacon logo and window controls. Drag empty header space to move the window; drag tab headers to reorder them. Regular tabs still append on the right. The strip can scroll horizontally when it overflows.
 
-To build from source, use Visual Studio 2022 desktop build tools with the .NET Framework 4.8 Developer Pack and Inno Setup. Run MAKE-SETUP.bat. The source archive omits build outputs and large Microsoft prerequisites; the build script obtains and verifies prerequisites when needed.
+The separate group bar is gone. Cog > Tab groups provides:
+- Show all, ungrouped, or a selected group.
+- Move the current tab into a group.
+- Add, rename and remove groups.
 
-Windows can retain cached desktop shortcut icons after an update. The executable, installer and window resources in this release contain Beacon.
+Group assignments and reordered tab sessions remain preserved.
 
-## Verification and previews
+## Beacon icon refresh
 
-144 regression checks and 28 isolated WebView2 browser checks passed. The tab-order check covers 3,000 move configurations. Settings save/cancel tests use isolated dialogs, not your Harbor profile.
+The executable already contained Beacon in 0.3.4. This update also assigns a matching explicit Windows app identity and uses a separate versioned Beacon icon for installer-created shortcuts and the uninstall entry. The installer asks Explorer to refresh its icon information.
 
-Run Tests/Run-Tests.ps1 and HomeSmokeTests/Run-Browser-Tests.ps1 after building the payload. See VERIFICATION.md for test limits. Previews contains offline WPF layouts and an actual WebView2 custom-color capture.
+An older pinned shortcut can retain its own cached icon. If it still looks old after updating, unpin that old shortcut and pin the updated Harbor again.
+
+## Install and verification
+
+Close Harbor and run dist/HarborBrowserSetup-0.3.5.exe over the existing version. The installer identity, profile folder and schema 5 remain unchanged. The installer includes the offline .NET Framework 4.8 and WebView2 x64 installers.
+
+The installer was built but not installed during verification. See VERIFICATION.md for results and remaining real-desktop checks.
+
+Test runners:
+- Tests/Run-Tests.ps1 — 176 service, settings and offline-layout checks.
+- HomeSmokeTests/Run-Browser-Tests.ps1 — 28 isolated WebView2 home-page checks.
+- IntegrationTests/Run-Integration-Tests.ps1 — 36 isolated app/video checks using a generated live video in a cross-origin iframe, a separate profile and offscreen monitor geometry.
+
+Previews includes the compact header and captured video player viewports. Source archives omit build outputs, test profiles and large redistributables.

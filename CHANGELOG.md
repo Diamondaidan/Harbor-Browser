@@ -1,3 +1,15 @@
+## 0.3.5
+
+- Connect HTML fullscreen changes to native full-monitor video presentation.
+- Add browser fullscreen with F11 and restore the previous placement and resize constraints on exit.
+- Limit normal maximization to monitor work areas; provide taskbar-edge space during video fullscreen.
+- Add a persistent-player picture-in-picture window with play/pause, mute and return-to-tab controls.
+- Support video discovery and layout restoration across nested/cross-origin frames, and keep pop-out tabs awake.
+- Combine tabs, branding and window controls into one title row.
+- Replace the group bar with cog-menu filtering, assignment and management.
+- Add explicit Windows app/shortcut identity, versioned Beacon shortcut icons and Explorer icon refresh.
+- Add isolated app/media integration tests and test-profile injection.
+
 ## 0.3.4
 
 - Append regular new tabs at the right edge.
