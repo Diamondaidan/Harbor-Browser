@@ -48,7 +48,7 @@ namespace HarborBrowser
             if(suggestions.Count==0&&OnlineSuggestionService.IsSearchQuery(AddressBox.Text))suggestions.Add(new AddressSuggestion{Title="Search "+SearchEngineService.GetById(_settings.SearchEngineId).Name+" for “"+AddressBox.Text.Trim()+"”",Query=AddressBox.Text.Trim(),SourceLabel="Search the web"});
             AddressSuggestionList.ItemsSource=suggestions;AddressSuggestionList.SelectedIndex=-1;
             AddressSuggestions.IsOpen=suggestions.Count>0;
-            if(_settings.OnlineSuggestionsEnabled&&SelectedTab!=null&&!SelectedTab.IsPrivate&&OnlineSuggestionService.IsSearchQuery(AddressBox.Text))
+            if(AllowOnlineSuggestions&&SelectedTab!=null&&!SelectedTab.IsPrivate&&OnlineSuggestionService.IsSearchQuery(AddressBox.Text))
             {
                 _suggestionCancellation=new System.Threading.CancellationTokenSource();
                 _ = FillOnlineSuggestions(AddressBox.Text.Trim(),_settings.SearchEngineId,SelectedTab,suggestions,_suggestionRevision,_suggestionCancellation.Token);
@@ -60,8 +60,8 @@ namespace HarborBrowser
             try
             {
                 await System.Threading.Tasks.Task.Delay(280,cancellation);
-                var terms=await OnlineSuggestions.GetAsync(query,engine,_settings.OnlineSuggestionsEnabled,tab.IsPrivate,cancellation);
-                if(cancellation.IsCancellationRequested||revision!=_suggestionRevision||SelectedTab!=tab||tab.IsPrivate||!_settings.OnlineSuggestionsEnabled||_settings.SearchEngineId!=engine||!AddressBox.IsKeyboardFocusWithin||AddressBox.Text.Trim()!=query||!AddressSuggestions.IsOpen||AddressSuggestionList.SelectedIndex>=0)return;
+                var terms=await OnlineSuggestions.GetAsync(query,engine,AllowOnlineSuggestions,tab.IsPrivate,cancellation);
+                if(cancellation.IsCancellationRequested||revision!=_suggestionRevision||SelectedTab!=tab||tab.IsPrivate||!AllowOnlineSuggestions||_settings.SearchEngineId!=engine||!AddressBox.IsKeyboardFocusWithin||AddressBox.Text.Trim()!=query||!AddressSuggestions.IsOpen||AddressSuggestionList.SelectedIndex>=0)return;
                 if(terms.Count==0)return;
                 var remote=terms.Select(term=>new AddressSuggestion{Title=term,Query=term,SourceLabel=SearchEngineService.GetById(engine).Name+" suggestion"});
                 AddressSuggestionList.ItemsSource=remote.Take(5).Concat(local.Where(s=>s.Query==null)).Take(8).ToList();

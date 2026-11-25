@@ -30,6 +30,8 @@ namespace HarborBrowser
         public string OriginalManifest {get;set;}
         public List<string> AllowedSites {get;set;}
         public bool AwaitingEnable {get;set;}
+        public bool? Enabled {get;set;}
+        public string PackageHash {get;set;}
     }
     public partial class MainWindow
     {
@@ -74,9 +76,24 @@ namespace HarborBrowser
             {
                 // WebView2 also returns its PDF/clipboard engine components here.
                 // Only manage modules installed through Harbor's reviewed path.
-                foreach(var extension in (await profile.GetBrowserExtensionsAsync()).Where(e=>_moduleFolders.ContainsKey(e.Id)))
+                var installed=(await profile.GetBrowserExtensionsAsync()).ToDictionary(e=>e.Id);
+                foreach(var entry in _moduleFolders.ToList())
                 {
-                    try{ModulePackage(extension.Id);CheckActiveManifest(extension.Id);}catch{await extension.EnableAsync(false);}
+                    CoreWebView2BrowserExtension extension;installed.TryGetValue(entry.Key,out extension);
+                    try
+                    {
+                        var package=ModulePackage(entry.Key);CheckActiveManifest(entry.Key);
+                        ModuleSitePolicy policy;_modulePolicies.TryGetValue(entry.Value,out policy);
+                        if(policy?.Enabled==false){if(extension!=null&&extension.IsEnabled)await extension.EnableAsync(false);continue;}
+                        if(extension!=null)continue; // Respect a native disabled state.
+                        // Restore only an explicit saved enable decision and the
+                        // exact reviewed package, never a changed/missing package.
+                        if(policy?.Enabled!=true||string.IsNullOrEmpty(policy.PackageHash))continue;
+                        if(policy.PackageHash!=SiteModuleService.Fingerprint(package))throw new InvalidDataException("Module files changed since review. Remove and reinstall this module.");
+                        extension=await profile.AddBrowserExtensionAsync(package.Folder);
+                        if(extension.Id!=entry.Key){await extension.EnableAsync(false);await extension.RemoveAsync();throw new InvalidDataException("Module identity changed.");}
+                    }
+                    catch{if(extension!=null)await extension.EnableAsync(false);}
                 }
             }
             catch(Exception ex){System.Diagnostics.Debug.WriteLine("Site modules unavailable: "+ex.Message);}
@@ -101,6 +118,7 @@ namespace HarborBrowser
             // Compare canonical JSON values; formatting alone does not change access.
             var json=ModuleJson();if(json.Serialize(json.DeserializeObject(active))!=SiteModuleService.Manifest(package,policy.AllowedSites))throw new InvalidDataException("Site access needs to be reapplied. Open Site access and save it again.");
             if(policy.AwaitingEnable||policy.AllowedSites.Count==0)throw new InvalidOperationException("This module is disabled until you allow a site and enable it.");
+            if(!string.IsNullOrEmpty(policy.PackageHash)&&policy.PackageHash!=SiteModuleService.Fingerprint(package))throw new InvalidDataException("Module files changed since review. Remove and reinstall this module.");
         }
         internal async Task<List<SiteModuleRow>> GetModules()
         {
@@ -119,6 +137,8 @@ namespace HarborBrowser
                         ModuleSitePolicy policy;_modulePolicies.TryGetValue(entry.Value,out policy);
                         if(row.AllowedSites.Count==0)row.Status="No sites allowed";
                         else if(policy!=null&&policy.AwaitingEnable)row.Status="Disabled — site access saved";
+                        else if(extension==null&&policy?.Enabled==false)row.Status="Disabled";
+                        else if(extension==null&&policy?.Enabled==true&&policy.PackageHash!=SiteModuleService.Fingerprint(package))throw new InvalidDataException("Module files changed since review. Remove and reinstall this module.");
                         else if(extension!=null)CheckActiveManifest(entry.Key);
                     }
                     catch(Exception ex){row.Status="Blocked: "+ex.Message;row.Enabled=false;if(extension!=null)await extension.EnableAsync(false);}
@@ -137,6 +157,13 @@ namespace HarborBrowser
             BrowserDataStore.WriteTextAtomically(Path.Combine(_store.RootFolder,"module-permissions.json"),ModuleJson().Serialize(_modulePolicies));
         }
         private void RequireModuleWrites(){if(_store.IsReadOnlyForNewerDataVersion||!_sessionWritesAllowed)throw new InvalidOperationException("Module changes are unavailable in a read-only profile.");}
+        private ModuleSitePolicy ModuleState(string id,SiteModulePackage package)
+        {
+            string folder=_moduleFolders[id];ModuleSitePolicy policy;
+            if(!_modulePolicies.TryGetValue(folder,out policy))
+            {_modulePolicies[folder]=policy=new ModuleSitePolicy{OriginalManifest=SiteModuleService.Manifest(package),AllowedSites=package.Sites.ToList()};}
+            return policy;
+        }
         internal async Task<string> InstallModule(SiteModulePackage reviewed)
         {
             if(_store.IsReadOnlyForNewerDataVersion||!_sessionWritesAllowed)throw new InvalidOperationException("This profile is read-only.");
@@ -147,7 +174,12 @@ namespace HarborBrowser
                 {
                     await InitializeModules(profile);if(_modulePolicyError!=null)throw new InvalidOperationException(_modulePolicyError);var extension=await profile.AddBrowserExtensionAsync(folder);id=extension.Id;
                     _moduleFolders[id]=Path.GetFileName(folder);
-                    try{SaveModuleFolders();}catch{await extension.RemoveAsync();_moduleFolders.Remove(id);throw;}
+                    try
+                    {
+                        var package=ModulePackage(id);var policy=ModuleState(id,package);policy.Enabled=true;policy.PackageHash=SiteModuleService.Fingerprint(package);
+                        SaveModulePolicies();SaveModuleFolders();
+                    }
+                    catch{await extension.RemoveAsync();_moduleFolders.Remove(id);_modulePolicies.Remove(Path.GetFileName(folder));throw;}
                 });
             }
             catch{SiteModuleService.RemoveManaged(ModuleRoot,folder);throw;}
@@ -165,6 +197,8 @@ namespace HarborBrowser
                 {
                     var package=ModulePackage(id);var sites=ModuleSites(id,package);if(sites.Count==0)throw new InvalidOperationException("Choose at least one allowed site in Site access first.");
                     ModuleSitePolicy policy;_modulePolicies.TryGetValue(_moduleFolders[id],out policy);
+                    policy=ModuleState(id,package);policy.Enabled=false;SaveModulePolicies();
+                    if(!string.IsNullOrEmpty(policy.PackageHash)&&policy.PackageHash!=SiteModuleService.Fingerprint(package))throw new InvalidDataException("Module files changed since review. Remove and reinstall this module.");
                     if(extension==null)
                     {
                         File.WriteAllText(Path.Combine(package.Folder,"manifest.json"),SiteModuleService.Manifest(package,sites));
@@ -175,10 +209,20 @@ namespace HarborBrowser
                     {
                         if(policy!=null){policy.AwaitingEnable=false;SaveModulePolicies();}
                         CheckActiveManifest(id);await extension.EnableAsync(true);
+                        policy.PackageHash=SiteModuleService.Fingerprint(package);policy.Enabled=true;SaveModulePolicies();
                     }
                     catch{await extension.EnableAsync(false);ReloadModuleTabs();throw;}
                 }
-                else if(extension!=null)await extension.EnableAsync(false);
+                else
+                {
+                    try
+                    {
+                        ModuleSitePolicy policy;
+                        if(!_modulePolicies.TryGetValue(_moduleFolders[id],out policy))policy=ModuleState(id,ModulePackage(id));
+                        policy.Enabled=false;SaveModulePolicies();
+                    }
+                    finally{if(extension!=null)await extension.EnableAsync(false);}
+                }
             });
             ReloadModuleTabs();
             if(remove)
@@ -198,17 +242,18 @@ namespace HarborBrowser
                     string manifest=SiteModuleService.Manifest(package,sites); // Validate before changing native state.
                     var extension=(await profile.GetBrowserExtensionsAsync()).FirstOrDefault(e=>e.Id==id);bool enabled=extension!=null&&extension.IsEnabled;
                     if(extension!=null)await extension.EnableAsync(false);
-                    var policy=new ModuleSitePolicy{OriginalManifest=SiteModuleService.Manifest(package),AllowedSites=sites,AwaitingEnable=true};
+                    var policy=new ModuleSitePolicy{OriginalManifest=SiteModuleService.Manifest(package),AllowedSites=sites,AwaitingEnable=true,Enabled=false};
                     _modulePolicies[_moduleFolders[id]]=policy;SaveModulePolicies();
                     if(extension!=null)await extension.RemoveAsync();
                     File.WriteAllText(Path.Combine(package.Folder,"manifest.json"),manifest);
+                    policy.PackageHash=SiteModuleService.Fingerprint(package);SaveModulePolicies();
                     // AddBrowserExtensionAsync starts enabled. Keep disabled modules
                     // unregistered until explicit Enable, avoiding a transient grant.
                     if(enabled&&sites.Count>0)
                     {
                         extension=await profile.AddBrowserExtensionAsync(package.Folder);
                         if(extension.Id!=id){await extension.RemoveAsync();throw new InvalidOperationException("The module identity changed. Remove this saved copy and install it again.");}
-                        policy.AwaitingEnable=false;
+                        policy.AwaitingEnable=false;policy.Enabled=true;
                         try{SaveModulePolicies();}catch{await extension.EnableAsync(false);throw;}
                     }
                 });

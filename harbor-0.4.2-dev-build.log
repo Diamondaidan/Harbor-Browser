@@ -1,8 +1,0 @@
-MSBuild version 17.14.60+43b635718 for .NET Framework
-
-  Determining projects to restore...
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json. [C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\HarborBrowser.sln]
-  Restored C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\HarborBrowser\HarborBrowser.csproj (in 6.16 sec).
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\HarborBrowser\HarborBrowser.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
-C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\HarborBrowser\HarborBrowser_kat2xu5f_wpftmp.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\HarborBrowser\bin\Release\net48\HarborBrowser.exe

@@ -1,0 +1,39 @@
+PASS actual HTML title
+PASS selected engine delivered
+PASS logo loaded locally
+PASS morning background applied
+PASS search input accessible
+PASS empty bookmarks explained
+PASS no horizontal overflow at desktop size
+PASS blue-hour background applied
+PASS normal theme choice saved
+PASS theme survives reload
+PASS engine change updates page
+PASS private-tab indicator
+PASS unsafe bookmark excluded
+PASS bookmark label treated as text
+PASS empty prompt hidden with bookmarks
+PASS private theme change not saved
+PASS search message uses selected engine encoding
+PASS address entry resolved
+PASS no overflow at minimum Harbor width
+PASS responsive small-screen layout
+PASS search remains usable at narrow width
+PASS app dark mode reaches home
+PASS custom accent reaches home
+PASS custom text reaches home
+PASS custom accent paints search button
+PASS home theme choice requests app mode change
+PASS private theme change leaves app mode untouched
+PASS custom Home shortcuts use saved order and limit
+PASS fixed scene independent of dark mode
+PASS normal Home exposes customization action
+PASS Home customization sends trusted action
+PASS Home input sends suggestion request
+PASS suggestions render text without executing markup
+PASS stale Home suggestion message ignored
+PASS Home keyboard navigation does not scroll page
+PASS dark suggestion highlight stays translucent
+PASS selected Home completion requests search only
+PASS home loaded without external network requests
+ALL PASSED: 38 WebView2 browser checks. Captures are from an isolated test host, not the installed Harbor window.

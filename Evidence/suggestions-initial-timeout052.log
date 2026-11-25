@@ -1,0 +1,23 @@
+PASS fresh popup has no keyboard selection
+PASS clicking suggestion text without preselection navigates
+PASS clicked title opens its own row rather than keyboard selection
+PASS clicked url opens its own row rather than keyboard selection
+PASS clicked source opens its own row rather than keyboard selection
+PASS clicked surface opens its own row rather than keyboard selection
+PASS list background does not activate a selected suggestion
+PASS pressing row then releasing outside it does not navigate
+PASS keyboard navigation remains available
+PASS clicking online suggestion performs selected-provider search
+PASS online suggestion click cannot open an internal browser page
+PASS online reply cannot replace rows during a click
+PASS press/release still opens original row after late reply
+FAIL System.TimeoutException: Timed out waiting for app state.
+   at Program.<Wait>d__31.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.2\IntegrationTests\Program.cs:line 24
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<SuggestionClickChecks>d__55.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.2\IntegrationTests\SuggestionClickChecks.cs:line 69
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<>c__DisplayClass35_0.<<Main>b__3>d.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.5.2\IntegrationTests\Program.cs:line 81

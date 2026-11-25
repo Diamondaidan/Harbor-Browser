@@ -1,6 +1,0 @@
-Harbor Browser 0.4.3
-File version: 0.4.3.0
-Assembly version: 0.4.3.0
-Profile schema: 9
-Installer AppId: {8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}
-Profile: %LOCALAPPDATA%\HarborBrowser

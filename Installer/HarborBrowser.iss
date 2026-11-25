@@ -3,7 +3,7 @@
 ; signed offline .NET Framework 4.8 and WebView2 Evergreen installers.
 
 #ifndef AppVersion
-  #define AppVersion "0.5.0"
+  #define AppVersion "0.5.2"
 #endif
 #ifndef BuildRevision
   #define BuildRevision 0
@@ -47,8 +47,8 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=admin
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+ArchitecturesAllowed=x64os
+ArchitecturesInstallIn64BitMode=x64os
 MinVersion=10.0.16299
 CloseApplications=yes
 RestartApplications=no
@@ -113,6 +113,14 @@ const
   DotNet48ReleaseKey = 'SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full';
   WebView2ClientKey = 'SOFTWARE\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}';
 
+var
+  PrerequisitesNeedRestart: Boolean;
+
+function NeedRestart: Boolean;
+begin
+  Result := PrerequisitesNeedRestart;
+end;
+
 function IsDotNet48OrLaterInstalled: Boolean;
 var
   ReleaseValue: Cardinal;
@@ -122,8 +130,16 @@ begin
 end;
 
 function IsUsableVersion(const VersionText: String): Boolean;
+var
+  DotPosition, MajorVersion: Integer;
 begin
-  Result := (VersionText <> '') and (VersionText <> '0.0.0.0');
+  { Release 0.5.2 is tested with Runtime 157; update older installations
+    using the included, signed Evergreen standalone package. }
+  DotPosition := Pos('.', VersionText);
+  MajorVersion := 0;
+  if DotPosition > 1 then
+    MajorVersion := StrToIntDef(Copy(VersionText, 1, DotPosition - 1), 0);
+  Result := MajorVersion >= 157;
 end;
 
 function IsWebView2RuntimeInstalled: Boolean;
@@ -202,6 +218,8 @@ begin
       not CopyProfileFile(DataDir, BackupDir, 'modules.json.bak') or
       not CopyProfileFile(DataDir, BackupDir, 'module-permissions.json') or
       not CopyProfileFile(DataDir, BackupDir, 'module-permissions.json.bak') or
+     not CopyProfileFile(DataDir, BackupDir, 'tor-preview.txt') or
+     not CopyProfileFile(DataDir, BackupDir, 'run-state.json') or
      not CopyProfileFile(DataDir, BackupDir, 'data-version.txt') or
      not CopyProfileFile(DataDir, BackupDir, 'data-version.txt.bak') then
   begin
@@ -228,6 +246,7 @@ begin
   if ExitCode = 3010 then
   begin
     NeedsRestart := True;
+    PrerequisitesNeedRestart := True;
     Exit;
   end;
 
@@ -264,3 +283,4 @@ begin
   WizardForm.StatusLabel.Caption := 'Backing up Harbor profile...';
   Result := BackupExistingProfile;
 end;
+

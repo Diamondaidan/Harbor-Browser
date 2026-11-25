@@ -39,6 +39,8 @@ namespace HarborBrowser
         }
         private void InitializePrivacy()
         {
+            _browserVpn=new BrowserVpnService(_store.RootFolder);
+            Closed+=(s,e)=>_browserVpn.Dispose();
             _normalPermissions=new SitePermissionService(_store.LoadPermissions());
             ConfirmPrivateDownload=()=>MessageBox.Show(this,"Private browsing does not hide downloaded files from this computer. Continue downloading?","Private download",MessageBoxButton.YesNo,MessageBoxImage.Information)==MessageBoxResult.Yes;
             ConfirmPrivateDownloadClose=()=>MessageBox.Show(this,"Closing the last private tab cancels unfinished private downloads. Close and cancel them?","Private downloads",MessageBoxButton.YesNo,MessageBoxImage.Question,MessageBoxResult.No)==MessageBoxResult.Yes;

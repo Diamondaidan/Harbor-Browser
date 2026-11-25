@@ -75,7 +75,7 @@ internal static partial class Program
             {
                 await Wait(()=>window.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)window.BrowserTabs.Items[0]).Tag).Initialized);
                 if(run==0){id=await window.InstallModule(SiteModuleService.Inspect(source));await window.SetModuleSites(id,new[]{"https://b.module.test/*"});}
-                else if(run==1){var row=(await window.GetModules()).Single();Check("site grants and enabled state survive app restart",row.Id==id&&row.Enabled&&row.RequestedSites.Count==2&&row.AllowedSites.SequenceEqual(new[]{"https://b.module.test/*"}));}
+                else if(run==1){var row=(await window.GetModules()).Single();Console.WriteLine("INFO restored module: same ID="+(row.Id==id)+"; enabled="+row.Enabled+"; requested="+row.RequestedSites.Count+"; allowed="+string.Join(",",row.AllowedSites)+"; status="+row.Status);Check("site grants and enabled state survive app restart",row.Id==id&&row.Enabled&&row.RequestedSites.Count==2&&row.AllowedSites.SequenceEqual(new[]{"https://b.module.test/*"}));}
                 else{var row=(await window.GetModules()).Single();Check("corrupt permission file disables managed native extension",!row.Enabled&&row.Status.StartsWith("Blocked:")&&!(await ((BrowserTab)((TabItem)window.BrowserTabs.Items[0]).Tag).View.CoreWebView2.Profile.GetBrowserExtensionsAsync()).Any(e=>e.Id==id&&e.IsEnabled));await window.ChangeModule(id,false,true);}
             }
             finally{await (Task)typeof(MainWindow).GetMethod("FinishPrivacyBeforeClose",BindingFlags.NonPublic|BindingFlags.Instance).Invoke(window,null);typeof(MainWindow).GetField("_closingAfterPrivacyCleanup",BindingFlags.NonPublic|BindingFlags.Instance).SetValue(window,true);window.Close();}

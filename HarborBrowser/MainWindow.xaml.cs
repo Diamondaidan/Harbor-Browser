@@ -250,6 +250,7 @@ namespace HarborBrowser
 
         private BrowserTab CreateNewTab(string initialUrl, bool select, bool isPrivate, BrowserSessionTab restoredTab)
         {
+            if(isPrivate&&(_browserVpn?.Enabled??false)){SetStatus("Private tabs are paused while the Tor connection preview is enabled. Turn it off in VPN controls to use private tabs.");return null;}
             var tab = new BrowserTab
             {
                 View = new WebView2(),
@@ -434,6 +435,7 @@ namespace HarborBrowser
                 CoreWebView2 core = view.CoreWebView2;
                 await InitializePermissionProfile(core.Profile);
                 await InitializeModules(core.Profile);
+                await PrepareBrowserVpn(core.Profile);
                 if (!current()) return;
                 core.PermissionRequested += (s, args) => { if (current()) CorePermissionRequested(tab, args); else { args.Handled = true; args.State = CoreWebView2PermissionState.Deny; args.SavesInProfile = false; } };
                 await InitializeVideoFeatures(tab, core);
@@ -554,6 +556,12 @@ namespace HarborBrowser
             catch (Exception ex)
             {
                 if (!current()) return;
+                if(_browserVpn.Enabled)
+                {
+                    SetStatus("Tor routing could not start. Open VPN controls to disconnect.");
+                    MessageBox.Show(this,"Harbor could not prepare the Tor connection.\n\n"+ex.Message+"\n\nOpen the cog menu > VPN > Free browser connection · Tor preview, then choose Disconnect and restore to use your regular connection.","Tor connection unavailable",MessageBoxButton.OK,MessageBoxImage.Information);
+                    return;
+                }
                 SetStatus("Browser engine could not start");
                 MessageBox.Show(this,
                     "Harbor could not initialize the WebView2 browser engine.\n\n" + ex.Message +
@@ -1707,6 +1715,7 @@ namespace HarborBrowser
 
             menu.Items.Add(CreateTabGroupsMenu());
             MenuItem vpn = CreateGearSubmenu("VPN");
+            AddGearCommand(vpn, "Free browser connection · Tor preview…", BrowserVpn_Click);
             AddGearCommand(vpn, "Manage Windows VPN connections…", (s, args) => new VpnWindow { Owner = this }.ShowDialog());
             AddGearCommand(vpn, "Windows VPN settings…", VpnSettings_Click);
             menu.Items.Add(vpn);
@@ -1944,7 +1953,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.5.0\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.5.2\nA compact, modular browser for Windows.\n\nRendering engine: Microsoft Edge WebView2\n\nFree browser connection: Tor routing for normal Harbor tabs, without an account. This is not Tor Browser or a conventional VPN.\n\nWindows VPN controls remain separate and can affect other apps.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2043,3 +2052,6 @@ namespace HarborBrowser
         }
     }
 }
+
+
+

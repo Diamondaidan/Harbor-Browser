@@ -1,60 +1,84 @@
-# Harbor Browser 0.5.0 verification
+# Harbor Browser 0.5.2 - release verification
 
-Verified November 13, 2026 on the available Windows 10 Home build 19045 machine with .NET Framework 4.8 and WebView2 157.0.4341.46. App/assembly/installer file version: 0.5.0.0. Profile schema remains 9. Synced sources, earlier releases, the personal browser profile, HTTP/HTTPS default choices and real VPN connections were not changed.
+Prepared November 14, 2026. The regular release was built and tested on Windows 10 x64 build 19045 with WebView2 157.0.4341.46, Intel Core i7-7700HQ, 8 logical processors and 12 GiB installed memory. Tests used isolated profiles, download folders, local fixtures and owned test processes. The installed Harbor, personal profile and browser defaults were preserved.
 
 ## Executed checks
 
-| Suite/check | Result |
+| Suite | Final result |
 | --- | --- |
-| Regression/services/settings/layout | 384 passed |
-| Full running-app/media/download/privacy/recovery | 360 passed |
-| Real App startup/forwarding sub-suite | 4 passed, included in the full suite |
-| New UI/IPC/VPN sub-suite | 17 passed, included in the full suite |
-| Suggestion-click regressions | 17 passed |
-| Installer-staged Home page in actual WebView2 | 38 passed |
-| Isolated installer/upgrade/uninstall and browser registration | 19 passed |
-| Live public-site navigation/icons | 6 passed across W3C, Wikipedia and Example Domain |
-| Total without repeated sub-suites | 824 successful assertions |
-| Release build | Passed, zero errors; NU1900 warnings because the online package vulnerability feed was unreachable |
-| Production Inno Setup compile | Passed; .NET 4.8 and WebView2 x64 prerequisites embedded and Microsoft signatures/sizes verified |
-| Compiled/tested/staged application | SHA-256 identical |
+| Release app and all four test-project builds | Passed, zero build errors |
+| Regression, services, settings and offline WPF layout | 384 assertions passed |
+| Running browser, media, downloads, UI, privacy and recovery | 360 assertions passed |
+| Focused address and Home search-suggestion clicks | 17 assertions passed on final run |
+| Staged Home page in real WebView2 | 38 assertions passed |
+| Live Tor connection, download, failure, isolation and reversal | 20 assertions passed |
+| Extension integrity plus real Tor restart/crash lifecycle | 26 assertions passed |
+| Live W3C, Wikipedia and Example Domain navigation and favicon behavior | 6 assertions passed; no UNVERIFIED sites |
+| Isolated 0.5.0 install to 0.5.2 upgrade and uninstall | 26 assertions passed |
+| Simulated missing prerequisite success, reboot and failure branches; native runtime-version checks | 25 assertions passed |
+| Total, excluding repeated development runs and benchmarks | **902 successful assertions** |
+| Performance scenarios, counted separately | 10 passed; 90 recorded samples; see PERFORMANCE-0.5.2.md |
+| Network-enabled package restore and NuGet vulnerability listing | Passed; no vulnerable packages reported by configured sources |
 
-These are assertion counts, not 824 separate user workflows. Failed development attempts are not counted. Full suite and focused logs are included in the source package; generated profiles, binaries and installer fixtures are excluded from that ZIP.
+These counts are assertions, not 902 independent user workflows. The final logs are in Evidence in the source package. All final browser suites used the same application executable as the staged installer payload.
 
-## Private-tab indication
+The first focused suggestion run passed its first 13 assertions but timed out while creating a private tab. That isolated process was stopped. All 17 checks then passed alone with a fresh, shorter profile path; no application code changed for the rerun. Broader private-tab cases also passed in the complete suite. The precise cause of the initial timeout is not established. suggestions-initial-timeout052.log is retained for review. The reusable release-test runner now uses shorter fixture paths.
 
-Normal tabs have no private marker. Private tabs have Private text, accessible names, a purple P badge over the favicon and a Private window-title prefix. The badge stays visible for pinned/icon-only tabs when the title is hidden. Light/dark renders retained the site icon and were visually inspected. Existing private-cookie/storage/permission/download/history/session exclusions passed the full suite. No new anonymity or network-privacy claim is made.
+Initial non-network build restores warned that the vulnerability feed was unavailable. A subsequent network-enabled restore and explicit vulnerable-package listing succeeded without reported advisories. This checks the managed package feed; it is not an audit of all native third-party code.
 
-## Browser registration and activation
+## Functional coverage
 
-The normal installer now declares machine-wide registered browser capabilities, HTTP/HTTPS URL associations, .htm/.html file handling, owned ProgIDs, icons and quoted open commands. It does not edit UserChoice or set a default. Cog > Tools > Default browser opens the documented Windows Default apps URI; choosing Harbor remains a Windows user action. Windows 10 uses the general page; supported Windows 11 builds can navigate to the registered application page.
+The running-browser suite exercised download naming and extension recovery, unsafe filename cleanup, duplicate filenames, cancellation, paused/resumed transfers, private download handling and stored download state. A live Tor download retained its .asc filename/extension and expected signature text; that check did not validate the detached signature.
 
-Executable installer tests used separate current-user fixture registration names/ProgIDs/AppId and workspace app/profile folders. They verified HTTP/HTTPS capabilities, RegisteredApplications, quoted executable/target arguments, HTML OpenWith/association entries, upgrade snapshots, byte-preserved profile files, uninstall cleanup and unchanged user HTTP/HTTPS defaults. These tests do not prove the production administrator/UAC path, missing-prerequisite installation or actual selection in the Windows Settings picker. The production machine-wide installer was compiled but not installed over personal Harbor.
+UI checks covered new tabs on the right, tab reordering and equal shrinking widths, bookmark/folder reordering, private-tab identity, Beacon icons, title-bar controls, compact cog menus, URL selection, history placement, light/dark appearance, custom colors, responsive dialogs and resource monitoring. Browser fullscreen used the monitor work area, video fullscreen used the full monitor, and iframe video/popout controls were exercised. WPF and browser captures are from isolated test windows, including simulated monitor/scaling layouts; they are not a manual check on every physical display or laptop.
 
-Real child processes ran the production App startup code using injected disposable stores and a unique test pipe namespace. Cold activation opened one target without an extra Home tab. A second process forwarded its URL and exited. With a private tab selected, the forwarded link became a new normal tab. A local HTML file with spaces also forwarded correctly. Child applications closed cleanly. Normal session/recovery behavior remained covered by the full suite.
+Search tests covered row text, URL, source label, empty surface, keyboard selection, private bookmark suggestions, delayed online replies and real browser pointer events on Home suggestions. The Home suite also confirmed no external request was needed to load local Home assets.
 
-Argument tests covered quoted URLs, encoded spaces/fragments, file URI forwarding, missing/non-HTML files, remote shares, unsupported schemes, extra option-shaped association arguments and count limits. The forwarding pipe grants access to the current Windows user and bounds/validates its message. The tests did not use the personal browser's single-instance namespace.
+Modules were tested with site grants, disabled state, removal, private/internal-page exclusion, missing native registration, changed package files and corrupt saved permissions. Enabled restoration requires an explicit saved choice and an unchanged reviewed package. Legacy records can require saving Site access again and explicitly enabling the module; they are not silently trusted.
 
-Initial startup tests placed WebView2 profiles inside an excessively deep generated directory. Private-controller initialization/shutdown stalled there; using a short disposable temporary profile resolved the test. Cleanup experiments were discarded, and production private-cleanup code remains the 0.4.3 implementation. Long custom/test profile paths remain a known environment limitation. The ordinary installed profile uses LocalAppData, not the deep generated test path.
+## Installer checks and fixes
 
-## VPN scope and validation
+The finished installer is the regular **0.5.2** x64 release, using the same production upgrade identity as 0.5.0 and %LOCALAPPDATA%\HarborBrowser. It contains the complete application, Tor client, matching Tor source, original component notices, and Microsoft's full offline prerequisite packages. The staged payload has 35 files before Inno's versioned icon and uninstaller additions.
 
-The native read-only discovery probe returned zero Windows VPN profiles and zero query errors. No real connection was connected, disconnected, created or edited. Unit/UI tests used injected Windows query/command results to verify distinct user/all-user scopes, observed status, connection/disconnection transitions, stale profiles, unknown states, query timeouts, name validation, quoted direct-process arguments, targeted disconnect and credential-error guidance. Compact light/dark VPN windows kept footer controls reachable.
+The bundled Microsoft packages have valid Microsoft Corporation Authenticode signatures:
 
-The implementation uses Get-VpnConnection to discover current-user and all-user profiles and query Windows status. Actions recheck the selected profile and call Windows rasdial with its exact name and scope-specific phonebook. No username/password is collected, stored or passed. Commands run without a shell/visible console, drain output asynchronously and have time limits. A success result is followed by a status query; it is not represented as proof of routing/privacy. Windows profile/credential management stays in Windows settings.
+- .NET Framework 4.8 offline: 121,346,568 bytes.
+- WebView2 x64 Evergreen standalone, runtime 157.0.4341.46: 214,990,032 bytes.
 
-Actual saved-credential/EAP/MFA authentication, server connectivity, routing, split-tunnel traffic, disconnect completion, provider-specific applications and policy behavior still require a configured Windows VPN. Harbor supplies no VPN server/service/subscription and no VPN performance/leak-test result. Status refreshing runs while the VPN window is open; broad performance benchmarks were not repeated.
+The release requires WebView2 major version 157 or later. Native setup checks reject missing/invalid/156 version values and accept 157/newer. Older runtimes trigger the included standalone package. No separate prerequisite download is needed before running the finished installer. Administrator access is required; Windows may require a restart.
 
-## Existing behavior retained
+A discovered setup defect was fixed: prerequisite exit 3010 previously did not trigger the final restart notification. Setup now preserves it through NeedRestart. Both .NET and WebView restart branches return the configured restart exit code in the fixture. Simulated exit 1603 aborts before application copying; successful helpers receive the intended silent arguments. Real Microsoft prerequisite installers were not executed on this already configured computer.
 
-Full checks exercised local streamed ZIP downloads with pause/resume/cancel and byte/filename checks, tab order/reordering/widths/overflow, bookmark order/drop handling, PNG/SVG/ICO icons, settings and themes, video fullscreen/PiP, actual permission timeout, private isolation, browsing-data cleanup, browser-engine recovery and resource monitoring. W3C and Wikipedia loaded live with their icons; Example Domain used the no-icon fallback. Home tests used staged assets without external requests. Historical 0.4.1 performance results remain in PERFORMANCE.md/Measurements and are not new 0.5.0 measurements.
+Lifecycle fixtures compiled the real installer script into isolated variants with a distinct app identity, per-user test registration, test install/profile folders, and no shortcuts or automatic app launch. The lifecycle variant reused existing prerequisites; the prerequisite variant substituted harmless test executables. The production AppId and real Windows components were never installed/replaced by these tests.
 
-## Remaining Windows-system checks
+The actual Inno file-copy, upgrade backup, browser capability registration and uninstall logic ran. Every installed payload file matched its staged SHA-256. Settings, bookmarks, module permissions, saved Tor choice and startup state survived upgrade and were included in the snapshot. Uninstall preserved profile data, removed fixture registrations and left HTTP/HTTPS default choices unchanged. The production setup compiled successfully, but its actual elevated installation under the production identity was not run on the host.
 
-- Install the normal 0.5.0 setup, including prerequisites/UAC, on the target laptop; upgrade the actual installed Harbor and verify data preservation.
-- Select Harbor in Windows Default apps and open links from another real application with Harbor closed/open/private-selected. Confirm HTML handling and desired default associations. No automated test selected a new default browser.
-- Check private badges at actual 1366 x 768 scale settings, native mouse/trackpad bookmark/tab dragging, edge scrolling, normal suggestion-popup capture, monitor changes, taskbar access and real GPU/video/audio. Logical-size/native test windows are not physical display validation.
-- Use a real Windows VPN profile to validate the remaining VPN behaviors above.
-- Signing, broader extension/store support, security auditing, reliable updating and wider hardware/site compatibility remain pre-1.0 work. App and installer remain unsigned.
+Harbor and the finished installer are unsigned. Windows may show unknown-publisher or reputation prompts. The Microsoft packages inside setup are signed; that does not sign Harbor itself.
 
-See DEFAULT-BROWSER.md, VPN.md, LAPTOP-CHECKS.md and SETUP-README.md. Close Harbor before running dist/HarborBrowserSetup-0.5.0.exe. Previous releases remain separate. The source archive is verified entry-by-entry against the source files; the external SHA-256 file records the installer, source archive and application hashes. Home source/staged assets are also compared by hash.
+## Tor evidence and limits
+
+An actual Harbor page loaded Tor's API with IsTor=true; a separate direct environment returned false with a different address. Killing the owned helper made tested page requests fail rather than fall back directly. Disconnect removed routing and restored direct browsing. Normal restart restored the requested connection before the test page navigated. Normal close and forced browser termination ended the owned helper; subsequent crash recovery reconnected successfully. Disposal/cancellation left no helper running. Windows proxy values stayed unchanged.
+
+Tor remains experimental, off by default, and limited to normal Harbor page traffic and browser-managed downloads. Private tabs and native online typing suggestions pause while enabled. Other apps and external programs opened from downloads remain outside the connection. Harbor is not Tor Browser or a conventional VPN. Full packet-level DNS/WebRTC, background-service, anonymity and fingerprinting audits were not performed.
+
+## Build identity and preservation
+
+- Application file/assembly version: 0.5.2.0; product version: 0.5.2.
+- Tested and packaged HarborBrowser.exe SHA-256: BAF5DF1B09C8EA4C77D39F0DBACA1C3467D5061F1E979613892F0A5730EAB42F.
+- Installer SHA-256: B07CFEEB213858969A10679B26D90DA9EC78FE5B63689061F7E9C665B6D59F7B.
+- Installer size: 358,806,138 bytes (approximately 342.2 MiB).
+- Tor/source provenance is recorded in ThirdParty/TOR-PROVENANCE.md and installed Licensing/TOR-PROVENANCE.md.
+- Original 0.5.0 installer hash remains AE09E05BF5F14BE53C4A52ABAB9175BE1DBAC6DE0D03206ABCA6396968FE8683.
+- Earlier 0.5.2 preview portable hash remains C026DFA2D7FBADE31616750D69DFA70A7AD2439E1A13B3FC34B5C5089FB7658A.
+
+The synced sources directory was not edited. Old release folders/packages were preserved. Final cleanup found no owned Tor helper or fixture registration. The package-audit tool's first launch created an untrusted localhost development certificate; only that newly identified certificate was removed afterward. Browser defaults and system proxy settings were not changed.
+
+## Requires a clean Windows system or user testing
+
+- Real missing-prerequisite installation, elevation, Windows servicing failures, actual reboot/resume and interactive setup/shortcut behavior on a fresh computer.
+- Windows 11, other Windows 10 builds, different hardware, actual multiple monitors, DPI/accessibility settings and taskbar configurations. This installer targets Intel/AMD x64 Windows 10 version 1709 or later; 32-bit Windows and ARM64 are excluded.
+- Long sessions, website/account-specific behavior, protected streaming/DRM, every download server, security-software interaction and all physical video/taskbar arrangements.
+- Real configured Windows VPN authentication, routing and MFA. Those controls were tested with simulated outcomes; no system VPN was connected.
+- The complete Tor privacy audits described above.
+
+Source-package rebuild instructions are in SETUP-README.md. Build the app/test projects in Release before running Run-Full-Release-Tests.ps1. Installer fixture scripts and PerformanceTests/Run-Measurements.ps1 are separate. Do not rebuild binaries while a test process is using them. Package checksums are an external sidecar to avoid hashing an archive that contains its own checksum.

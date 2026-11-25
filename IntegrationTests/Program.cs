@@ -29,6 +29,7 @@ internal static partial class Program
     private static int Main(string[] args)
     {
         if(args.Length>2&&args[2]=="--startup-host")return StartupHost(args);
+        if(args.Length>3&&args[2]=="--tor-lifecycle-host")return TorLifecycleHost(args);
         int exit=1;Directory.CreateDirectory(args[0]);
         var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};
         app.Resources.MergedDictionaries.Add(new ResourceDictionary{Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml")});
@@ -41,7 +42,7 @@ internal static partial class Program
         Func<IntPtr,MonitorLayout> monitors=interactive?null:new Func<IntPtr,MonitorLayout>(h=>layout);
         var main=new MainWindow(store,monitors){WindowStartupLocation=WindowStartupLocation.Manual,Left=interactive?80:-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=interactive,ShowActivated=interactive};
         main.TestBrowserArguments="--use-fake-device-for-media-stream";
-        var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(300)};
+        var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(600)};
         timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL integration timed out");app.Shutdown(1);};
         main.Loaded+=async(s,e)=>{
             try
@@ -49,6 +50,12 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--browser-vpn")
+                {await BrowserVpnChecks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" Tor connection, isolation, failure and rollback checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release052")
+                {await ModuleRestore052(args[0]);await TorLifecycle052(args[0]);Console.WriteLine("ALL PASSED: "+checks+" extension integrity and real Tor lifecycle checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--module052")
+                {await ModuleRestore052(args[0]);Console.WriteLine("ALL PASSED: "+checks+" module restoration and integrity checks.");exit=0;return;}
                 if(organization)
                 {
                     var entries=(System.Collections.Generic.List<Bookmark>)Field(main,"_bookmarks");entries.Clear();

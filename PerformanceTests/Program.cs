@@ -105,7 +105,7 @@ internal static class Benchmark
                 }
                 else await Task.WhenAll(tabs.Skip(1).Select(t=>Sleep(main,t)));
                 await Task.Delay(steady?5000:600);records.AddRange(await Measure(main,tabs,"Sleeping",protectedTab,download));if(churn!=null)churn.Stop();
-                if(actual=="0.4.1.0")
+                if(actual!="0.4.0.0")
                 {
                     int expectedSleeping=count-(protectedTab==null?1:2);
                     if(records.Last().Sleeping!=expectedSleeping||!records.Last().ProtectedTabAwake)throw new Exception("Unexpected candidate suspension/protection: "+records.Last().Sleeping+" expected "+expectedSleeping);

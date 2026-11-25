@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.5.0',
+    [string]$Version = '0.5.2',
     [ValidateRange(0,65535)][int]$BuildRevision = 0,
     [string]$ReleaseSuffix = '',
     [switch]$SkipPrerequisiteDownloads,
@@ -201,6 +201,19 @@ if (@(Get-ChildItem -Path $PayloadDir -Filter 'WebView2Loader.dll' -Recurse -Fil
     throw 'WebView2Loader.dll was not found in the build output. The WebView2 native loader must be packaged with Harbor.'
 }
 
+# Keep the distributed client together with its matching source and notices.
+$LicensingDir = Join-Path $PayloadDir 'Licensing'
+New-Item -ItemType Directory -Path $LicensingDir -Force | Out-Null
+foreach ($name in @('tor-0.4.9.16-source.tar.gz', 'TOR-PROVENANCE.md')) {
+    Copy-Item -LiteralPath (Join-Path $ProjectRoot ('ThirdParty\' + $name)) -Destination $LicensingDir
+}
+foreach ($name in @('README.md', 'SETUP-README.md', 'VPN-PREVIEW-README.md')) {
+    Copy-Item -LiteralPath (Join-Path $ProjectRoot $name) -Destination $PayloadDir
+}
+if (!(Test-Path -LiteralPath (Join-Path $PayloadDir 'Assets\BrowserVpn\TorRuntime\tor\tor.exe'))) {
+    throw 'The optional Tor client is missing from the payload.'
+}
+
 Write-Step 'Preparing offline prerequisites'
 New-Item -ItemType Directory -Path $RedistDir -Force | Out-Null
 if (!$SkipPrerequisiteDownloads) {
@@ -269,3 +282,4 @@ $setup = Join-Path $ProjectRoot "dist\HarborBrowserSetup-$Version$ReleaseSuffix.
 if (!(Test-Path $setup)) { throw "Inno Setup did not produce the expected file: $setup" }
 Write-Host "`nSUCCESS: $setup" -ForegroundColor Green
 Write-Host "This installer includes Harbor, .NET Framework 4.8 offline setup, and the WebView2 Evergreen x64 standalone installer."
+

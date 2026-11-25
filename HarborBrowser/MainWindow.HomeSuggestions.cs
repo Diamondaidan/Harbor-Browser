@@ -37,7 +37,7 @@ namespace HarborBrowser
             {
                 var local=AddressSuggestionService.Find(query,_bookmarks,_history,tab.IsPrivate,3);
                 var terms=new List<string>();
-                if(_settings.OnlineSuggestionsEnabled&&!tab.IsPrivate&&OnlineSuggestionService.IsSearchQuery(query))
+                if(AllowOnlineSuggestions&&!tab.IsPrivate&&OnlineSuggestionService.IsSearchQuery(query))
                 {await Task.Delay(280,cancellation);terms=await OnlineSuggestions.GetAsync(query,engine,true,false,cancellation);}
                 if(cancellation.IsCancellationRequested||tab.IsClosing||SelectedTab!=tab||!tab.Initialized||_settings.SearchEngineId!=engine||!HomePageService.IsHomeUrl(tab.View.CoreWebView2.Source))return;
                 var remote=terms.Take(5).Select(term=>new AddressSuggestion{Title=term,Query=term,SourceLabel=SearchEngineService.GetById(engine).Name+" suggestion"});

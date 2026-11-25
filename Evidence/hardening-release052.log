@@ -1,0 +1,63 @@
+PASS ordinary site modules cannot inject into internal Tor controls
+PASS fixture simulates a missing native extension with saved permission intact
+PASS saved enabled module is reinstalled after native registration loss
+PASS restored module runs on its saved allowed site
+PASS restoration does not regain a revoked site
+PASS disabled module remains unregistered after restart
+PASS changed module content is blocked before automatic restoration
+PASS Enable cannot transiently register a changed package
+PASS changed script never executes on its formerly allowed site
+PASS corrupt saved permissions cannot trigger restoration
+PASS closing the connection service cancels in-flight setup
+PASS interrupted setup can still restore the regular route
+INFO connect: Off · regular browser connection
+INFO connect: Configuring Harbor-only routing…
+INFO connect: Connecting to Tor…
+INFO connect: Tor: Bootstrapped 0% (starting): Starting
+INFO connect: Tor: Bootstrapped 5% (conn): Connecting to a relay
+INFO connect: Tor: Bootstrapped 10% (conn_done): Connected to a relay
+INFO connect: Tor: Bootstrapped 14% (handshake): Handshaking with a relay
+INFO connect: Tor: Bootstrapped 20% (onehop_create): Establishing an encrypted directory connection
+INFO connect: Tor: Bootstrapped 25% (requesting_status): Asking for networkstatus consensus
+INFO connect: Tor: Bootstrapped 30% (loading_status): Loading networkstatus consensus
+INFO connect: Tor: Bootstrapped 40% (loading_keys): Loading authority key certs
+INFO connect: Tor: Bootstrapped 45% (requesting_descriptors): Asking for relay descriptors
+INFO connect: Tor: Bootstrapped 50% (loading_descriptors): Loading relay descriptors
+INFO connect: Tor: Bootstrapped 55% (loading_descriptors): Loading relay descriptors
+INFO connect: Tor: Bootstrapped 62% (loading_descriptors): Loading relay descriptors
+INFO connect: Tor: Bootstrapped 69% (loading_descriptors): Loading relay descriptors
+INFO connect: Tor: Bootstrapped 75% (enough_dirinfo): Loaded enough directory info to build circuits
+INFO connect: Tor: Bootstrapped 95% (circuit_create): Establishing a Tor circuit
+INFO connect: Connected to Tor · Harbor normal tabs only
+PASS connect verifies Tor from an actual browser process
+PASS connect starts no test page before Tor routing is ready
+PASS connect closes normally
+PASS normal browser close ends its Tor helper
+INFO restore: Waiting to restore the Tor connection
+INFO restore: Configuring Harbor-only routing…
+INFO restore: Connecting to Tor…
+INFO restore: Tor: Bootstrapped 0% (starting): Starting
+INFO restore: Tor: Bootstrapped 5% (conn): Connecting to a relay
+INFO restore: Tor: Bootstrapped 10% (conn_done): Connected to a relay
+INFO restore: Tor: Bootstrapped 14% (handshake): Handshaking with a relay
+INFO restore: Tor: Bootstrapped 95% (circuit_create): Establishing a Tor circuit
+INFO restore: Connected to Tor · Harbor normal tabs only
+PASS restore verifies Tor from an actual browser process
+PASS restore starts no test page before Tor routing is ready
+PASS restarted browser owns a live Tor helper
+PASS forced browser termination also ends its Tor helper
+INFO after-crash: Waiting to restore the Tor connection
+INFO after-crash: Configuring Harbor-only routing…
+INFO after-crash: Connecting to Tor…
+INFO after-crash: Tor: Bootstrapped 0% (starting): Starting
+INFO after-crash: Tor: Bootstrapped 10% (conn_done): Connected to a relay
+INFO after-crash: Tor: Bootstrapped 14% (handshake): Handshaking with a relay
+INFO after-crash: Tor: Bootstrapped 95% (circuit_create): Establishing a Tor circuit
+INFO after-crash: Connected to Tor · Harbor normal tabs only
+PASS after-crash verifies Tor from an actual browser process
+PASS after-crash starts no test page before Tor routing is ready
+PASS disconnect after crash recovery restores the direct route
+PASS after-crash closes normally
+PASS restart and crash tests leave Windows proxy settings unchanged
+PASS disconnect remains off in the next service instance
+ALL PASSED: 26 extension integrity and real Tor lifecycle checks.

@@ -20,7 +20,21 @@ namespace HarborBrowser.Services
     // the generated manifest's site scope; Harbor never exposes host objects.
     public static class SiteModuleService
     {
-        public const string HarborVersion="0.5.0";
+        public const string HarborVersion="0.5.2";
+        public static string Fingerprint(SiteModulePackage package)
+        {
+            using(var data=new MemoryStream())
+            {
+                using(var writer=new BinaryWriter(data,Encoding.UTF8,true))
+                    foreach(string file in CheckTree(package.Folder).OrderBy(p=>p,StringComparer.Ordinal))
+                    {
+                        writer.Write(file.Substring(package.Folder.TrimEnd(Path.DirectorySeparatorChar).Length+1).Replace('\\','/'));
+                        byte[] bytes=File.ReadAllBytes(file);writer.Write(bytes.Length);writer.Write(bytes);
+                    }
+                data.Position=0;
+                using(var sha=System.Security.Cryptography.SHA256.Create())return BitConverter.ToString(sha.ComputeHash(data)).Replace("-","");
+            }
+        }
         private static readonly JavaScriptSerializer Json=new JavaScriptSerializer{MaxJsonLength=262144,RecursionLimit=30};
         private static readonly HashSet<string> FileTypes=new HashSet<string>(new[]{".json",".js",".css",".png",".jpg",".jpeg",".svg",".ico",".txt",".md",".webp"},StringComparer.OrdinalIgnoreCase);
         public static SiteModulePackage Inspect(string folder,string originalManifest=null)
@@ -48,7 +62,7 @@ namespace HarborBrowser.Services
                 var files=Array(Value(script,"js")).Select(Convert.ToString).Concat(Array(Value(script,"css")).Select(Convert.ToString)).ToList();
                 if(files.Count==0)throw new ArgumentException("Declare a local script or stylesheet.");foreach(string file in files)LocalFile(folder,file);
                 script["world"]="ISOLATED";script["all_frames"]=false;
-                script["exclude_matches"]=Array(Value(script,"exclude_matches")).Select(Convert.ToString).Concat(new[]{"https://harbor.invalid/*"}).Distinct().ToArray();
+                script["exclude_matches"]=Array(Value(script,"exclude_matches")).Select(Convert.ToString).Concat(new[]{"https://harbor.invalid/*","https://"+BrowserVpnService.ControlHost+"/*"}).Distinct().ToArray();
             }
             if(result.Sites.Count==0)throw new ArgumentException("Declare at least one content script.");result.Sites=result.Sites.Distinct().ToList();
             path=Path.Combine(folder,"harbor-module.json");

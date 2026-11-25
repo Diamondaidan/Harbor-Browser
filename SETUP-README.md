@@ -1,19 +1,19 @@
-# Build and install Harbor Browser 0.5.0
+# Harbor Browser 0.5.2 setup
 
-1. Install Visual Studio 2022 Build Tools or Community with the .NET desktop build tools workload and the .NET Framework 4.8 Developer Pack.
-2. Install Inno Setup 7.
-3. Run `MAKE-SETUP.bat` from this folder.
-4. The installer is created at `dist\HarborBrowserSetup-0.5.0.exe`.
+Use dist/HarborBrowserSetup-0.5.2.exe for installation. It contains Harbor, Microsoft's .NET Framework 4.8 offline installer, the Evergreen WebView2 x64 standalone installer, the optional Tor client, notices, and matching Tor source.
 
-Previously downloaded, verified prerequisite installers can be copied into `Installer\redist` to avoid downloading them again:
+Supported target: Intel/AMD x64 Windows 10 version 1709 or later, or Windows 11 x64. Administrator access is required. Setup installs missing prerequisites and honors their restart-required result. WebView2 157 or later is required for this tested release: older or missing runtimes trigger the bundled Microsoft standalone installer. The included runtime is 157.0.4341.46; Evergreen normally keeps it updated afterward.
 
-- `ndp48-x86-x64-allos-enu.exe`
-- `MicrosoftEdgeWebView2RuntimeInstallerX64.exe`
+Setup offers a desktop shortcut, registers HTTP/HTTPS and HTML capabilities, and leaves your default-browser choice to Windows. Choose Harbor in Windows Settings > Apps > Default apps if desired. It does not add a system VPN or change Windows proxy settings.
 
-Close Harbor and install 0.5.0 directly over the existing installation. The stable installer AppId and previous-directory settings enable an in-place upgrade; the installer makes a profile snapshot before replacing application files. Profile schema 9 adds saved module site-access grants. Older profiles are upgraded with a snapshot before migration. Newer-schema save protection remains enabled.
+Upgrade uses the regular Harbor profile in %LOCALAPPDATA%\HarborBrowser. Existing core settings, bookmarks, history, session, module permissions, connection choice and startup metadata are copied to UpgradeBackups before application files change. Uninstall removes the app and its registrations while keeping the profile. Keep your own backup before downgrading; compatibility with earlier data formats is not guaranteed.
 
-The built installer embeds the .NET Framework 4.8 and WebView2 x64 packages, installs missing prerequisites, and requires administrator approval. The source archive excludes those large prerequisite executables; the build script downloads and verifies them when needed. The packaged application and installer are not code-signed.
+To rebuild: install Visual Studio 2022 Build Tools with .NET desktop tools and the .NET Framework 4.8 Developer Pack, and Inno Setup 7. Run .\Build-Installer.ps1. It restores NuGet packages, builds Release, checks payload completeness, and downloads official signed offline prerequisites. For already cached packages use -SkipPrerequisiteDownloads; their sizes and Microsoft signatures are still checked. -SkipCompile builds and stages the payload but skips the final Inno compiler.
 
-Windows scope: x64 Windows 10/11, with installer minimum build 16299. This is a packaging minimum, not a claim that every Windows 10 laptop or old WebView2 runtime has been tested. Verify a fresh install, upgrade and uninstall on the target laptop. No installer was run against the development machine's installed Harbor/profile during this release's verification.
+Official prerequisite sources:
+- https://go.microsoft.com/fwlink/?linkid=2088631 (.NET Framework 4.8 offline)
+- https://go.microsoft.com/fwlink/p/?LinkId=2124701 (WebView2 x64 Evergreen standalone)
 
-After installation, open Cog > Tools > Default browser and choose Harbor in Windows Default apps. Registration makes Harbor a candidate; it does not change the user choice. See DEFAULT-BROWSER.md.
+Keep these filenames under Installer/redist when using cached packages: ndp48-x86-x64-allos-enu.exe and MicrosoftEdgeWebView2RuntimeInstallerX64.exe. Do not substitute the small online WebView2 bootstrapper. Source archives omit cached Microsoft installers; the builder obtains them from Microsoft.
+
+See VERIFICATION.md for executed tests. Clean-machine prerequisite installation, other Windows versions and hardware remain separate validation work. This unsigned Harbor installer may produce Windows reputation prompts.

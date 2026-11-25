@@ -34,3 +34,6 @@ namespace HarborBrowser
         protected override void OnExit(ExitEventArgs e){_instance?.Dispose();base.OnExit(e);}
     }
 }
+
+
+
