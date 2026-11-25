@@ -4,6 +4,8 @@ Measured November 23, 2026 (America/Chicago), on the same Windows PC with eight 
 
 ## Memory results
 
+These measurements describe the preserved RC1 application identified above. The final November 24 package changes only the VPN toolbar label layout; its application bytes differ and its release tests are recorded separately. No fresh performance benchmark of that final executable is claimed. Installed RC1 account, unloading and download checks are summarized in LIVE-VERIFICATION.md; physical recovery and spare-PC tests remain pending.
+
 Each release ran ten owned-profile cases: 5/10/20 ordinary tabs twice, an automatic-sleep case twice, one muted cross-origin video case and one paused-download case. The same local workload allocates/touches 8 MiB per page, creates 300 rows and performs about 8 ms of timer work per tick; browser background throttling still applies. No personal profile or account was used.
 
 Baseline: 90 one-second samples. Candidate: 126 samples, including explicit unload/reload phases for all six ordinary-tab cases. These values are WebView2 private committed memory in MiB, averaged across both trials and three samples per phase. They are not measurements of exclusive physical RAM.

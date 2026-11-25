@@ -4,7 +4,7 @@ A Windows WebView2 browser with tabs, bookmarks, history, downloads, customizati
 
 This version adds opt-in inactive-tab unloading, clearer resource states and selected-tab-only session initialization. Sleeping preserves the page; unloading disposes its view and reloads the address later, losing page state and the tab's Back/Forward history. Detected edits, media, downloads and protected tabs prevent unloading. Keep important tabs awake because some website state cannot be detected.
 
-See PERFORMANCE-0.7.0.md for measurements and their limits, RELEASE-VERIFICATION.md for automated checks, and LIVE-VERIFICATION.md for the remaining installed-account/hardware checks. Earlier 0.6.3 packages remain preserved separately. The installed browser is not changed by local development.
+The full package also fixes clipped VPN status text in both themes and compact layouts. See PERFORMANCE-0.7.0.md for measurements and their limits, RELEASE-VERIFICATION.md for automated checks, and LIVE-VERIFICATION.md for installed RC1 results and remaining hardware checks. Earlier 0.6.3 and 0.7.0 RC1 packages remain preserved separately. Preparing this package does not change the installed browser.
 
 Build with BUILD.bat or MSBuild after installing the tools in BUILDING.md. Build-Release.ps1 and Build-Installer.ps1 require current matching verification records; official Proton asset hashes and signed offline Microsoft prerequisites remain checked. The normal portable executable uses the established regular profile. Automatic tests use injected owned profiles instead.
 

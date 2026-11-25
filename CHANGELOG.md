@@ -3,7 +3,9 @@
 - Optional inactive-tab unloading with conservative page-state/media/download checks; off by default.
 - Separate unloaded/sleeping/deferred states, unload reasons and Reload controls in Resource Monitor; clarify process memory accounting.
 - Avoid the unused background initialization attempt during restored-session startup.
-- Record matching 0.6.3/0.7.0 performance results and native lifecycle/protection-transition coverage. Windows installer remains unsigned; installed/live/spare-PC validation remains pending.
+- Record matching 0.6.3/0.7.0 performance results and native lifecycle/protection-transition coverage.
+- Let the VPN status button size to its label so Disconnected fits in light/dark and compact layouts.
+- Prepare full unsigned 0.7.0 after installed RC1 upgrade, Proton lifecycle, unloading and live download checks. Physical recovery and clean/offline spare-PC checks remain pending; live IPv6 protection is unconfirmed.
 # Harbor 0.6.1 development
 
 - Close the thread-safe Proton request gate directly when a network/address/suspend/resume notification arrives, before interface work is queued.

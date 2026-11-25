@@ -1,6 +1,6 @@
-# Building Harbor 0.6.1 development
+# Building Harbor 0.7.0
 
-This checkout is separate from the frozen 0.6.0 draft. Do not replace its signed update metadata or existing installers. The 0.6.1 candidate needs current verification records before packaging. The owner has chosen unsigned Windows packages; final release review and validation still precede publication. Harbor's update metadata remains cryptographically signed.
+This checkout is separate from preserved 0.6.3 and 0.7.0 RC1 packages. Do not replace their signed update metadata or existing installers. Current matching verification records are required before packaging. The owner has chosen unsigned Windows packages and authorized full 0.7.0 preparation with the outstanding physical tests disclosed. GitHub releases remain drafts unless publication is separately authorized. Harbor's update metadata remains cryptographically signed.
 
 Use Windows desktop MSBuild, .NET Framework 4.8 targeting tools, the pinned WebView2 NuGet package and Inno Setup 7.
 

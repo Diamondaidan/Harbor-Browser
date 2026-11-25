@@ -1,8 +1,8 @@
-# Harbor Browser 0.7.0 development setup scope
+# Harbor Browser 0.7.0 setup
 
-This is a development candidate, not an installed or signed public release. The automated checks use separate test profiles and do not upgrade the regular browser. A portable candidate still shares the regular profile when launched normally. Use the documented owned test hosts for automatic runtime checks.
+This is the full unsigned 0.7.0 package, superseding RC1. Preparing it does not install it or publish a GitHub release. Automatic checks use separate test profiles and do not upgrade the regular browser. The portable app still shares the regular profile when launched normally. Use the documented owned test hosts for automatic runtime checks.
 
-For an approved future installer, close regular Harbor before running setup. It requests Windows administrator approval, keeps the established Program Files installation and LocalAppData/HarborBrowser profile, and backs up Harbor data files. Beta profiles remain separate. Windows packages are unsigned by the owner's choice; Windows may warn or block them. Do not bypass a Windows security block; report it for diagnosis.
+Close regular Harbor before running the installer. Handle Windows administrator approval yourself. Setup keeps the established Program Files installation and LocalAppData/HarborBrowser profile and backs up Harbor data files. Beta profiles remain separate. Windows packages are unsigned by the owner's choice; Windows may warn or block them. Do not bypass a Windows security block; report it for diagnosis.
 
 The full installer embeds the pinned Microsoft-signed .NET Framework 4.8 and WebView2 x64 offline packages. No developer tools are needed on another PC. Usable dependencies are skipped, and setup never forces a reboot. Save work and restart yourself if Windows/setup requests it.
 
