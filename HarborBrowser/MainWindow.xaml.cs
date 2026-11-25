@@ -1989,7 +1989,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.4.1\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.4.1 — Hotfix 1\nSuggestion click fix (build 0.4.1.1).\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 

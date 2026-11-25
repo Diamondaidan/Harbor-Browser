@@ -8,7 +8,8 @@
     <AssemblyName>HarborBrowser</AssemblyName>
     <Version>0.4.1</Version>
     <AssemblyVersion>0.4.1.0</AssemblyVersion>
-    <FileVersion>0.4.1.0</FileVersion>
+    <FileVersion>0.4.1.1</FileVersion>
+    <InformationalVersion>0.4.1-hotfix.1</InformationalVersion>
     <ApplicationIcon>HarborBrowser.ico</ApplicationIcon>
     <RootNamespace>HarborBrowser</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>

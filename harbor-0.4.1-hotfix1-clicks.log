@@ -1,0 +1,18 @@
+PASS fresh popup has no keyboard selection
+PASS clicking suggestion text without preselection navigates
+PASS clicked title opens its own row rather than keyboard selection
+PASS clicked url opens its own row rather than keyboard selection
+PASS clicked source opens its own row rather than keyboard selection
+PASS clicked surface opens its own row rather than keyboard selection
+PASS list background does not activate a selected suggestion
+PASS pressing row then releasing outside it does not navigate
+PASS keyboard navigation remains available
+PASS clicking online suggestion performs selected-provider search
+PASS online suggestion click cannot open an internal browser page
+PASS online reply cannot replace rows during a click
+PASS press/release still opens original row after late reply
+PASS private click popup contains bookmarks without history
+PASS private bookmark suggestion click navigates
+PASS Light Home suggestion accepts actual browser pointer events
+PASS Dark Home suggestion accepts actual browser pointer events
+ALL PASSED: 17 focused suggestion-click checks.

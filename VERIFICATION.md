@@ -1,60 +1,41 @@
-# Harbor Browser 0.4.1 verification
+# Harbor Browser 0.4.1 Hotfix 1 verification
 
-Verified November 13, 2026 (America/Chicago). Work used isolated profiles and local fixtures. The installed Harbor, personal profile, 0.4.0 release and synced sources were not modified.
+Verified November 13, 2026. File build: 0.4.1.1; application version remains 0.4.1 and assembly version remains 0.4.1.0. Installer identity and profile schema 7 are unchanged. No installation or upgrade was performed. Original 0.4.1 artifacts, the installed browser, personal profile and synced sources were not modified.
+
+## Problem and fix
+
+Suggestion rows intentionally keep keyboard focus in the address box. The old mouse-up handler used SelectedItem, but a non-focusable row does not receive the normal WPF focus-driven mouse selection. A fresh mouse click therefore had no selected item, or could use a different row previously selected with the keyboard.
+
+The hotfix resolves the actual row from the input's original source, selects it explicitly on press while preserving address focus, and opens it only if release is over that same row. Pressing a row cancels pending online replies so it cannot be replaced mid-click. Blank-list and outside-release input do not activate a prior selection.
+
+The earlier test manually preselected an item and raised an event on the list itself, missing the user's actual case. It now raises routed mouse input on the row's displayed contents without preselection.
 
 ## Executed checks
 
 | Check | Result |
 | --- | --- |
-| Regression, service, settings and logical-layout tests | 322 passed |
-| Actual Windows app, interface, media, download, privacy and recovery tests | 281 passed |
-| Packaged Home-page tests | 38 passed |
-| Performance measurements | 14 measured runs, 138 raw samples; all expected suspension/wake/protection checks passed |
-| Release build | Passed with zero errors; NU1900 warns that the online NuGet vulnerability feed was unreachable |
-| Inno Setup / prerequisites | Passed; app/setup versions 0.4.1.0, embedded Microsoft prerequisites passed size/signature checks |
+| Original 0.4.1 executable with corrected row-routing regression | Reproduced: fresh suggestion click never navigated (expected failing baseline) |
+| Focused suggestion-click regression | 17 passed |
+| Regression/service/settings/layout suite | 322 passed |
+| Full actual-app/media/download/privacy/recovery suite | 281 passed |
+| Staged Home-page browser suite | 38 passed |
+| Total successful automated checks | 658 |
+| Release build | Passed, zero warnings and zero errors |
+| Inno Setup compile | Passed; setup/app file versions 0.4.1.1 |
+| Bundled .NET Framework 4.8 / WebView2 x64 prerequisites | Sizes and Microsoft signatures verified |
+| Tested, compiled and staged app executable | SHA-256 identical |
+| Compiled and staged Home assets | SHA-256 identical |
 
-641 automated checks passed in total. Focused privacy checks were also rerun during development and are not counted twice. The regression/integration executable copies and staged executable have identical SHA-256 hashes; compiled/staged Home assets also match. Installer/source hashes are in HarborBrowser-0.4.1-SHA256.txt, distributed alongside the source archive.
+Focused coverage includes a fresh unselected row; title, URL, source label and padding; a different keyboard-selected row; blank-list/outside release; arrows/Enter; provider-search behavior; internal-page-looking online text remaining a search; delayed replies during press/release; private bookmark clicks without normal history; and Home suggestions in both themes using actual DevTools browser pointer input.
 
-## New behavior checked
+Address-bar regression input is routed through WPF elements, with native popup auto-capture disabled only in that offscreen test to avoid the physical cursor's unrelated desktop position. Production popup behavior is unchanged. A separate native Windows mouse check was attempted in a temporary isolated window; screenshot capture timed out and the desktop input guard interrupted text entry before any mouse click. The test process was closed. Physical mouse/trackpad behavior with normal popup capture remains a user-system check; it is not counted as verified here.
 
-- A tab's original inactivity deadline survives unrelated activity updates. An overdue real DispatcherTimer suspends the page.
-- Background pages actually report native IsSuspended; selection wakes them with the same in-page token and no reload.
-- Moon/dimming indicators, Keep awake, removing that exception, and disabling automatic sleep behave correctly.
-- Switching to a tab during an asynchronous media check keeps it awake. Background navigation resets the old sleeping flag and restarts its timer.
-- Resource Monitor row identity/selection survive refresh. Its sleep/wake/Keep awake controls target stable tab IDs. Light/dark views and the compact 520 × 340 layout were exercised and rendered previews visually inspected.
-- Playing muted video in a separate-origin frame stays awake and remains playing. Real normal downloads and paused/resumable downloads protect their source tab.
-- WebView2 processes report CPU samples; service tests cover first sample, normalization, PID reuse, counter rollback, clock boundaries and stale-process pruning.
-- Failed browser-engine tabs are marked Needs reload rather than Sleeping, with unavailable wake controls.
+No live personal queries were sent. Search tests used injected replies; navigation to external providers was captured and cancelled. Home pointer tests used the local mapped Home page. Performance measurements were not repeated for this input-only patch: PERFORMANCE.md, Measurements and Base-0.4.1 retain the earlier release's evidence.
 
-## Privacy and recovery checked again
+## Installation and remaining limits
 
-The existing camera/microphone/notification permission decisions, private rule/storage isolation, separate normal/private cleanup, time ranges, backup sanitation, bookmark/open-tab retention and real renderer/browser crashes were rerun. Physical devices were not accessed; camera allowance used the fake-device test option.
+Close Harbor and run dist/HarborBrowserSetup-0.4.1-hotfix1.exe over the existing installation. Prerequisites are bundled. The original installer/source remain separate. Source archives exclude generated binaries, test profiles, runner binaries and prerequisite executables. Hashes are distributed in HarborBrowser-0.4.1-hotfix1-SHA256.txt.
 
-Additional checks exercised the configured 60-second permission timeout through a shortened test timer, actual timer-driven denial, and dismissal on navigation. This verifies the timeout path and configured interval without claiming a literal one-minute wall-clock test.
+Fresh installation, installed upgrade/uninstall, physical input/display/hardware checks and independent security auditing remain outside this verification. The app and installer are not code-signed.
 
-A real private download was paused as soon as Harbor tracked it. Declining last-private-tab closure retained the resumable job; confirming closure cancelled it, removed the row and ended the source connection. A separately completed private download retained its byte-identical file after private-session cleanup. The runtime can buffer the HTTP body before surfacing progress; this verifies a real unfinished paused job, not interruption at a guaranteed point in the network stream.
-
-Two actual test-app runs verified clear-cookies/site-storage-on-exit: the first wrote cookies/local storage and closed through cleanup; the second reopened the same isolated profile and found them empty. Both closures completed and marked their journals clean. Cache clearing was requested, but individual cache-file erasure was not measured.
-
-Earlier download name/extension/collision, real pause/range-resume/cancel, source-tab closure, ZIP byte integrity, tabs/groups/restoration, Settings, bookmark import/export, Home customization, suggestions, menu scrolling, logical scaling, fullscreen video and picture in picture were also retained in the suites.
-
-## Performance evidence
-
-See [PERFORMANCE.md](PERFORMANCE.md) and Measurements for the data, machine/runtime context, method and limits. The automatic-timer comparison reproduced 0.4.0 keeping all 10 tabs awake under repeated unrelated activity updates, while 0.4.1 slept 9. Both were repeated twice.
-
-Longer 20-tab runs averaged 4.74% CPU awake and 2.81% with 19 tabs sleeping on this Windows 10/i7-7700HQ/12 GiB machine. WebView2 private commit averaged 976.3 MiB awake and 941.2 MiB sleeping. Short windows included transition spikes and mixed CPU results; no universal or version-wide speedup is claimed. The benchmark builds preceded a final failed-tab status correction; unchanged sleep/scheduling paths and runner hashes are documented in the performance report.
-
-## Still requires user-system validation
-
-- Fresh setup, upgrading an existing installed copy, missing-prerequisite/offline installation, restart handling and uninstall. No installer was run against the personal installation.
-- Physical mouse/trackpad/keyboard use, Windows display/DPI/monitor transitions, actual taskbar/auto-hide behavior and hardware video decoding. Automated layout checks used logical sizes and injected monitor bounds.
-- Real camera/microphone/location settings and hardware, delivered notifications, accessibility/screen readers and broad real-website workloads.
-- Power loss, forced OS shutdown, disk-full failures, exported/manual copies outside managed backups and independent security auditing.
-
-CPU/memory data is from one machine and synthetic local workloads. Memory remains best effort; sleeping retains page state rather than discarding tabs. Keep awake lasts only for the current tab/session. Full extension architecture and permission enforcement, signed releases, reliable updates and broad hardware/performance validation remain roadmap work.
-
-Profile schema remains 7, as in 0.4.0. The installer identity is unchanged. Harbor/setup are not code-signed. Target packaging is x64 Windows 10/11; its configured minimum build is not a guarantee for every old runtime/Windows configuration.
-
-## References
-
-Implementation follows Microsoft's [suspend/resume behavior](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.trysuspendasync), [audio activity reporting](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.isdocumentplayingaudio) and [memory-target guidance](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.memoryusagetargetlevel). No forced working-set trim or combination of competing memory-management modes was introduced.
+The [WPF ListBoxItem implementation](https://github.com/dotnet/wpf/blob/main/src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/ListBoxItem.cs) supports the focus/selection diagnosis. See Base-0.4.1/VERIFICATION.md for earlier feature coverage and performance limits.

@@ -5,6 +5,12 @@
 #ifndef AppVersion
   #define AppVersion "0.4.1"
 #endif
+#ifndef BuildRevision
+  #define BuildRevision 1
+#endif
+#ifndef ReleaseSuffix
+  #define ReleaseSuffix "-hotfix1"
+#endif
 
 #define AppName "Harbor Browser"
 #define AppPublisher "Harbor Browser Project"
@@ -27,7 +33,7 @@ UninstallDisplayName={#AppName}
 UninstallDisplayIcon={app}\Branding\HarborBeacon-{#AppVersion}.ico
 SetupIconFile=assets\HarborBrowser.ico
 OutputDir=..\dist
-OutputBaseFilename=HarborBrowserSetup-{#AppVersion}
+OutputBaseFilename=HarborBrowserSetup-{#AppVersion}{#ReleaseSuffix}
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -44,7 +50,7 @@ VersionInfoCompany={#AppPublisher}
 VersionInfoDescription=Harbor Browser Setup
 VersionInfoProductName={#AppName}
 VersionInfoProductVersion={#AppVersion}
-VersionInfoVersion={#AppVersion}.0
+VersionInfoVersion={#AppVersion}.{#BuildRevision}
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

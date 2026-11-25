@@ -1,6 +1,6 @@
 # Harbor roadmap
 
-Updated November 13, 2026. Current release: 0.4.1, including the earlier browsing, organization and personalization features.
+Updated November 13, 2026. Current release: 0.4.1 Hotfix 1 (build 0.4.1.1), including the earlier browsing, organization and personalization features.
 
 This combines the original milestones with the newer usability and compatibility work. Milestone numbers are planning labels; completion is tracked by delivered behavior and verification. Unfinished work from earlier milestones carries forward.
 

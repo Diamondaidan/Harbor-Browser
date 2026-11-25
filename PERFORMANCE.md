@@ -1,3 +1,5 @@
+Retained measurements from the original 0.4.1 performance release; these were not rerun for Hotfix 1.
+
 # Harbor 0.4.1 performance measurements
 
 Measured November 13, 2026 on Windows 10 build 19045, Intel Core i7-7700HQ, 8 logical processors, 12 GiB installed memory. Test hosts were x64; WebView2 runtime was 157.0.4341.46. All pages, media and downloads were local fixtures with separate profiles.

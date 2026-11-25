@@ -1,3 +1,11 @@
+## 0.4.1 Hotfix 1 — build 0.4.1.1
+
+- Resolve address-bar mouse clicks from the pressed/released row, including title, URL, source and padding.
+- Preserve address-field focus; explicitly select on mouse-down without requiring focusable suggestion rows.
+- Cancel pending online completion on press to avoid replacing the row mid-click.
+- Ignore release outside the pressed row and clicks on the list background.
+- Replace the earlier preselected-list mouse test with row-targeted mouse routing; add focused online/private/keyboard/Home pointer regressions.
+- Preserve the original 0.4.1 artifacts, profile schema and installer identity.
 ## 0.4.1
 
 - Track inactivity independently per tab instead of restarting every sleep timer on unrelated tab activity.

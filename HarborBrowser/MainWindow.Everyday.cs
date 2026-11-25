@@ -20,6 +20,7 @@ namespace HarborBrowser
         private bool _settingAddress,_addressEditing;
         private System.Threading.CancellationTokenSource _suggestionCancellation;
         private int _suggestionRevision;
+        private AddressSuggestion _pressedAddressSuggestion;
         internal OnlineSuggestionService OnlineSuggestions=new OnlineSuggestionService();
         private static bool IsDownloadsUrl(string value){return string.Equals((value??string.Empty).Trim().TrimEnd('/'),DownloadsUrl,StringComparison.OrdinalIgnoreCase);}
         private void InitializeEverydayFeatures()
@@ -28,7 +29,7 @@ namespace HarborBrowser
             AddressBox.LostKeyboardFocus+=(s,e)=>{if(!AddressSuggestions.IsMouseOver){AddressSuggestions.IsOpen=false;_addressEditing=false;}};
             Deactivated+=(s,e)=>AddressSuggestions.IsOpen=false;
             SizeChanged+=(s,e)=>AddressSuggestions.IsOpen=false;
-            AddressSuggestions.Closed+=(s,e)=>CancelOnlineSuggestions();
+            AddressSuggestions.Closed+=(s,e)=>{_pressedAddressSuggestion=null;CancelOnlineSuggestions();};
             Closed+=(s,e)=>CancelOnlineSuggestions();
         }
         private void SetAddressText(string value)
@@ -67,10 +68,23 @@ namespace HarborBrowser
             }
             catch(OperationCanceledException){}
         }
+        private AddressSuggestion AddressSuggestionFromSource(object source)
+        {
+            var element=source as DependencyObject;
+            var item=element==null?null:ItemsControl.ContainerFromElement(AddressSuggestionList,element) as ListBoxItem;
+            return item==null?null:AddressSuggestionList.ItemContainerGenerator.ItemFromContainer(item) as AddressSuggestion;
+        }
+        private void AddressSuggestion_MouseDown(object sender,MouseButtonEventArgs e)
+        {
+            _pressedAddressSuggestion=AddressSuggestionFromSource(e.OriginalSource);
+            if(_pressedAddressSuggestion==null)return;
+            CancelOnlineSuggestions();AddressSuggestionList.SelectedItem=_pressedAddressSuggestion;e.Handled=true;
+        }
         private void AddressSuggestion_Click(object sender,MouseButtonEventArgs e)
         {
-            var suggestion=AddressSuggestionList.SelectedItem as AddressSuggestion;
-            if(suggestion!=null){AddressSuggestions.IsOpen=false;NavigateCurrent(suggestion.Query==null?suggestion.Url:SearchSuggestionTarget(suggestion.Query));e.Handled=true;}
+            var suggestion=AddressSuggestionFromSource(e.OriginalSource);
+            bool activate=suggestion!=null&&ReferenceEquals(suggestion,_pressedAddressSuggestion);_pressedAddressSuggestion=null;
+            if(activate){AddressSuggestions.IsOpen=false;NavigateCurrent(suggestion.Query==null?suggestion.Url:SearchSuggestionTarget(suggestion.Query));e.Handled=true;}
         }
         private bool HandleSuggestionKey(KeyEventArgs e)
         {

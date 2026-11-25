@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param()
+param([switch]$SuggestionClicks)
 $ErrorActionPreference='Stop'
 $root=Split-Path -Parent $PSScriptRoot
 $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
@@ -10,6 +10,8 @@ if($LASTEXITCODE -ne 0){throw 'Integration build failed.'}
 $testBin=Join-Path $PSScriptRoot 'bin\Release\net48'
 Copy-Item -LiteralPath (Join-Path $root 'HarborBrowser\bin\Release\net48\Assets') -Destination $testBin -Recurse -Force
 $output=Join-Path $PSScriptRoot ('TestResults\'+(Get-Date -Format 'yyyyMMdd-HHmmss'))
-& (Join-Path $testBin 'HarborIntegrationTests.exe') $output (Join-Path $PSScriptRoot 'Fixtures')
+$testArgs=@($output,(Join-Path $PSScriptRoot 'Fixtures'))
+if($SuggestionClicks){$testArgs+='--suggestion-clicks'}
+& (Join-Path $testBin 'HarborIntegrationTests.exe') @testArgs
 if($LASTEXITCODE -ne 0){throw 'Integration tests failed.'}
 Write-Host "Results: $output"

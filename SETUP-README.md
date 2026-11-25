@@ -1,9 +1,9 @@
-# Build and install Harbor Browser 0.4.1
+# Build and install Harbor Browser 0.4.1 Hotfix 1
 
 1. Install Visual Studio 2022 Build Tools or Community with the .NET desktop build tools workload and the .NET Framework 4.8 Developer Pack.
 2. Install Inno Setup 7.
 3. Run `MAKE-SETUP.bat` from this folder.
-4. The installer is created at `dist\HarborBrowserSetup-0.4.1.exe`.
+4. The installer is created at `dist\HarborBrowserSetup-0.4.1-hotfix1.exe`.
 
 Previously downloaded, verified prerequisite installers can be copied into `Installer\redist` to avoid downloading them again:
 

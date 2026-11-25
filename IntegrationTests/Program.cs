@@ -35,7 +35,9 @@ internal static partial class Program
         store.SaveSettings(new BrowserSettings{RestorePreviousSession=false,HarborHomeIntroduced=true,ThemeMode="Dark",OnlineSuggestionsEnabled=false});
         store.SaveHistory(Enumerable.Range(1,30).Select(i=>new HistoryEntry{Title="History sample "+i,Url="https://history.test.invalid/page-"+i,VisitedAt=new DateTime(2026,11,12,12,0,0).AddMinutes(-i)}).ToList());
         var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
-        var main=new MainWindow(store,h=>layout){WindowStartupLocation=WindowStartupLocation.Manual,Left=-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=false,ShowActivated=false};
+        bool interactive=args.Length>2&&args[2]=="--interactive-clicks";
+        Func<IntPtr,MonitorLayout> monitors=interactive?null:new Func<IntPtr,MonitorLayout>(h=>layout);
+        var main=new MainWindow(store,monitors){WindowStartupLocation=WindowStartupLocation.Manual,Left=interactive?80:-20000,Top=20,Width=1000,Height=600,ShowInTaskbar=interactive,ShowActivated=interactive};
         main.TestBrowserArguments="--use-fake-device-for-media-stream";
         var timeout=new DispatcherTimer{Interval=TimeSpan.FromSeconds(240)};
         timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL integration timed out");app.Shutdown(1);};
@@ -45,6 +47,18 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(interactive)
+                {
+                    core.SetVirtualHostNameToFolderMapping("click.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
+                    ((System.Collections.Generic.List<Bookmark>)Field(main,"_bookmarks")).Add(new Bookmark{Title="clicksentinel bookmark",Url="https://click.test.invalid/performance.html?bookmark=1"});
+                    ((System.Collections.Generic.List<HistoryEntry>)Field(main,"_history")).Insert(0,new HistoryEntry{Title="clicksentinel history",Url="https://click.test.invalid/performance.html?history=1",VisitedAt=DateTime.Now});
+                    core.NavigationStarting+=(ss,ee)=>{File.AppendAllText(Path.Combine(args[0],"interactive-navigations.log"),ee.Uri+Environment.NewLine);if(!HomePageService.IsHomeUrl(ee.Uri)&&!ee.Uri.StartsWith("https://click.test.invalid/"))ee.Cancel=true;};
+                    core.DocumentTitleChanged+=(ss,ee)=>main.Title="Isolated Harbor suggestion click test";main.Title="Isolated Harbor suggestion click test";
+                    main.Activate();main.AddressBox.Focus();main.AddressBox.Text="clicksentinel";
+                    var done=new TaskCompletionSource<bool>();main.Closed+=(ss,ee)=>done.TrySetResult(true);await done.Task;exit=0;return;
+                }
+                if(args.Length>2&&args[2]=="--suggestion-clicks")
+                {await SuggestionClickChecks(main);Console.WriteLine("ALL PASSED: "+checks+" focused suggestion-click checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--privacy-edge")
                 {await PrivacyEdgeChecks(main,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" focused privacy edge checks.");exit=0;return;}
                 core.SetVirtualHostNameToFolderMapping("media.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);

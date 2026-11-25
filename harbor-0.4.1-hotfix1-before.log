@@ -1,0 +1,11 @@
+PASS fresh popup has no keyboard selection
+FAIL System.TimeoutException: Timed out waiting for app state.
+   at Program.<Wait>d__26.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1-hotfix1\IntegrationTests\Program.cs:line 24
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<SuggestionClickChecks>d__40.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1-hotfix1\IntegrationTests\SuggestionClickChecks.cs:line 44
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<>c__DisplayClass30_0.<<Main>b__3>d.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.1-hotfix1\IntegrationTests\Program.cs:line 61

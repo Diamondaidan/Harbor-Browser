@@ -58,9 +58,11 @@ internal static partial class Program
         Key(main,System.Windows.Input.Key.Escape);Check("Escape dismisses suggestions",!main.AddressSuggestions.IsOpen);
         main.AddressBox.Text="Everyday ";Key(main,System.Windows.Input.Key.Down);Key(main,System.Windows.Input.Key.Enter);
         await Wait(()=>core.Source.Contains("bookmark=1"));await Task.Delay(200);Check("Enter navigates selected suggestion",!main.AddressSuggestions.IsOpen);
-        main.AddressBox.Focus();main.AddressBox.Text="Everyday";await Task.Delay(60);main.AddressSuggestionList.SelectedIndex=1;
+        bool suggestionCapture=main.AddressSuggestions.StaysOpen;main.AddressSuggestions.StaysOpen=true;
+        main.AddressBox.Focus();main.AddressBox.Text="Everyday";await Task.Delay(60);
         Check("mouse suggestion list visible",main.AddressSuggestions.IsOpen&&main.AddressSuggestionList.Items.Count==2);
-        main.AddressSuggestionList.RaiseEvent(new MouseButtonEventArgs(Mouse.PrimaryDevice,Environment.TickCount,MouseButton.Left){RoutedEvent=UIElement.PreviewMouseLeftButtonUpEvent,Source=main.AddressSuggestionList});
+        var clickedSuggestion=SuggestionPart(main,1);SuggestionMouse(clickedSuggestion,true);SuggestionMouse(clickedSuggestion,false);
+        main.AddressSuggestions.StaysOpen=suggestionCapture;
         await Wait(()=>core.Source.Contains("history=1"));Check("mouse selection opens history suggestion",!main.AddressSuggestions.IsOpen);
         var privateSuggestions=AddTab(main,HomePageService.Url,true);
         var privateReady=new TaskCompletionSource<bool>();privateSuggestions.View.NavigationCompleted+=(s,e)=>privateReady.TrySetResult(e.IsSuccess);

@@ -1,6 +1,8 @@
 [CmdletBinding()]
 param(
     [string]$Version = '0.4.1',
+    [ValidateRange(0,65535)][int]$BuildRevision = 1,
+    [string]$ReleaseSuffix = '-hotfix1',
     [switch]$SkipPrerequisiteDownloads,
     [switch]$SkipCompile
 )
@@ -166,7 +168,7 @@ if (!$msbuild) {
 Write-Host "Using MSBuild: $msbuild" -ForegroundColor Green
 
 Write-Step 'Building Harbor Browser (Release)'
-$buildArgs = @($Solution, '/restore', '/m', '/p:Configuration=Release', '/p:Platform=Any CPU', "/p:Version=$Version", "/p:AssemblyVersion=$Version.0", "/p:FileVersion=$Version.0")
+$buildArgs = @($Solution, '/restore', '/m', '/p:Configuration=Release', '/p:Platform=Any CPU', "/p:Version=$Version", "/p:AssemblyVersion=$Version.0", "/p:FileVersion=$Version.$BuildRevision")
 & $msbuild @buildArgs
 if ($LASTEXITCODE -ne 0) { throw "MSBuild failed with exit code $LASTEXITCODE" }
 
@@ -257,13 +259,13 @@ Write-Host "Using Inno Setup: $iscc" -ForegroundColor Green
 Write-Step 'Compiling the single-file setup wizard'
 Push-Location (Split-Path -Parent $IssFile)
 try {
-    & $iscc "/DAppVersion=$Version" 'HarborBrowser.iss'
+    & $iscc "/DAppVersion=$Version" "/DBuildRevision=$BuildRevision" "/DReleaseSuffix=$ReleaseSuffix" 'HarborBrowser.iss'
     if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed with exit code $LASTEXITCODE" }
 } finally {
     Pop-Location
 }
 
-$setup = Join-Path $ProjectRoot "dist\HarborBrowserSetup-$Version.exe"
+$setup = Join-Path $ProjectRoot "dist\HarborBrowserSetup-$Version$ReleaseSuffix.exe"
 if (!(Test-Path $setup)) { throw "Inno Setup did not produce the expected file: $setup" }
 Write-Host "`nSUCCESS: $setup" -ForegroundColor Green
 Write-Host "This installer includes Harbor, .NET Framework 4.8 offline setup, and the WebView2 Evergreen x64 standalone installer."

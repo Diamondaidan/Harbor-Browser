@@ -1,1 +1,1 @@
-Rendered WPF components and WebView2 captures from isolated 0.4.1 checks. These are not screenshots of the installed browser. See ../VERIFICATION.md and ../PERFORMANCE.md for scope and results.
+Rendered components and WebView2 captures from the 0.4.1 Hotfix 1 regression suites. Native desktop mouse verification was interrupted by the input guard. See ../HOTFIX-VERIFICATION.md. Performance data remains from the original 0.4.1 release.
