@@ -1,14 +1,9 @@
-# GitHub upload inventory — November 23, 2026
+# GitHub release inventory
 
-Checked live against Diamondaidan/Harbor-Browser. This is an inventory, not authorization to publish additional versions.
+Full unsigned 0.7.0 preparation was authorized November 24, 2026. Its source is prepared on release/0.7.0 and its intended release is a draft, with public publication and feed activation separate. Check the local delivery/upload receipts or GitHub itself for completed transfers; package preparation is not proof of upload.
 
-- Public default branch main: VERSION.txt is 0.6.0; commit ac94d300c3d242e66054b1a80a7437daec47a219.
-- Public development/0.6.1 branch: VERSION.txt is 0.6.1; commit b9f81a873d2c94ccde7ea99d467b730db3243d1e. This predates the later local title-bar/Proton-off fixes and is not the final local 0.6.1 package.
-- signing-preparation branch: commit 8bafbbb4ec445a3bddffe4fba4bfe7269a807ebc.
-- Authenticated GitHub CLI release listing: one draft, Harbor Browser 0.6.0 — unsigned candidate, tag v0.6.0; draft=true and published_at=null. It has an installer, portable ZIP, source ZIP, SHA256SUMS.txt and harbor-update.json. No public installer release is published.
-- GitHub returned no published tags. The draft tag is not a published release tag.
-- The later local 0.6.1 fixes, verified 0.6.2 (dc02eb3317e640759463e6a309b76ed8ca0e25b9) and this 0.6.3 development workspace have not been uploaded by this task. Earlier individual version packages are not present in the release listing.
+Repository: https://github.com/Diamondaidan/Harbor-Browser . Public main remains 0.6.0; no merge was performed during the 0.6.3 validation session. Public development/0.6.3 points to 216e40f90949657e868c5b2a158de6465564666c and includes the final 0.6.1/0.6.2 fixes in its history.
 
-The connector's public release listing returned an empty list and could not expose the known draft. The already-authorized GitHub CLI connection confirmed the draft and its five asset names/digests. No token or credential was printed. No remote mutation was performed.
+The 0.6.3 release draft has the exact installer, portable archive, matching source archive, signed update record, SHA256SUMS.txt and a sanitized installed-build validation report. Its six attachment hashes/sizes were verified against local files. The preserved 0.6.2 fallback has a separate draft with installer, matching source and checksums. The original 0.6.0 draft remains preserved. All three releases were confirmed unpublished; the public update feed is inactive.
 
-Links: https://github.com/Diamondaidan/Harbor-Browser ; https://github.com/Diamondaidan/Harbor-Browser/tree/development/0.6.1 ; owner-visible draft https://github.com/Diamondaidan/Harbor-Browser/releases/tag/untagged-ee57eee2f79d1aca884f .
+The earlier performance task did not upload 0.7.0. Do not infer that every historical version has an individual hosted installer. Signing private keys and test profiles are excluded from source and release assets. The preserved 0.6.3, 0.6.2 and 0.6.0 releases were rechecked November 24 and remain drafts.

@@ -1,31 +1,13 @@
-# Harbor Browser
+# Harbor Browser 0.7.0
 
-This branch develops **0.6.3**: reliable reading of Proton verification replies, clearer network recovery, and safer download resume handling. See [RELIABILITY-0.6.3-VERIFICATION.md](RELIABILITY-0.6.3-VERIFICATION.md) for behavior, test scope and remaining manual checks. The verified 0.6.2 package remains preserved separately.
+A Windows WebView2 browser with tabs, bookmarks, history, downloads, customization, page-loading diagnostics, optional browser-only Proton protection and local update verification.
 
-Harbor is a Windows browser built with WPF, .NET Framework 4.8 and Microsoft WebView2. It is developed with ChatGPT under the maintainer's guidance.
+This version adds opt-in inactive-tab unloading, clearer resource states and selected-tab-only session initialization. Sleeping preserves the page; unloading disposes its view and reloads the address later, losing page state and the tab's Back/Forward history. Detected edits, media, downloads and protected tabs prevent unloading. Keep important tabs awake because some website state cannot be detected.
 
-Features include movable tabs, bookmarks, history, downloads, appearance controls, private tabs, video tools and optional Proton browser protection. Version 0.6.0 adds verified update downloads and backup recovery.
+The full package also fixes clipped VPN status text in both themes and compact layouts. See PERFORMANCE-0.7.0.md for measurements and their limits, RELEASE-VERIFICATION.md for automated checks, and LIVE-VERIFICATION.md for installed RC1 results and remaining hardware checks. Earlier 0.6.3 and 0.7.0 RC1 packages remain preserved separately. Preparing this package does not change the installed browser.
 
-## Release status
+Build with BUILD.bat or MSBuild after installing the tools in BUILDING.md. Build-Release.ps1 and Build-Installer.ps1 require current matching verification records; official Proton asset hashes and signed offline Microsoft prerequisites remain checked. The normal portable executable uses the established regular profile. Automatic tests use injected owned profiles instead.
 
-The source is public. Windows installer and portable packages will remain **unsigned by the owner's choice**. There is currently no published installer release or public update feed; existing releases stay draft until final release validation and review. Windows may display an unknown-publisher/SmartScreen warning or block installation. Harbor's cryptographically signed update records and package checksums remain required; they are separate from Windows publisher signing.
+The Windows installer is intentionally unsigned under the owner's distribution choice. Harbor's RSA-signed release record and exact checksums authenticate update packages separately. No public release or update feed is activated by this source checkout. GitHub currently holds a 0.6.3 source branch and unpublished release drafts; see GITHUB-UPLOAD-STATUS.md.
 
-The installer targets Windows 10 build 19041 or later on x64, including compatible Windows 11 systems. It includes verified Microsoft .NET 4.8 and WebView2 prerequisites. This does not constitute testing on every supported computer.
-
-## Build and verification
-
-See [BUILDING.md](BUILDING.md), [SETUP-README.md](SETUP-README.md), [UPDATING.md](UPDATING.md) and [RELEASE-VERIFICATION.md](RELEASE-VERIFICATION.md). Reports with older version numbers are historical; a new build needs fresh verification before packaging.
-
-The source retains upstream provider assets, matching source archives, notices and a small number of historical test executables needed by regression tests. It excludes signed-in profiles, private release keys, dependency installers and development caches. Do not run historical fixture executables as a browser.
-
-## License
-
-Harbor-authored code and artwork in this repository are available under **GNU GPL version 3 only (GPL-3.0-only)**; see [LICENSE](LICENSE). Third-party components retain their original copyright notices and licenses; see [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). Harbor is independent and is not endorsed by Microsoft, Proton or SignPath.
-
-## Code signing policy
-
-See [CODE-SIGNING-POLICY.md](CODE-SIGNING-POLICY.md). SignPath signing is unavailable for Harbor at present, and no signing service approval, certificate or sponsorship is claimed. [WINDOWS-SIGNING-OPTIONS.md](WINDOWS-SIGNING-OPTIONS.md) records the researched alternatives, including a possible future Microsoft Store package.
-
-## Privacy
-
-See [PRIVACY.md](PRIVACY.md) for local data, online suggestions, optional protection and third-party network behavior.
+Harbor-authored source/artwork: GPL-3.0-only. Third-party components retain their original licenses and notices. See LICENSE, LICENSE-NOTICE.md, THIRD-PARTY-NOTICES.md and ThirdParty/PROTON-BUILD.md. Proton is optional browser-only protection, not a system VPN or a complete leak/anonymity guarantee. Private tabs cannot use that extension's normal-profile route; turn protection off while keeping sign-in to use private tabs on the regular connection.

@@ -4,6 +4,16 @@ using System.Linq;
 
 namespace HarborBrowser.Services
 {
+    public static class TabUnloadSchedule
+    {
+        public static TimeSpan Delay(DateTime inactiveSince, DateTime retryAfter, DateTime now, int seconds)
+        {
+            DateTime due = inactiveSince.AddSeconds(Math.Max(60, Math.Min(86400, seconds)));
+            if (retryAfter > due) due = retryAfter;
+            return TimeSpan.FromMilliseconds(Math.Max(100, (due - now).TotalMilliseconds));
+        }
+    }
+
     public static class TabSleepSchedule
     {
         public static TimeSpan Delay(DateTime inactiveSince,DateTime retryAfter,DateTime now,int seconds)

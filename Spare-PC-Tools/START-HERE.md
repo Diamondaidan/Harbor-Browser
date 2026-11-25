@@ -1,9 +1,9 @@
-# Harbor 0.6.3 spare-PC checks
+# Harbor 0.7.0 spare-PC checks
 
 Extract the whole kit into a writable folder. This regular release uses the existing Harbor installation/profile; choose a spare PC for fresh install/uninstall tests.
 
 1. Run Check-PC.cmd for read-only package and platform checks. Save the Results folder.
-2. On the spare PC, run HarborBrowserSetup-0.6.3-release.exe. This installer is intentionally unsigned; Windows may warn or block it. Report a security block rather than disabling Windows protections. Handle any administrator prompt yourself. Check offline setup and, if required, the requested restart. No developer tools are needed.
+2. On the spare PC, run HarborBrowserSetup-0.7.0-release.exe. This installer is intentionally unsigned; Windows may warn or block it. Report a security block rather than disabling Windows protections. Handle any administrator prompt yourself. Check offline setup and, if required, the requested restart. No developer tools are needed.
 3. Open Harbor Browser. Check tabs, bookmarks, history, downloads, settings, dark/light mode and resource monitor using test data. Check History/Bookmarks/Settings title bars in both modes; move/resize those windows. Confirm the plus button follows the last tab and stays accessible in a crowded strip. Resize Proton's compact window and check its controls, footer and Options panel, including after signing in.
 
    Check Help > Page loading details in regular and private tabs. The report must contain categories and counts, not URLs, IP addresses or account data. On a site that requests verification, complete it yourself; the helper should return to the original page without reloading automatically. Use Reload explicitly. If no challenge occurs, mark the live challenge check as not exercised.
@@ -25,4 +25,6 @@ Before reverting to an older app, explicitly turn off and remove Proton, then cl
 
 Also check Help > Check for updates. With Proton/Tor enabled, checks must pause. GitHub assets remain unpublished until owner approval; unavailable hosting must not be shown as an up-to-date result. Do not attempt an actual rollback until the matching Harbor-signed release record and previous installer are available. These update signatures are separate from Windows installer signing. Never copy private signing keys into this kit.
 
-The included harbor-update.json is a locally verified record for future hosting, not an active update feed. The previous installer is not included unless explicitly added to this kit. Matching Harbor source accompanies this kit; it contains historical test fixtures and upstream references, which are not additional apps to install. Local automated results are in LOCAL-PACKAGE-VERIFICATION.md. Run Check-PC.cmd on the spare PC to create its own Results; the kit is shipped without this computer's prefilled results.
+If harbor-update.json is provided, it is a locally verified record for future hosting, not an active update feed. The local 0.7.0 rc1 candidate does not yet include a new signed update record. The previous installer is not included unless explicitly added to this kit. Matching Harbor source accompanies this kit; it contains historical test fixtures and upstream references, which are not additional apps to install. Local automated results are in LOCAL-PACKAGE-VERIFICATION.md. Run Check-PC.cmd on the spare PC to create its own Results; the kit is shipped without this computer's prefilled results.
+
+For 0.7.0, enable optional unloading only with generated test pages. Confirm unsaved input, private/pinned tabs, media, and active/paused downloads stay loaded. Check the unloaded marker and Resource Monitor Reload. Returning to an unloaded page reloads its address and loses page state/Back-Forward history; keep important tabs awake. Restore a session with the last tab selected and confirm background tabs remain not loaded until selected.

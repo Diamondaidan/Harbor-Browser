@@ -3,7 +3,7 @@ param([ValidatePattern('^(release|rc[0-9]+)$')][string]$Candidate='release',[swi
 $ErrorActionPreference='Stop'
 $root=$PSScriptRoot
 $version=(Get-Content -LiteralPath (Join-Path $root 'VERSION.txt') -Raw).Trim()
-if($version -ne '0.6.3'){throw 'Unexpected release version.'}
+if($version -ne '0.7.0'){throw 'Unexpected release version.'}
 if(!$SkipBuild){
  $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
  $builder=& $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1

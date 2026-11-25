@@ -1,38 +1,41 @@
-# Harbor Browser 0.6.3 release verification
+# Harbor 0.7.0 automated release verification
 
-Passed **1516 assertions across 21 suites** against matching app/helper copies.
+Application SHA-256: 2E955A82B7A015BD277EF53B89B1EE61BBCCD87530DAD06E0E57D37223F2819B
+Update launcher SHA-256: 7B43E61623BC4500B6E1C88AD8A265A582DDD0E19BB8472F742D9C5A8020D047
 
-App SHA-256: 103840485A9B49B361B632A22BDD8CF3747AFAB4A77D05DEABE7E2B528D097C1
-Update launcher SHA-256: 113A4D459E6BDF98FA61421ED29F27982B34D73CE142E9E4C6C02A8ED4145312
+All 1,612 assertions across 22 suites passed against matching final application/helper copies on November 24, 2026 (America/Chicago). This includes 48 new VPN label layout checks across four statuses, six logical widths and both themes. The unloading suite contributes 48 native checks covering actual disposal/reload, form/frame/media/download protection, lifecycle races, settings, resource controls and deferred restoration.
 
-| Suite | Assertions | Passed |
-| --- | ---: | --- |
-| regression | 384 | True |
-| full | 360 | True |
-| suggestions | 17 | True |
-| recovery | 15 | True |
-| proton | 34 | True |
-| auth-handoff | 27 | True |
-| proton-pending | 24 | True |
-| proton-hotfix2 | 45 | True |
-| proton-beta | 109 | True |
-| proton-fallback | 19 | True |
-| proton-guard-handoff | 12 | True |
-| proton-r4 | 34 | True |
-| release057 | 9 | True |
-| updates | 120 | True |
-| updates-ui | 8 | True |
-| environment061 | 69 | True |
-| ui061 | 46 | True |
-| proton-off061 | 59 | True |
-| site062 | 72 | True |
-| route063 | 36 | True |
-| downloads063 | 17 | True |
+| Suite | Assertions |
+| --- | ---: |
+| regression | 384 |
+| full | 360 |
+| suggestions | 17 |
+| recovery | 15 |
+| proton | 34 |
+| auth-handoff | 27 |
+| proton-pending | 24 |
+| proton-hotfix2 | 45 |
+| proton-beta | 109 |
+| proton-fallback | 19 |
+| proton-guard-handoff | 12 |
+| proton-r4 | 34 |
+| release057 | 9 |
+| updates | 120 |
+| updates-ui | 8 |
+| environment061 | 69 |
+| ui061 | 94 |
+| proton-off061 | 59 |
+| site062 | 72 |
+| route063 | 36 |
+| downloads063 | 17 |
+| unloading070 | 48 |
 
-The new route suite performs thirty immediate comparisons in one existing verifier controller, checks original response bytes despite controlled page changes, rejects malformed/oversized replies and redirects, cancels failed comparison halves, and recovers after cancellation. Native destination counters verify redirect denial. Offline adapter state cannot accept a proof or start a manual check, and network return schedules fresh verification. No timeout was lengthened.
+The final full matrix passed without failed suites. The preserved RC1 fixture correction controls UTC and monotonic clocks in its synthetic lease test; application lease/timeouts were not changed.
 
-The download suite checks generated ZIP bytes, protection-blocked and duplicate Resume, original row/file retention, explicitly injected independent native private sessions, cleanup and recovery explanations. The existing network/wake suite now includes rejection of proof until an unavailable adapter returns. Other suites cover browsing, media, filename handling, tabs, bookmarks, settings, appearance, privacy, account-handoff fixtures, request guards, off/on retention, startup/engine recovery and updater integrity.
+Native installer core fixtures passed 94 checks. Full staged-payload installation and smoke evidence is recorded separately after staging in PACKAGED-PAYLOAD-VERIFICATION.json. Microsoft prerequisite packages are hash/signature verified; vendor installers are stubbed in automatic fixture flows.
 
-Baseline and intermediate test failures are documented in RELIABILITY-0.6.3-VERIFICATION.md. Only the final app/helper hashes above are represented by this table. NuGet vulnerability metadata remained unavailable in the build logs (NU1900); no fresh online dependency-vulnerability scan is established. All 336 pinned provider asset hashes passed. Generated light/dark downloads and diagnostic layouts were inspected as offline renders.
+All 336 official Proton asset sizes/hashes remain unchanged. Restore/build completed; no separate fresh online vulnerability audit is claimed.
 
-Still manual: live Proton off/on/restart and real site verification; clean/offline spare-PC setup with actual missing Microsoft prerequisites/UAC/reboot; physical network/sleep/DPI/input and broader hardware; hosted GitHub update/rollback after approved publication. Private tabs remain blocked with browser-only protection enabled. No complete leak audit or whole-browser performance improvement is claimed. Windows packages are intentionally unsigned. No installed user profile or account tokens were used, and nothing was published.
+Performance results for RC1 and their scope are in PERFORMANCE-0.7.0.md. These automatic tests use owned injected profiles and synthetic state, not the installed profile or a signed-in provider account. Installed RC1 upgrade, Proton lifecycle, unloading and download results are in LIVE-VERIFICATION.md. Final installed upgrade, physical network/sleep/wake/monitor and clean/offline spare-PC checks remain unperformed. Local checks do not publish a release, activate the public feed or replace the installed browser.
+
+Additional request-counter tests verify that selecting an unloaded tab while Proton is unverified sends no requests, fresh synthetic proof does not replay the address, and explicit Retry restores the recreated page. The suspected stuck-view path did not reproduce under this normal lifecycle; no product change was needed.

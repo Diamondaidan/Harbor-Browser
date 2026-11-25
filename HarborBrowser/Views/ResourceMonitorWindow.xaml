@@ -16,11 +16,12 @@
       <TabItem x:Name="TabsTab" Header="Tabs">
         <DockPanel Margin="5">
           <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
-            <TextBlock x:Name="TabHelp" Text="Keep awake lasts until the tab closes. Waking a background tab restarts its sleep delay. Active tabs, media, downloads and browser pages are protected." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap"/>
+            <TextBlock x:Name="TabHelp" Text="Sleeping preserves the page. Unloading releases its view and reloads the address later, losing page state and Back/Forward history. Enable unloading in Settings to use it here. Keep awake protects a tab until it closes." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap"/>
             <WrapPanel Margin="0,6,0,0">
               <Button x:Name="ActivateTabButton" Content="Switch to tab" Click="ActivateTab_Click"/>
               <Button x:Name="SleepTabButton" Content="Sleep selected" Click="SleepTab_Click"/>
               <Button x:Name="WakeTabButton" Content="Wake selected" Click="WakeTab_Click"/>
+              <Button x:Name="UnloadTabButton" Content="Unload selected" Click="UnloadTab_Click" ToolTip="Checks for unsaved input and media before unloading. Some website state cannot be detected."/>
               <Button x:Name="KeepAwakeButton" Content="Keep awake" Click="KeepAwake_Click"/>
               <Button x:Name="SleepInactiveButton" Content="Sleep inactive tabs" Click="SleepInactive_Click"/>
             </WrapPanel>
@@ -29,6 +30,7 @@
             <DataGrid.Columns>
               <DataGridTextColumn Header="Tab" Binding="{Binding Title}" Width="2*" MinWidth="100"/>
               <DataGridTextColumn Header="Status" Binding="{Binding State}" Width="2*" MinWidth="130"/>
+              <DataGridTextColumn Header="Unloading" Binding="{Binding UnloadState}" Width="2*" MinWidth="130"/>
               <DataGridTextColumn Header="Scope" Binding="{Binding Scope}" Width="65"/>
               <DataGridCheckBoxColumn Header="Keep awake" Binding="{Binding KeepAwake}" Width="90"/>
             </DataGrid.Columns>

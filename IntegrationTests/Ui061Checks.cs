@@ -18,6 +18,7 @@ internal static partial class Program
 {
     private static async Task Ui061Checks(MainWindow main,string output)
     {
+        VpnStatusLabelChecks(main,output);
         var windows=new Window[]{new BookmarksWindow(new Bookmark[0],new string[0]),new SettingsWindow(new BrowserSettings()),new ResourceMonitorWindow(()=>"Owned resources"),new ClearBrowsingDataWindow(false,r=>Task.CompletedTask),new SitePermissionsWindow(new SitePermissionRule[0],null,false)};
         foreach(var window in windows)
         {
@@ -103,5 +104,45 @@ internal static partial class Program
         Check("plus remains adjacent when tabs overflow",plusLeft>=tailRight-1&&plusLeft-tailRight<12);
         Check("newest tab exposes the plus button inside the viewport",plusLeft>=0&&plusLeft+add.ActualWidth<=main.BrowserTabs.ActualWidth+1);
         Capture(main.TitleBar,Path.Combine(output,"trailing-new-tab-overflow.png"));
+    }
+
+    private static void VpnStatusLabelChecks(MainWindow main,string output)
+    {
+        double savedWidth=main.Width;
+        var button=main.TorIndicatorButton;
+        object savedContent=button.Content;
+        try
+        {
+            foreach(string mode in new[]{"Dark","Light"})
+            {
+                AppearanceService.ApplyApplication(new BrowserSettings{ThemeMode=mode});
+                foreach(double width in new[]{1366d,1093d,911d,683d,600d,480d})
+                {
+                    main.Width=width;main.UpdateResponsiveLayout();
+                    foreach(string label in new[]{"VPN Off","Connecting","Protected","Disconnected"})
+                    {
+                        button.Content=label;main.UpdateLayout();button.ApplyTemplate();
+                        var text=new TextBlock{Text=label,FontFamily=button.FontFamily,FontSize=button.FontSize,FontWeight=button.FontWeight};
+                        text.Measure(new Size(double.PositiveInfinity,double.PositiveInfinity));
+                        var rendered=Visuals<TextBlock>(button).First(t=>t.Text==label);
+                        double left=rendered.TranslatePoint(new Point(),button).X;
+                        double right=button.TranslatePoint(new Point(button.ActualWidth,0),main.WindowFrame).X;
+                        double cogLeft=main.GearMenuButton.TranslatePoint(new Point(),main.WindowFrame).X;
+                        Check(mode+" VPN label "+label+" fits with usable navigation at "+width,
+                            left>=button.Padding.Left-.5&&left+text.DesiredSize.Width<=button.ActualWidth-button.Padding.Right+.5&&
+                            right<=cogLeft+.5&&main.AddressBox.ActualWidth>=120&&
+                            main.GearMenuButton.TranslatePoint(new Point(main.GearMenuButton.ActualWidth,0),main.WindowFrame).X<=main.WindowFrame.ActualWidth+.5);
+                    }
+                    if(width==1366||width==480)
+                        Capture((FrameworkElement)VisualTreeHelper.GetParent(button),Path.Combine(output,"vpn-status-"+mode.ToLowerInvariant()+"-"+width+".png"));
+                }
+            }
+        }
+        finally
+        {
+            button.Content=savedContent;main.Width=savedWidth;
+            AppearanceService.ApplyApplication(new BrowserSettings{ThemeMode="Dark"});
+            main.UpdateResponsiveLayout();main.UpdateLayout();
+        }
     }
 }

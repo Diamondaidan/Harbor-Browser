@@ -183,6 +183,7 @@ namespace HarborBrowser
                         }
                     }
                     finally { _restoringSession = false; }
+                    if (restored) ApplySelectedTab();
                 }
                 if (!restored && _externalTargets.Count == 0)
                     CreateNewTab(_settings.HomePage, true);
@@ -347,6 +348,12 @@ namespace HarborBrowser
                 tab.SuspendTimer.Stop();
                 await SuspendTabIfInactiveAsync(tab);
             };
+            tab.UnloadTimer = new DispatcherTimer();
+            tab.UnloadTimer.Tick += async (s, e) =>
+            {
+                tab.UnloadTimer.Stop();
+                await UnloadTabIfInactiveAsync(tab);
+            };
 
             tab.Item.ContextMenu = BuildTabContextMenu(tab);
             UpdateTabHeader(tab);
@@ -448,6 +455,7 @@ namespace HarborBrowser
             if (tab == null || tab.NativeContent != null || tab.Initialized || tab.IsClosing || tab.FailureMessage != null || tab.NeedsNewView)
                 return Task.CompletedTask;
             if (tab.Initializing) return tab.InitializationTask ?? Task.CompletedTask;
+            if (tab.IsUnloaded) { tab.IsUnloaded = false; tab.UnloadReason = null; UpdateTabHeader(tab); }
             var completion = new TaskCompletionSource<bool>();
             tab.InitializationTask = completion.Task;
             _ = InitializeTabAndSignalAsync(tab, completion);
@@ -498,6 +506,14 @@ namespace HarborBrowser
                 core.PermissionRequested += (s, args) => { if (current()) CorePermissionRequested(tab, args); else { args.Handled = true; args.State = CoreWebView2PermissionState.Deny; args.SavesInProfile = false; } };
                 await StartupStep(InitializeVideoFeatures(tab, core),startup.Token,BrowserStartupTimeout,"video initialization");
                 if (!current()) return;
+                await StartupStep(core.AddScriptToExecuteOnDocumentCreatedAsync(UnloadActivityScript), startup.Token, BrowserStartupTimeout, "page activity initialization");
+                if (!current()) return;
+                core.AddWebResourceRequestedFilter("*", CoreWebView2WebResourceContext.Document, CoreWebView2WebResourceRequestSourceKinds.Document);
+                core.WebResourceRequested += (s, args) =>
+                {
+                    if (current() && args.ResourceContext == CoreWebView2WebResourceContext.Document &&
+                        !string.Equals(args.Request.Method, "GET", StringComparison.OrdinalIgnoreCase)) tab.NonGetDocument = true;
+                };
 
                 string homeAssets = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "Home");
                 core.SetVirtualHostNameToFolderMapping(HomePageService.Host, homeAssets,
@@ -558,6 +574,10 @@ namespace HarborBrowser
                         return;
                     }
                     tab.TorBlockedUrl=null;
+                    tab.IsLoading = true;
+                    tab.NonGetDocument = false;
+                    tab.UnloadReason = null;
+                    tab.RetryUnloadAfterUtc = default(DateTime);
                     tab.NavigationGeneration++;
                     if (args.IsRedirected) tab.PageDiagnostics.Redirect(args.NavigationId, args.Uri, tab.IsProviderAuthentication);
                     else tab.PageDiagnostics.Begin(args.NavigationId, args.Uri, tab.IsPrivate, tab.IsProviderAuthentication);
@@ -605,6 +625,8 @@ namespace HarborBrowser
                 {
                     if (!current()) return;
                     if (tab.ProtonPaused && core.Source == "about:blank") return;
+                    tab.IsLoading = false;
+                    StartTabUnloadTimer(tab);
                     tab.PageDiagnostics.Complete(args.NavigationId, args.IsSuccess, args.WebErrorStatus);
                     QueuePageIssueUpdate();
                     if (SelectedTab == tab)
@@ -945,9 +967,13 @@ namespace HarborBrowser
 
         private void BrowserTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (e.OriginalSource != BrowserTabs || _reorderingTabs)
+            if (e.OriginalSource != BrowserTabs || _reorderingTabs || _restoringSession)
                 return;
+            ApplySelectedTab();
+        }
 
+        private void ApplySelectedTab()
+        {
             BrowserTab tab = SelectedTab;
             if (tab == null)
                 return;
@@ -985,19 +1011,20 @@ namespace HarborBrowser
                 return;
 
             string title = string.IsNullOrWhiteSpace(tab.PageTitle) ? "New tab" : tab.PageTitle;
-            tab.HeaderText.Text = (tab.IsSuspended ? "☾ " : "") + (tab.IsPrivate ? "Private · " : "") + title;
+            tab.HeaderText.Text = (tab.IsUnloaded ? "◇ " : tab.IsSuspended ? "☾ " : "") + (tab.IsPrivate ? "Private · " : "") + title;
             if (tab.PrivateBadge != null) tab.PrivateBadge.Visibility = tab.IsPrivate ? Visibility.Visible : Visibility.Collapsed;
             System.Windows.Automation.AutomationProperties.SetName(tab.Item, (tab.IsPrivate ? "Private tab: " : "Tab: ") + title);
-            tab.Item.Opacity = tab.IsSuspended ? 0.65 : 1.0;
+            tab.Item.Opacity = tab.IsUnloaded ? 0.55 : tab.IsSuspended ? 0.65 : 1.0;
             tab.HeaderText.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             tab.CloseButton.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             if (double.IsNaN(tab.Item.Width)) tab.Item.Width = tab.IsPinned ? TabStripLayout.PinnedWidth : TabStripLayout.RegularWidth;
             tab.HeaderText.MaxWidth = ResponsiveLayout.TabTitleWidth(ActualWidth > 0 ? ActualWidth : Width);
-            string url = tab.View != null && tab.View.Source != null ? tab.View.Source.AbsoluteUri : title;
+            string url = tab.View != null && tab.View.Source != null ? tab.View.Source.AbsoluteUri : tab.PendingUrl ?? title;
             string description = tab.IsPrivate ? "Private tab" : "Normal tab";
             if (tab.IsPinned) description += " • Pinned";
             if (!string.IsNullOrWhiteSpace(tab.GroupName)) description += " • " + tab.GroupName;
             if (tab.IsSuspended) description += " • Sleeping";
+            if (tab.IsUnloaded) description += " • Unloaded — reloads when selected";
             if (tab.KeepAwake) description += " • Kept awake for this session";
             tab.Item.ToolTip = description + " • " + url;
             if (tab.PinCommand != null) tab.PinCommand.Header = tab.IsPinned ? "Unpin tab" : "Pin tab";
@@ -1081,6 +1108,7 @@ namespace HarborBrowser
             if (tab.VideoPopout != null) tab.VideoPopout.Close();
             if (tab.SuspendTimer != null)
                 tab.SuspendTimer.Stop();
+            tab.UnloadTimer?.Stop();
             BrowserTabs.Items.Remove(tab.Item);
             PrivateTabClosed(tab);
             ApplyTabGroupFilter();
@@ -1642,9 +1670,12 @@ namespace HarborBrowser
             int sleeping = BrowserTabs.Items.Cast<TabItem>().Select(i => i.Tag as BrowserTab).Count(t => t != null && t.IsSuspended);
             int pinned = BrowserTabs.Items.Cast<TabItem>().Select(i => i.Tag as BrowserTab).Count(t => t != null && t.IsPinned);
             int privateTabs = BrowserTabs.Items.Cast<TabItem>().Select(i => i.Tag as BrowserTab).Count(t => t != null && t.IsPrivate);
+            int unloaded = OpenTabs.Count(t => t.IsUnloaded);
+            int deferred = OpenTabs.Count(t => !t.IsUnloaded && !t.Initialized && t.NativeContent == null && t.FailureMessage == null);
             lines.Add(string.Empty);
             lines.Add("TABS");
-            lines.Add("  Open: " + total + "   Sleeping: " + sleeping + "   Pinned: " + pinned + "   Private: " + privateTabs);
+            lines.Add("  Open: " + total + "   Sleeping: " + sleeping + "   Unloaded: " + unloaded + "   Not loaded: " + deferred);
+            lines.Add("  Pinned: " + pinned + "   Private: " + privateTabs);
             lines.Add("  Tracker requests blocked: " + System.Threading.Interlocked.Read(ref _blockedTrackerRequests));
             lines.Add(string.Empty);
             lines.Add("WEBVIEW2 PROCESSES (Harbor profile)");
@@ -1659,7 +1690,7 @@ namespace HarborBrowser
                 try
                 {
                     var processes = _environment.GetProcessInfos();
-                    foreach (CoreWebView2ProcessInfo info in processes)
+                    foreach (CoreWebView2ProcessInfo info in processes.GroupBy(p => p.ProcessId).Select(g => g.First()))
                     {
                         try
                         {
@@ -1679,12 +1710,13 @@ namespace HarborBrowser
                 }
                 catch (Exception ex) { lines.Add("  Process snapshot unavailable: " + ex.Message); }
                 lines.Add("  Processes: " + found + "   Combined working set: " + FormatMemory(working) +
-                    "   Combined private: " + FormatMemory(privateBytes));
+                    "   Combined private commit: " + FormatMemory(privateBytes));
             }
             lines.Add(string.Empty);
             lines.Add("Note: WebView2 can share renderer processes between tabs. Memory is therefore shown by process, not guessed per tab.");
             _processCpu.Retain(sampledIds);
             lines.Add("CPU is a sample of total machine capacity; shared working-set pages may be counted more than once.");
+            lines.Add("Private commit is allocated memory, not a measurement of physical RAM. Unloading a tab does not guarantee its shared renderer exits.");
             lines.Add("Auto-refresh: every 2 seconds.");
             lines.Add("Snapshot: " + DateTime.Now.ToString("G"));
             return string.Join(Environment.NewLine, lines);
@@ -2183,6 +2215,7 @@ namespace HarborBrowser
                 if (tab.NativeContent is DownloadsPage) ((DownloadsPage)tab.NativeContent).Dispose();
             if (tab.VideoPopout != null) tab.VideoPopout.Close();
                 if (tab.SuspendTimer != null) tab.SuspendTimer.Stop();
+                tab.UnloadTimer?.Stop();
                 try
                 {
                     IDisposable disposable = tab.View as IDisposable;

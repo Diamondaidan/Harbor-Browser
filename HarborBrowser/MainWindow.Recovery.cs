@@ -44,6 +44,7 @@ namespace HarborBrowser
             }
             catch(Exception ex){SetStatus("Recovery could not finish: "+ex.Message);}
             finally{_restoringSession=false;}
+            ApplySelectedTab();
             SaveSession();
         }
         private string SafeTabUrl(BrowserTab tab)
@@ -69,6 +70,7 @@ namespace HarborBrowser
                 _browserGeneration++;_pendingBrowserExit=_environmentExited==null?Task.CompletedTask:_environmentExited.Task;
                 foreach(var item in BrowserTabs.Items.Cast<TabItem>().Select(i=>i.Tag as BrowserTab).Where(t=>t!=null&&t.NativeContent==null))
                 {
+                    if(item.IsUnloaded){CancelTabStartup(item);continue;}
                     CancelPermissions(item);item.PendingUrl=SafeTabUrl(item)??_settings.HomePage;item.NeedsNewView=true;item.Initialized=false;item.IsSuspended=false;item.SleepReason=null;item.FailureMessage="The browser engine stopped. Your tab is saved.";UpdateTabHeader(item);
                     CancelTabStartup(item);
                 }
@@ -95,7 +97,7 @@ namespace HarborBrowser
                 if(tab.NeedsNewView)
                 {
                     CancelTabStartup(tab);
-                    try{tab.View.Dispose();}catch{}tab.View=new WebView2();ConfigurePrivateView(tab);tab.Initialized=false;tab.Initializing=false;tab.IsSuspended=false;tab.SuspensionInProgress=false;tab.SleepReason=null;tab.MediaFrames.Clear();tab.ActiveVideoContext=null;tab.TrackerFilterRegistered=false;tab.NeedsNewView=false;
+                    try{tab.View.Dispose();}catch{}tab.View=new WebView2();ConfigurePrivateView(tab);tab.Initialized=false;tab.Initializing=false;tab.IsSuspended=false;tab.IsUnloaded=false;tab.SuspensionInProgress=false;tab.SleepReason=null;tab.MediaFrames.Clear();tab.ActiveVideoContext=null;tab.TrackerFilterRegistered=false;tab.NeedsNewView=false;
                     if(SelectedTab==tab)ShowTabContent();await EnsureTabInitializedAsync(tab);
                 }
                 else

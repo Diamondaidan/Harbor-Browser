@@ -39,7 +39,7 @@ internal static class Benchmark
     {public int Id;public long Started;public double Cpu;public long Working,Private;public bool App;}
     private sealed class Frame
     {
-        public string Phase;public int Sleeping,Processes;public double AppWorkingMB,AppPrivateMB,WebWorkingMB,WebPrivateMB,CpuPercent;public bool ProtectedTabAwake;public long DownloadBytes;
+        public string Phase;public int Sleeping,Unloaded,Processes;public double AppWorkingMB,AppPrivateMB,WebWorkingMB,WebPrivateMB,CpuPercent;public bool ProtectedTabAwake;public long DownloadBytes;
     }
     private static List<Proc> Processes(MainWindow main)
     {
@@ -55,11 +55,15 @@ internal static class Benchmark
         {
             await Task.Delay(1000);var current=Processes(main);long timestamp=Stopwatch.GetTimestamp();double elapsed=(timestamp-before)/(double)Stopwatch.Frequency;
             double cpu=current.Sum(p=>{var old=previous.FirstOrDefault(o=>o.Id==p.Id&&o.Started==p.Started);return old==null?0:Math.Max(0,p.Cpu-old.Cpu);});
-            frames.Add(new Frame{Phase=phase,Sleeping=tabs.Count(t=>t.Initialized&&t.View.CoreWebView2.IsSuspended),Processes=current.Count,AppWorkingMB=current.Where(p=>p.App).Sum(p=>p.Working)/1048576.0,AppPrivateMB=current.Where(p=>p.App).Sum(p=>p.Private)/1048576.0,WebWorkingMB=current.Where(p=>!p.App).Sum(p=>p.Working)/1048576.0,WebPrivateMB=current.Where(p=>!p.App).Sum(p=>p.Private)/1048576.0,CpuPercent=Math.Max(0,Math.Min(100,cpu/elapsed/Environment.ProcessorCount*100)),ProtectedTabAwake=protectedTab==null||!protectedTab.View.CoreWebView2.IsSuspended,DownloadBytes=download==null?0:download.BytesReceived});
+            frames.Add(new Frame{Phase=phase,Unloaded=tabs.Count(IsUnloaded),Sleeping=tabs.Count(t=>t.Initialized&&t.View.CoreWebView2.IsSuspended),Processes=current.Count,AppWorkingMB=current.Where(p=>p.App).Sum(p=>p.Working)/1048576.0,AppPrivateMB=current.Where(p=>p.App).Sum(p=>p.Private)/1048576.0,WebWorkingMB=current.Where(p=>!p.App).Sum(p=>p.Working)/1048576.0,WebPrivateMB=current.Where(p=>!p.App).Sum(p=>p.Private)/1048576.0,CpuPercent=Math.Max(0,Math.Min(100,cpu/elapsed/Environment.ProcessorCount*100)),ProtectedTabAwake=protectedTab==null||!protectedTab.View.CoreWebView2.IsSuspended,DownloadBytes=download==null?0:download.BytesReceived});
             previous=current;before=timestamp;
         }
         return frames;
     }
+    private static bool IsUnloaded(BrowserTab tab)
+    {var property=typeof(BrowserTab).GetProperty("IsUnloaded");return property!=null&&(bool)property.GetValue(tab);}
+    private static async Task WaitScript(BrowserTab tab,string expression)
+    {for(int i=0;i<200;i++){if(await tab.View.CoreWebView2.ExecuteScriptAsync(expression)=="true")return;await Task.Delay(50);}throw new Exception("Reloaded page did not become ready");}
     [STAThread]
     private static int Main(string[] args)
     {
@@ -67,18 +71,36 @@ internal static class Benchmark
         steady=args.Length>6&&args[6]=="--steady";
         Directory.CreateDirectory(output);string actual=typeof(MainWindow).Assembly.GetName().Version.ToString();if(actual!=expected){Console.WriteLine("FAIL wrong app assembly "+actual);return 1;}
         var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};app.Resources.MergedDictionaries.Add(new ResourceDictionary{Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml")});
-        var store=new BrowserDataStore(Path.Combine(output,"Profile"),Path.Combine(output,"Downloads"));store.SaveSettings(new BrowserSettings{SuspendInactiveTabs=false,HarborHomeIntroduced=true,OnlineSuggestionsEnabled=false,RestorePreviousSession=false});
+        var store=new BrowserDataStore(Path.Combine(output,"Profile"),Path.Combine(output,"Downloads"));store.SaveSettings(new BrowserSettings{SuspendInactiveTabs=false,HarborHomeIntroduced=true,OnlineSuggestionsEnabled=false,RestorePreviousSession=scene=="restore"});
+        if(scene=="restore")store.SaveSession(new BrowserSession{SelectedTabIndex=count-1,Tabs=Enumerable.Range(0,count).Select(i=>new BrowserSessionTab{Url="https://performance.test.invalid/performance.html?tab="+i}).ToList()});
         var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
         var startup=Stopwatch.StartNew();long startupReadyMilliseconds=0;
         var main=new MainWindow(store,h=>layout){WindowStartupLocation=WindowStartupLocation.Manual,Left=-20000,Top=0,Width=1000,Height=600,ShowInTaskbar=false,ShowActivated=false};
+        int controllerStarts=0;
+        main.BrowserViewInitializer=async(view,environment)=>{
+            controllerStarts++;
+            await view.EnsureCoreWebView2Async(environment);
+            foreach(string host in new[]{"performance.test.invalid","media.test.invalid","media-frame.test.invalid"})
+                view.CoreWebView2.SetVirtualHostNameToFolderMapping(host,fixtures,CoreWebView2HostResourceAccessKind.DenyCors);
+        };
         var timeout=new DispatcherTimer{Interval=TimeSpan.FromMinutes(3)};timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL benchmark timeout");app.Shutdown(1);};
         main.Loaded+=async(s,e)=>
         {
             DownloadFixtureServer server=null;DownloadEntry download=null;var tabs=new List<BrowserTab>();var records=new List<Frame>();var settings=(BrowserSettings)Field(main,"_settings");DispatcherTimer churn=null;
             try
             {
-                await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
+                await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)(scene=="restore"?main.BrowserTabs.SelectedItem:main.BrowserTabs.Items[0])).Tag).Initialized);
                 startup.Stop();startupReadyMilliseconds=startup.ElapsedMilliseconds;
+                if(scene=="restore")
+                {
+                    var selected=(BrowserTab)((TabItem)main.BrowserTabs.SelectedItem).Tag;
+                    await WaitScript(selected,"typeof token==='string'");
+                    long pageReady=startupReadyMilliseconds;
+                    await Task.Delay(400);
+                    int controllers=main.BrowserTabs.Items.Cast<TabItem>().Count(t=>((BrowserTab)t.Tag).Initialized);
+                    File.WriteAllText(Path.Combine(output,"measurements.json"),Json.Serialize(new{Version=actual,Scene=scene,Tabs=count,Trial=trial,StartupReadyMilliseconds=pageReady,InitializedTabs=controllers,RequestedControllers=controllerStarts,StartingTabs=main.BrowserTabs.Items.Cast<TabItem>().Count(t=>((BrowserTab)t.Tag).Initializing),SelectedIndex=main.BrowserTabs.SelectedIndex,Runtime=selected.View.CoreWebView2.Environment.BrowserVersionString}));
+                    Console.WriteLine("PASS restore "+actual+" initialized="+controllers+" requested="+controllerStarts+" selected="+main.BrowserTabs.SelectedIndex+" ready_ms="+pageReady);exit=0;return;
+                }
                 for(int i=0;i<count;i++)
                 {
                     BrowserTab tab;if(i==0)tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
@@ -114,9 +136,26 @@ internal static class Benchmark
                 }
                 settings.SuspendInactiveTabs=false;Activity(main);await Task.Delay(steady?5000:300);records.AddRange(await Measure(main,tabs,"Woken",protectedTab,download));
                 if(tabs.Any(t=>t.View.CoreWebView2.IsSuspended))throw new Exception("A tab failed to wake");
+                if(scene=="idle"&&typeof(BrowserSettings).GetProperty("UnloadInactiveTabs")!=null)
+                {
+                    typeof(BrowserSettings).GetProperty("UnloadInactiveTabs").SetValue(settings,true);
+                    var unload=typeof(MainWindow).GetMethod("UnloadTabIfInactiveAsync",Hidden|BindingFlags.Public);
+                    foreach(var tab in tabs.Skip(1)) await (Task)unload.Invoke(main,new object[]{tab});
+                    if(tabs.Skip(1).Any(t=>!IsUnloaded(t)))throw new Exception("Expected all eligible background tabs unloaded");
+                    await Task.Delay(5000);records.AddRange(await Measure(main,tabs,"Unloaded",protectedTab,download));
+                    foreach(var tab in tabs.Skip(1))
+                    {
+                        main.BrowserTabs.SelectedItem=tab.Item;await Wait(()=>tab.Initialized);
+                        await WaitScript(tab,"typeof token==='string'");
+                    }
+                    main.BrowserTabs.SelectedItem=tabs[0].Item;
+                    typeof(BrowserSettings).GetProperty("UnloadInactiveTabs").SetValue(settings,false);
+                    if(tabs.Any(IsUnloaded))throw new Exception("A discarded tab failed to reload");
+                    await Task.Delay(steady?5000:1500);records.AddRange(await Measure(main,tabs,"Reloaded",protectedTab,download));
+                }
                 var environment=(CoreWebView2Environment)Field(main,"_environment");
                 File.WriteAllText(Path.Combine(output,"measurements.json"),Json.Serialize(new{Version=actual,Scene=scene,Tabs=count,Trial=trial,MeasurementMode=steady?"Steady":"Short",StartupReadyMilliseconds=startupReadyMilliseconds,ProcessBits=IntPtr.Size*8,LogicalProcessors=Environment.ProcessorCount,Runtime=environment.BrowserVersionString,Samples=records}));
-                File.WriteAllLines(Path.Combine(output,"measurements.csv"),new[]{"version,scene,tabs,trial,phase,sleeping,processes,app_working_mb,app_private_mb,web_working_mb,web_private_mb,cpu_percent,protected_awake,download_bytes"}.Concat(records.Select(f=>string.Join(",",new[]{actual,scene,count.ToString(),trial.ToString(),f.Phase,f.Sleeping.ToString(),f.Processes.ToString(),f.AppWorkingMB.ToString("F3",CultureInfo.InvariantCulture),f.AppPrivateMB.ToString("F3",CultureInfo.InvariantCulture),f.WebWorkingMB.ToString("F3",CultureInfo.InvariantCulture),f.WebPrivateMB.ToString("F3",CultureInfo.InvariantCulture),f.CpuPercent.ToString("F3",CultureInfo.InvariantCulture),f.ProtectedTabAwake.ToString(),f.DownloadBytes.ToString()}))));
+                File.WriteAllLines(Path.Combine(output,"measurements.csv"),new[]{"version,scene,tabs,trial,phase,sleeping,unloaded,processes,app_working_mb,app_private_mb,web_working_mb,web_private_mb,cpu_percent,protected_awake,download_bytes"}.Concat(records.Select(f=>string.Join(",",new[]{actual,scene,count.ToString(),trial.ToString(),f.Phase,f.Sleeping.ToString(),f.Unloaded.ToString(),f.Processes.ToString(),f.AppWorkingMB.ToString("F3",CultureInfo.InvariantCulture),f.AppPrivateMB.ToString("F3",CultureInfo.InvariantCulture),f.WebWorkingMB.ToString("F3",CultureInfo.InvariantCulture),f.WebPrivateMB.ToString("F3",CultureInfo.InvariantCulture),f.CpuPercent.ToString("F3",CultureInfo.InvariantCulture),f.ProtectedTabAwake.ToString(),f.DownloadBytes.ToString()}))));
                 Console.WriteLine("PASS benchmark "+actual+" "+scene+" tabs="+count+" trial="+trial+" sleeping="+records.First(f=>f.Phase=="Sleeping").Sleeping);exit=0;
             }
             catch(Exception ex){Console.WriteLine("FAIL "+ex);}

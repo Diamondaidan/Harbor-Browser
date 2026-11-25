@@ -116,7 +116,17 @@
               </ComboBox>
             </Grid>
             <TextBlock Text="Sleeping tabs pause page scripts and animations and wake when selected. Playing media, picture in picture and active or paused downloads stay awake. Use the Resource Monitor or a tab's menu to keep a tab awake for this session. Some pages may decline sleep." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,8" />
-            <TextBlock Text="New tabs are already lazy-loaded: the browser engine starts only when you first open a tab." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,2" />
+            <CheckBox x:Name="UnloadInactiveTabsBox" Content="Unload inactive tabs to free more memory" FontWeight="SemiBold" Margin="0,10,0,8" />
+            <Grid Margin="20,0,0,8">
+              <Grid.ColumnDefinitions><ColumnDefinition Width="190"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+              <TextBlock Text="Unload a tab after" VerticalAlignment="Center"/>
+              <ComboBox x:Name="UnloadDelayBox" Grid.Column="1" Height="29" SelectedValuePath="Tag">
+                <ComboBoxItem Content="5 minutes" Tag="300"/><ComboBoxItem Content="15 minutes" Tag="900"/>
+                <ComboBoxItem Content="30 minutes" Tag="1800"/><ComboBoxItem Content="1 hour" Tag="3600"/>
+              </ComboBox>
+            </Grid>
+            <TextBlock Text="Off by default. Unloaded tabs reload when selected and lose in-page state, scroll position and the tab's Back/Forward history. Detected unsaved input, media, downloads, private tabs, pinned tabs and kept-awake tabs prevent unloading. Some website state cannot be detected; keep important tabs awake." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,8"/>
+            <TextBlock Text="Restored background tabs load only when selected." Foreground="{DynamicResource HarborMuted}" TextWrapping="Wrap" Margin="20,0,0,2" />
           </StackPanel>
         </GroupBox>
         <GroupBox Header="Privacy and session" Padding="12" BorderBrush="{DynamicResource HarborLine}" Margin="0,0,0,10">

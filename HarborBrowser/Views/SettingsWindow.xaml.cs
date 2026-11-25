@@ -26,6 +26,9 @@ namespace HarborBrowser.Views
             SuspendDelayBox.SelectedValue = settings.InactiveTabSuspendDelaySeconds.ToString();
             if (SuspendDelayBox.SelectedItem == null)
                 SuspendDelayBox.SelectedValue = "60";
+            UnloadInactiveTabsBox.IsChecked = settings.UnloadInactiveTabs;
+            UnloadDelayBox.SelectedValue = settings.InactiveTabUnloadDelaySeconds.ToString();
+            if (UnloadDelayBox.SelectedItem == null) UnloadDelayBox.SelectedValue = "900";
             RestorePreviousSessionBox.IsChecked = settings.RestorePreviousSession;
             EnableTrackerBlockingBox.IsChecked = settings.EnableTrackerBlocking;
             TrackingPreventionLevelBox.SelectedValue = string.IsNullOrWhiteSpace(settings.TrackingPreventionLevel) ? "Balanced" : settings.TrackingPreventionLevel;
@@ -51,6 +54,8 @@ namespace HarborBrowser.Views
             int suspendDelay;
             if (!int.TryParse(System.Convert.ToString(SuspendDelayBox.SelectedValue), out suspendDelay))
                 suspendDelay = 60;
+            int unloadDelay;
+            if (!int.TryParse(System.Convert.ToString(UnloadDelayBox.SelectedValue), out unloadDelay)) unloadDelay = 900;
 
             ResultSettings = new BrowserSettings
             {
@@ -65,6 +70,8 @@ namespace HarborBrowser.Views
                 EnableDeveloperTools = EnableDevToolsBox.IsChecked == true,
                 SuspendInactiveTabs = SuspendInactiveTabsBox.IsChecked == true,
                 InactiveTabSuspendDelaySeconds = suspendDelay,
+                UnloadInactiveTabs = UnloadInactiveTabsBox.IsChecked == true,
+                InactiveTabUnloadDelaySeconds = unloadDelay,
                 RestorePreviousSession = RestorePreviousSessionBox.IsChecked == true,
                 EnableTrackerBlocking = EnableTrackerBlockingBox.IsChecked == true,
                 TrackingPreventionLevel = System.Convert.ToString(TrackingPreventionLevelBox.SelectedValue),

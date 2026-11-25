@@ -33,3 +33,5 @@ Harbor does not provide its own analytics collection server. This statement is n
 - [DuckDuckGo privacy policy](https://duckduckgo.com/privacy)
 
 If you select another search provider or optional service, its privacy policy also applies. Harbor's local data snapshots are for recovery; they do not copy provider account databases and are not a full browser-profile backup.
+
+Optional tab unloading checks page activity and detected edits within the page and its frames. Harbor receives only an activity status, not field values, and does not persist form contents for this feature. It keeps the normal tab address under the existing session rules, loses in-page state on unload, and does not unload private tabs. Keep important tabs awake because not all website state can be detected.

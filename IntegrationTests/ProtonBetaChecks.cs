@@ -89,6 +89,7 @@ internal static partial class Program
             var validator = main.ProtonProxyOwnershipValidator;
             var lease = main.ProtonVerificationLease;
             var clock = main.ProtonProtection.UtcNow;
+            var monotonicClock = main.ProtonProtection.MonotonicTimestamp;
             bool monitoring = main.AutomaticProtonMonitoringEnabled;
             bool proxyOwned = false;
             var evidence = new Dictionary<string, Dictionary<string, int>>();
@@ -155,6 +156,9 @@ internal static partial class Program
                 await BetaProxySet(observer,new{mode="direct"});
                 proxyOwned = true;
                 var fakeNow = DateTime.UtcNow; main.ProtonProtection.UtcNow = () => fakeNow;
+                // Control both clocks: worker startup must not consume the simulated one-second lease.
+                long fakeTimestamp = System.Diagnostics.Stopwatch.GetTimestamp();
+                main.ProtonProtection.MonotonicTimestamp = () => fakeTimestamp;
                 main.ProtonVerificationLease = TimeSpan.FromSeconds(1);
                 long expiredEpoch = main.ProtonProtection.Epoch;
                 Check("current epoch can receive a bounded verification lease", main.MarkProtonRouteVerified(expiredEpoch));
@@ -162,6 +166,7 @@ internal static partial class Program
                 await core.ExecuteScriptAsync("betaRequests('expired',1000)");
                 await WaitJs(core, "betaFixture.swScheduledPrefix==='expired'");
                 fakeNow = fakeNow.AddSeconds(2);
+                fakeTimestamp += 2 * System.Diagnostics.Stopwatch.Frequency;
                 var expiredState = main.ProtonProtection.State;
                 await Task.Delay(1300);
                 evidence["expired"] = server.Snapshot("expired");
@@ -170,7 +175,7 @@ internal static partial class Program
                 Check("lease expiry unloads the previous ordinary document", core.Source == "about:blank");
                 foreach (string kind in BetaRequestKinds)
                     BetaCounterCheck("expired-lease request never reaches the server: " + kind, server.Count("expired/" + kind) == 0);
-                main.ProtonProtection.UtcNow = clock; main.ProtonVerificationLease = TimeSpan.FromMinutes(2);
+                main.ProtonProtection.UtcNow = clock; main.ProtonProtection.MonotonicTimestamp = monotonicClock; main.ProtonVerificationLease = TimeSpan.FromMinutes(2);
 
                 long networkEpoch = main.ProtonProtection.Epoch;
                 Check("new route proof can protect again after expiry", main.MarkProtonRouteVerified(networkEpoch));
@@ -218,7 +223,7 @@ internal static partial class Program
             finally
             {
                 SaveBetaCoverage(output, evidence);
-                main.ProtonProxyOwnershipValidator = validator; main.ProtonVerificationLease = lease; main.ProtonProtection.UtcNow = clock; main.AutomaticProtonMonitoringEnabled = monitoring;
+                main.ProtonProxyOwnershipValidator = validator; main.ProtonVerificationLease = lease; main.ProtonProtection.UtcNow = clock; main.ProtonProtection.MonotonicTimestamp = monotonicClock; main.AutomaticProtonMonitoringEnabled = monitoring;
                 if (((ProtonPreviewService)Field(main, "_protonPreview")).Enabled) await main.ChangeProtonPreview(false);
             }
         }

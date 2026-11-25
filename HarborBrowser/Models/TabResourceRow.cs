@@ -11,13 +11,16 @@ namespace HarborBrowser.Models
         public string Title {get;set;}
         public string Scope {get;set;}
         public string State {get;set;}
+        public string UnloadState {get;set;}
+        public bool CanUnload {get;set;}
+        public bool IsUnloaded {get;set;}
         public bool KeepAwake {get;set;}
         public bool CanSleep {get;set;}
         public bool CanWake {get;set;}
         public event PropertyChangedEventHandler PropertyChanged;
         public void Update(TabResourceRow row)
         {
-            Title=row.Title;Scope=row.Scope;State=row.State;KeepAwake=row.KeepAwake;CanSleep=row.CanSleep;CanWake=row.CanWake;
+            Title=row.Title;Scope=row.Scope;State=row.State;UnloadState=row.UnloadState;CanUnload=row.CanUnload;IsUnloaded=row.IsUnloaded;KeepAwake=row.KeepAwake;CanSleep=row.CanSleep;CanWake=row.CanWake;
             PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(string.Empty));
         }
     }
@@ -26,6 +29,7 @@ namespace HarborBrowser.Models
         public Func<IList<TabResourceRow>> Tabs {get;set;}
         public Action<Guid> Activate {get;set;}
         public Func<Guid,Task> Sleep {get;set;}
+        public Func<Guid,Task> Unload {get;set;}
         public Action<Guid> Wake {get;set;}
         public Action<Guid,bool> KeepAwake {get;set;}
         public Func<Task> SleepInactive {get;set;}
