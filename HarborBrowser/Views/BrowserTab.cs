@@ -18,6 +18,7 @@ namespace HarborBrowser.Views
         public bool OpeningPopout { get; set; }
         public TabItem Item { get; set; }
         public WebView2 View { get; set; }
+        public System.Windows.FrameworkElement NativeContent { get; set; }
         public TextBlock HeaderText { get; set; }
         public Image HeaderIcon { get; set; }
         public TextBlock FallbackIcon { get; set; }

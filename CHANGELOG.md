@@ -1,3 +1,17 @@
+## 0.3.7
+
+- Reopen up to 20 closed normal tabs with Ctrl+Shift+T and menu commands, preserving position, pin state and existing group.
+- Exclude private tabs from the in-memory closed-tab list.
+- Add local address suggestions from bookmarks/history, keyboard and mouse selection, and bookmark-only suggestions in private tabs.
+- Preserve address edits while navigation finishes.
+- Add a native Downloads browser tab at harbor://downloads, Ctrl+J and the cog menu.
+- Add filename filtering, live byte/percentage progress, pause/resume/cancel and file/list actions.
+- Separate normal/private download lists and keep completed files when clearing entries.
+- Preserve the original filename/list entry when resume raises a new download-start event.
+- Retain closed source controls while downloads need them, then release them.
+- Add real loopback HTTP download checks, including interrupted range resume, cancellation, source-tab closure and byte-for-byte ZIP integrity.
+- Carry forward all 0.3.6 compatibility, menu and media fixes.
+
 ## 0.3.6
 
 - Keep cog menu and submenu scrollbars on the physical right side.

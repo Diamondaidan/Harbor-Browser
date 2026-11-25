@@ -103,6 +103,7 @@ namespace HarborBrowser
                 _presentation.SetVideoFullScreen(videoFull);
             }
             if(tab==null){BrowserContentHost.Content=null;return;}
+            if(tab.NativeContent!=null){BrowserContentHost.Content=tab.NativeContent;return;}
             if(tab.VideoPopout==null){BrowserContentHost.Content=tab.View;return;}
             var panel=new StackPanel{HorizontalAlignment=HorizontalAlignment.Center,VerticalAlignment=VerticalAlignment.Center};
             panel.Children.Add(new TextBlock{Text="This video is playing in picture in picture.",FontSize=18,Margin=new Thickness(15)});

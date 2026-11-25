@@ -2,8 +2,8 @@ MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
   All projects are up-to-date for restore.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborIntegrationTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\IntegrationTests\bin\Release\net48\HarborIntegrationTests.exe
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborIntegrationTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\IntegrationTests\bin\Release\net48\HarborIntegrationTests.exe
 PASS cross-origin iframe video discovered
 PASS group bar absent
 PASS caption and tabs share same row
@@ -129,5 +129,58 @@ PASS cog restores all tabs
 PASS new actual app tab appended right
 PASS actual app reorder changes tab order
 PASS reordered session persisted
-ALL PASSED: 125 isolated app/media integration checks.
-Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\IntegrationTests\TestResults\20261112-200519
+PASS closing private app tab leaves restore list unchanged
+PASS actual app reopens newest closed tab
+PASS actual app restores pin group and position
+PASS reopened tab selected and visible
+PASS address suggestions popup opens from local data
+PASS Down selects first suggestion
+PASS Down selects next suggestion
+PASS Up returns to first suggestion
+PASS Escape dismisses suggestions
+PASS Enter navigates selected suggestion
+PASS mouse suggestion list visible
+PASS mouse selection opens history suggestion
+PASS private app tab excludes normal history suggestions
+PASS private navigation is not saved to history
+INFO fixture request: GET /archive HTTP/1.1; start=0
+PASS Downloads opens as native browser tab
+PASS Downloads reuses existing page
+PASS live download appears in Downloads page
+PASS Downloads page is saved in normal session
+PASS download pause button enabled
+PASS paused transfer is labelled Paused
+PASS paused progress stays stopped
+PASS short Downloads page scrolls all content
+PASS download controls reachable on small screen
+INFO before resume: Interrupted UserPaused CanResume=True
+PASS download resume button enabled
+INFO Range: bytes=622592-
+INFO fixture request: GET /archive HTTP/1.1; start=622592
+INFO after resume: InProgress ServerContentLengthMismatch CanResume=False UI=Downloading 30%
+INFO fixture sent 1475005 bytes
+PASS resumed transfer completes
+PASS resume retains one download row and original filename
+PASS resume reconnects after transfer connection closes
+INFO HTTP range requests: 1
+PASS download filename has zip extension
+PASS completed download bytes match source
+PASS downloaded ZIP opens
+PASS completed row exposes open and folder actions
+PASS Downloads search filters list
+PASS normal Downloads excludes private entries
+PASS private Downloads contains only private entries
+PASS clear completed keeps disk file and private list
+INFO fixture request: GET /cancel HTTP/1.1; start=0
+PASS download cancel button enabled
+INFO fixture connection closed: Unable to write data to the transport connection: An established connection was aborted by the software in your host machine.
+PASS cancelled row allows removal
+PASS download remove button enabled
+PASS remove deletes only row
+INFO fixture request: GET /background HTTP/1.1; start=0
+INFO fixture sent 2097597 bytes
+PASS download survives closing its source tab
+PASS closed source is released after download completes
+PASS Downloads tab can navigate back to web content
+ALL PASSED: 167 isolated app/media integration checks.
+Results: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\IntegrationTests\TestResults\20261112-205523

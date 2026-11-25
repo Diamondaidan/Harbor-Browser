@@ -63,6 +63,7 @@ namespace HarborBrowser
             _bookmarks = _store.LoadBookmarks();
             _history = _store.LoadHistory();
             _downloads = new ObservableCollection<DownloadEntry>();
+            InitializeEverydayFeatures();
             if (homeDefaultsUpdated) SaveSettings();
             BrowserTabs.ContextMenu = BuildTabStripContextMenu();
             BookmarksBar.ContextMenu = BuildBookmarksBarContextMenu();
@@ -261,6 +262,8 @@ namespace HarborBrowser
                 };
             }
 
+            if (IsDownloadsUrl(initialUrl)) ConfigureDownloadsTab(tab);
+
             tab.HeaderText = new TextBlock
             {
                 Text = "New tab",
@@ -314,6 +317,7 @@ namespace HarborBrowser
         private ContextMenu BuildTabContextMenu(BrowserTab tab)
         {
             var menu = new ContextMenu();
+            AddReopenCommand(menu);
             AddContextItem(menu, "New tab", (s, e) => CreateNewTab(_settings.HomePage, true));
             var pin = new MenuItem { Header = tab.IsPinned ? "Unpin tab" : "Pin tab", Tag = tab };
             pin.Click += TogglePinTab_Click;
@@ -342,6 +346,7 @@ namespace HarborBrowser
         private ContextMenu BuildTabStripContextMenu()
         {
             var menu = new ContextMenu();
+            AddReopenCommand(menu);
             AddContextItem(menu, "New tab", (s, e) => CreateNewTab(_settings.HomePage, true));
             AddContextItem(menu, "New private tab", NewPrivateTab_Click);
             AddContextItem(menu, "Restore previous session", RestoreSession_Click);
@@ -384,7 +389,7 @@ namespace HarborBrowser
 
         private async Task EnsureTabInitializedAsync(BrowserTab tab)
         {
-            if (tab == null || tab.Initialized || tab.Initializing)
+            if (tab == null || tab.NativeContent != null || tab.Initialized || tab.Initializing || tab.IsClosing)
                 return;
 
             tab.Initializing = true;
@@ -406,7 +411,9 @@ namespace HarborBrowser
                     _environment = await _environmentTask;
                 }
 
+                if (tab.IsClosing) return;
                 await tab.View.EnsureCoreWebView2Async(_environment);
+                if (tab.IsClosing) return;
                 CoreWebView2 core = tab.View.CoreWebView2;
                 await InitializeVideoFeatures(tab, core);
 
@@ -440,7 +447,7 @@ namespace HarborBrowser
                     if (tab.VideoPopout != null) tab.VideoPopout.Close();
                     if (SelectedTab == tab)
                     {
-                        AddressBox.Text = HomePageService.DisplayUrl(args.Uri);
+                        SetAddressText(HomePageService.DisplayUrl(args.Uri));
                         UpdateBookmarkButtonState();
                         SetStatus("Loading " + args.Uri);
                     }
@@ -450,7 +457,7 @@ namespace HarborBrowser
                 {
                     if (SelectedTab == tab && tab.View.Source != null)
                     {
-                        AddressBox.Text = HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri);
+                        SetAddressText(HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri));
                         UpdateBookmarkButtonState();
                     }
                 };
@@ -470,7 +477,7 @@ namespace HarborBrowser
                     {
                         SetStatus(args.IsSuccess ? "Done" : "Page load finished with an error");
                         if (tab.View.Source != null)
-                            AddressBox.Text = HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri);
+                            SetAddressText(HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri));
                         UpdateBookmarkButtonState();
                     }
 
@@ -508,6 +515,7 @@ namespace HarborBrowser
             }
             catch (Exception ex)
             {
+                if (tab.IsClosing) return;
                 SetStatus("Browser engine could not start");
                 MessageBox.Show(this,
                     "Harbor could not initialize the WebView2 browser engine.\n\n" + ex.Message +
@@ -522,6 +530,8 @@ namespace HarborBrowser
 
         private void Core_DownloadStarting(BrowserTab tab, object sender, CoreWebView2DownloadStartingEventArgs e)
         {
+            if (RebindResumedDownload(tab, e)) return;
+            if (tab != null && tab.IsClosing) { e.Cancel = true; return; }
             if (tab != null && tab.IsPrivate)
             {
                 if (MessageBox.Show(this, "Private browsing does not hide downloaded files from this computer. Continue downloading?",
@@ -557,8 +567,12 @@ namespace HarborBrowser
                     FileName = safeName,
                     FilePath = fullPath,
                     Status = "Starting",
+                    IsActive = true,
+                    IsPrivate = tab != null && tab.IsPrivate,
                     Operation = operation
                 };
+                entry.SourceUrl = operation.Uri;
+                _downloadOwners[entry] = tab;
                 _downloads.Insert(0, entry);
 
                 operation.BytesReceivedChanged += (s, args) => QueueDownloadUpdate(entry, operation);
@@ -574,7 +588,10 @@ namespace HarborBrowser
             catch (Exception ex)
             {
                 if (entry != null)
+                {
                     _downloads.Remove(entry);
+                    _downloadOwners.Remove(entry);
+                }
 
                 // Fall back to WebView2's built-in download UI if Harbor cannot
                 // prepare its custom download tracking for any reason.
@@ -597,14 +614,20 @@ namespace HarborBrowser
 
         private void UpdateDownloadStatus(DownloadEntry entry, CoreWebView2DownloadOperation operation)
         {
-            if (entry == null || operation == null || !_downloads.Contains(entry))
+            if (entry == null || operation == null || !ReferenceEquals(entry.Operation, operation) || !_downloads.Contains(entry))
                 return;
 
             try
             {
+                entry.IsActive = operation.State == CoreWebView2DownloadState.InProgress;
+                entry.CanResume = operation.State == CoreWebView2DownloadState.Interrupted && operation.CanResume;
+                entry.BytesReceived = operation.BytesReceived;
+                ulong? expected = operation.TotalBytesToReceive;
+                entry.TotalBytes = expected.HasValue ? (long?)Math.Min(expected.Value, (ulong)long.MaxValue) : null;
                 switch (operation.State)
                 {
                     case CoreWebView2DownloadState.Completed:
+                        _resumingDownloads.Remove(entry);
                         string filenameNote = RepairCompletedDownload(entry);
                         entry.Status = "Complete";
                         SetStatus("Download complete: " + entry.FileName + filenameNote);
@@ -613,7 +636,7 @@ namespace HarborBrowser
 
                     case CoreWebView2DownloadState.Interrupted:
                         string reason = operation.InterruptReason.ToString();
-                        entry.Status = "Interrupted: " + SplitEnumWords(reason);
+                        entry.Status = reason == "UserPaused" ? "Paused" : reason == "UserCanceled" ? "Cancelled" : "Interrupted: " + SplitEnumWords(reason);
                         SetStatus("Download interrupted: " + entry.FileName + " (" + SplitEnumWords(reason) + ")");
                         ShowDownloadNotification("Download interrupted: " + entry.FileName + " · " + SplitEnumWords(reason), 0, false);
                         break;
@@ -642,6 +665,7 @@ namespace HarborBrowser
                         }
                         break;
                 }
+                ReleaseDownloadSource(entry);
             }
             catch (Exception ex)
             {
@@ -711,7 +735,7 @@ namespace HarborBrowser
 
         private void RecordHistory(BrowserTab tab, string url, string title)
         {
-            if (tab == null || tab.IsPrivate || string.IsNullOrWhiteSpace(url) || url == "about:blank" || HomePageService.IsHomeUrl(url) || url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+            if (tab == null || tab.IsClosing || tab.IsPrivate || string.IsNullOrWhiteSpace(url) || url == "about:blank" || HomePageService.IsHomeUrl(url) || url.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
                 return;
             if (string.Equals(tab.LastRecordedUrl, url, StringComparison.OrdinalIgnoreCase))
                 return;
@@ -730,12 +754,23 @@ namespace HarborBrowser
 
         private void NavigateCurrent(string input)
         {
+            _addressEditing = false;
+            AddressSuggestions.IsOpen = false;
+            if (IsDownloadsUrl(input)) { OpenDownloadsPage(); return; }
             BrowserTab tab = SelectedTab;
             if (tab == null)
                 tab = CreateNewTab(_settings.HomePage, true);
 
             SearchEngine selectedEngine = SearchEngineBox.SelectedItem as SearchEngine;
             string destination = SearchEngineService.ResolveInput(input, selectedEngine);
+            if (tab.NativeContent != null)
+            {
+                ((DownloadsPage)tab.NativeContent).Dispose();
+                tab.NativeContent = null;
+                tab.PageTitle = "Loading…";
+                UpdateTabHeader(tab);
+                ShowTabContent();
+            }
             tab.PendingUrl = destination;
             SaveSession();
 
@@ -759,10 +794,13 @@ namespace HarborBrowser
             if (tab == null)
                 return;
 
-            if (tab.View.Source != null)
-                AddressBox.Text = HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri);
+            _addressEditing = false;
+            if (tab.NativeContent != null)
+                SetAddressText(DownloadsUrl);
+            else if (tab.View.Source != null)
+                SetAddressText(HomePageService.DisplayUrl(tab.View.Source.AbsoluteUri));
             else
-                AddressBox.Text = string.Empty;
+                SetAddressText(tab.PendingUrl == null ? string.Empty : HomePageService.DisplayUrl(tab.PendingUrl));
             ShowTabContent();
             UpdateBookmarkButtonState();
 
@@ -946,6 +984,7 @@ namespace HarborBrowser
 
         private void AddressBox_KeyDown(object sender, KeyEventArgs e)
         {
+            if (HandleSuggestionKey(e)) return;
             if (e.Key == Key.Enter)
             {
                 NavigateCurrent(AddressBox.Text);
@@ -999,9 +1038,11 @@ namespace HarborBrowser
 
         private void CloseTab(BrowserTab tab)
         {
-            if (tab == null)
+            if (tab == null || tab.IsClosing)
                 return;
+            RememberClosedTab(tab);
             tab.IsClosing = true;
+            if (tab.NativeContent is DownloadsPage) ((DownloadsPage)tab.NativeContent).Dispose();
             if (tab.VideoPopout != null) tab.VideoPopout.Close();
             if (tab.SuspendTimer != null)
                 tab.SuspendTimer.Stop();
@@ -1011,7 +1052,7 @@ namespace HarborBrowser
             try
             {
                 IDisposable disposable = tab.View as IDisposable;
-                if (disposable != null)
+                if (disposable != null && !RetainDownloadSource(tab))
                     disposable.Dispose();
             }
             catch { }
@@ -1021,6 +1062,9 @@ namespace HarborBrowser
 
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (AddressSuggestions.IsOpen && e.Key == Key.Escape) { AddressSuggestions.IsOpen = false; e.Handled = true; return; }
+            if (e.Key == Key.T && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift)) { ReopenClosedTab(); e.Handled = true; return; }
+            if (e.Key == Key.J && Keyboard.Modifiers == ModifierKeys.Control) { OpenDownloadsPage(); e.Handled = true; return; }
             if (e.Key == Key.F11) { FullScreenShortcut(); e.Handled = true; return; }
             if (e.Key == Key.Escape && _presentation != null && _presentation.IsFullScreen) { EscapeFullScreen(); e.Handled = true; return; }
             if (e.Key == Key.P && (Keyboard.Modifiers & (ModifierKeys.Control | ModifierKeys.Shift)) == (ModifierKeys.Control | ModifierKeys.Shift)) { PictureInPicture_Click(sender,e); e.Handled = true; return; }
@@ -1485,6 +1529,7 @@ namespace HarborBrowser
 
         private static bool IsRestorableUrl(string value)
         {
+            if (IsDownloadsUrl(value)) return true;
             Uri uri;
             return Uri.TryCreate(value, UriKind.Absolute, out uri) &&
                 (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
@@ -1732,6 +1777,7 @@ namespace HarborBrowser
             menu.Items.Add(bookmarks);
 
             MenuItem history = CreateGearSubmenu("History (" + _history.Count + ")");
+            AddGearCommand(history, "Reopen closed tab (Ctrl+Shift+T)", ReopenClosedTab_Click, _recentlyClosed.Count > 0);
             AddGearCommand(history, "Show all history…", ShowHistoryManager_Click);
             AddGearCommand(history, "Clear browsing history…", ClearHistory_Click);
             if (_history.Count > 0)
@@ -1759,26 +1805,28 @@ namespace HarborBrowser
             }
             menu.Items.Add(history);
 
-            MenuItem downloads = CreateGearSubmenu("Downloads (" + _downloads.Count + ")");
+            var visibleDownloads = _downloads.Where(d => d.IsPrivate == (SelectedTab != null && SelectedTab.IsPrivate)).ToList();
+            MenuItem downloads = CreateGearSubmenu("Downloads (" + visibleDownloads.Count + ")");
+            AddGearCommand(downloads, "Show all downloads (Ctrl+J)", ShowDownloads_Click);
             AddGearCommand(downloads, "Open downloads folder", OpenDownloads_Click);
             AddGearCommand(downloads, "Clear completed downloads", (s, args) => ClearCompletedDownloads());
-            if (_downloads.Count > 0)
+            if (visibleDownloads.Count > 0)
             {
                 AddGearSeparator(downloads);
-                foreach (DownloadEntry download in _downloads.ToList())
+                foreach (DownloadEntry download in visibleDownloads)
                 {
                     MenuItem downloadEntry = CreateGearSubmenu(download.FileName + "  ·  " + download.Status);
-                    if (download.Operation != null && download.Operation.State == CoreWebView2DownloadState.InProgress)
+                    if (download.CanCancel)
                         AddGearCommand(downloadEntry, "Cancel download", (s, args) => CancelDownload(download));
-                    else if (download.Operation != null && download.Operation.State == CoreWebView2DownloadState.Interrupted && download.Operation.CanResume)
+                    if (download.CanResume)
                         AddGearCommand(downloadEntry, "Resume download", (s, args) => ResumeDownload(download));
                     AddGearCommand(downloadEntry, "Open file", (s, args) => OpenDownloadedFile(download), download.Status == "Complete");
                     AddGearCommand(downloadEntry, "Show in folder", (s, args) => ShowDownloadedFile(download), File.Exists(download.FilePath));
                     AddGearSeparator(downloadEntry);
-                    bool canRemoveFromList = download.Operation == null || download.Operation.State != CoreWebView2DownloadState.InProgress;
+                    bool canRemoveFromList = download.CanRemove;
                     AddGearCommand(downloadEntry, "Remove from list", (s, args) =>
                     {
-                        _downloads.Remove(download);
+                        DownloadAction(download, "remove");
                         SetStatus("Download removed from list");
                     }, canRemoveFromList);
                     downloads.Items.Add(downloadEntry);
@@ -1873,19 +1921,15 @@ namespace HarborBrowser
 
         private void ClearCompletedDownloads()
         {
-            for (int i = _downloads.Count - 1; i >= 0; i--)
-            {
-                if (_downloads[i].Status == "Complete")
-                    _downloads.RemoveAt(i);
-            }
-            SetStatus("Completed downloads cleared from the list");
+            ClearCompletedDownloads(SelectedTab != null && SelectedTab.IsPrivate);
         }
 
         private void CancelDownload(DownloadEntry download)
         {
             try
             {
-                if (download != null && download.Operation != null && download.Operation.State == CoreWebView2DownloadState.InProgress)
+                if (download != null) _resumingDownloads.Remove(download);
+                if (download != null && download.Operation != null && download.CanCancel)
                     download.Operation.Cancel();
             }
             catch (Exception ex)
@@ -1899,10 +1943,21 @@ namespace HarborBrowser
             try
             {
                 if (download != null && download.Operation != null && download.Operation.State == CoreWebView2DownloadState.Interrupted && download.Operation.CanResume)
+                {
+                    _resumingDownloads.Remove(download);
+                    if (_resumingDownloads.Any(d => d.SourceUrl == download.SourceUrl)) { SetStatus("A download is resuming. Try again in a moment."); return; }
+                    _resumingDownloads.Add(download);
                     download.Operation.Resume();
+                }
+                else if (download != null && download.Operation != null)
+                {
+                    UpdateDownloadStatus(download, download.Operation);
+                    SetStatus("This download cannot currently be resumed. Download it again from the website.");
+                }
             }
             catch (Exception ex)
             {
+                if (download != null) _resumingDownloads.Remove(download);
                 SetStatus("Could not resume download: " + ex.Message);
             }
         }
@@ -2049,7 +2104,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.3.6\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.3.7\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2084,7 +2139,7 @@ namespace HarborBrowser
             if (!_confirmedCloseWithActiveDownloads)
             {
                 List<DownloadEntry> activeDownloads = _downloads.Where(d => d.Operation != null &&
-                    d.Operation.State == CoreWebView2DownloadState.InProgress).ToList();
+                    (d.IsActive || d.CanResume)).ToList();
                 if (activeDownloads.Count > 0)
                 {
                     string detail = activeDownloads.Count == 1
@@ -2135,6 +2190,7 @@ namespace HarborBrowser
                 BrowserTab tab = item.Tag as BrowserTab;
                 if (tab == null || tab.View == null) continue;
                 tab.IsClosing = true;
+                if (tab.NativeContent is DownloadsPage) ((DownloadsPage)tab.NativeContent).Dispose();
             if (tab.VideoPopout != null) tab.VideoPopout.Close();
                 if (tab.SuspendTimer != null) tab.SuspendTimer.Stop();
                 try
@@ -2144,6 +2200,9 @@ namespace HarborBrowser
                 }
                 catch { }
             }
+            foreach (var retained in _retainedDownloadTabs.ToList()) { try { retained.View.Dispose(); } catch { } }
+            _retainedDownloadTabs.Clear();
+            _downloadOwners.Clear();
         }
     }
 }

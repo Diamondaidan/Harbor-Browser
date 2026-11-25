@@ -1,9 +1,11 @@
 MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
   All projects are up-to-date for restore.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Tests\bin\Release\net48\HarborRegressionTests.exe
+C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\HarborRegressionTests.csproj : warning NU1900: Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborRegressionTests -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\bin\Release\net48\HarborRegressionTests.exe
 PASS header wins
 PASS UTF-8 filename
 PASS RFC 5987 language
@@ -206,6 +208,18 @@ PASS narrow-screen menu width bounded
 PASS narrow toolbar hides engine
 PASS wide toolbar keeps engine
 PASS compact title hides wordmark
+PASS private and executable URLs excluded from closed tabs
+PASS closed tabs restored newest first
+PASS closed tab snapshot preserves state
+PASS empty restore is safe
+PASS closed tab list bounded
+PASS bounded stack still restores newest
+PASS suggestions deduplicate bookmarks and history
+PASS private suggestions contain only bookmarks
+PASS multiword suggestions match title and URL
+PASS empty query does not expose browsing list
+PASS suggestion count limited
+PASS case-sensitive paths remain distinct
 PASS 1320 borderless
 PASS 1320 resize border
 PASS 1320 Beacon header logo loaded
@@ -245,5 +259,5 @@ PASS 1320 cog moved below caption
 PASS 1320 cog in address row
 PASS 1320 address still usable
 PASS 1320 caption buttons clickable
-ALL PASSED: 241 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
-Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\Tests\TestResults\20261112-194926
+ALL PASSED: 253 checks. Layout PNGs are offline WPF renders, not desktop screenshots.
+Results and offline layout previews: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\Tests\TestResults\20261112-205759

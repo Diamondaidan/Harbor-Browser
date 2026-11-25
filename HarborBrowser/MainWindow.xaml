@@ -67,7 +67,7 @@
         </StatusBarItem>
         <Separator />
         <StatusBarItem HorizontalAlignment="Right">
-          <TextBlock Text="Harbor 0.3.6  •  WebView2" Foreground="{DynamicResource HarborMuted}" />
+          <TextBlock Text="Harbor 0.3.7  •  WebView2" Foreground="{DynamicResource HarborMuted}" />
         </StatusBarItem>
       </StatusBar>
       <Border x:Name="DownloadNotificationBar" DockPanel.Dock="Bottom" Visibility="Collapsed" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,1,0,0" Padding="12,5">
@@ -136,7 +136,15 @@
             <Button Grid.Column="1" Content="▶" ToolTip="Forward" Click="Forward_Click" Margin="1" />
             <Button Grid.Column="2" Content="↻" ToolTip="Reload" Click="Reload_Click" Margin="1" />
             <Button Grid.Column="3" Content="⌂" ToolTip="Home" Click="Home_Click" Margin="1" x:Name="HomeButton" />
-            <TextBox x:Name="AddressBox" Grid.Column="4" Margin="4,1,2,1" Padding="8,3" VerticalContentAlignment="Center" ToolTip="Enter a web address or search terms" KeyDown="AddressBox_KeyDown" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" PreviewMouseLeftButtonDown="AddressBox_PreviewMouseLeftButtonDown" GotKeyboardFocus="AddressBox_GotKeyboardFocus" MinWidth="120" />
+            <TextBox x:Name="AddressBox" Grid.Column="4" Margin="4,1,2,1" Padding="8,3" VerticalContentAlignment="Center" ToolTip="Enter a web address or search terms" PreviewKeyDown="AddressBox_KeyDown" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" PreviewMouseLeftButtonDown="AddressBox_PreviewMouseLeftButtonDown" GotKeyboardFocus="AddressBox_GotKeyboardFocus" MinWidth="120" />
+            <Popup x:Name="AddressSuggestions" PlacementTarget="{Binding ElementName=AddressBox}" Placement="Bottom" AllowsTransparency="True" StaysOpen="False" Focusable="False">
+              <Border Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="1" CornerRadius="4" Width="{Binding ActualWidth,ElementName=AddressBox}" Padding="3">
+                <ListBox x:Name="AddressSuggestionList" Background="Transparent" BorderThickness="0" MaxHeight="270" Focusable="False" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch" PreviewMouseLeftButtonUp="AddressSuggestion_Click">
+                  <ListBox.ItemContainerStyle><Style TargetType="ListBoxItem"><Setter Property="Focusable" Value="False"/><Setter Property="Padding" Value="7,5"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ListBoxItem"><Border x:Name="SuggestionSurface" Background="Transparent" CornerRadius="3" Padding="{TemplateBinding Padding}"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SuggestionSurface" Property="Background" Value="{DynamicResource HarborHover}"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter TargetName="SuggestionSurface" Property="Background" Value="{DynamicResource HarborSelected}"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style></ListBox.ItemContainerStyle>
+                  <ListBox.ItemTemplate><DataTemplate><StackPanel><TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Url}" FontSize="11" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource HarborMuted}"/><TextBlock Text="{Binding SourceLabel}" FontSize="10" Foreground="{DynamicResource HarborMuted}"/></StackPanel></DataTemplate></ListBox.ItemTemplate>
+                </ListBox>
+              </Border>
+            </Popup>
             <Button x:Name="BookmarkToggleButton" Grid.Column="5" Content="☆" FontSize="20" Padding="0" Margin="1" ToolTip="Bookmark this page" Click="ToggleCurrentBookmark_Click" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource HarborMuted}" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />
             <Button Grid.Column="6" Content="Go" Click="Go_Click" Margin="2,1" x:Name="GoButton" />
             <ComboBox x:Name="SearchEngineBox" Grid.Column="7" Margin="4,1,1,1" VerticalContentAlignment="Center" SelectedValuePath="Id" SelectionChanged="SearchEngineBox_SelectionChanged" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" />

@@ -1,10 +1,10 @@
 MSBuild version 17.14.60+43b635718 for .NET Framework
 
   Determining projects to restore...
-  Restored C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HomeSmokeTests\HarborHomeSmoke.csproj (in 655 ms).
+  Restored C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HomeSmokeTests\HarborHomeSmoke.csproj (in 1.4 sec).
   1 of 2 projects are up-to-date for restore.
-  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HarborBrowser\bin\Release\net48\HarborBrowser.exe
-  HarborHomeSmoke -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HomeSmokeTests\bin\Release\net48\HarborHomeSmoke.exe
+  HarborBrowser -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HarborBrowser\bin\Release\net48\HarborBrowser.exe
+  HarborHomeSmoke -> C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HomeSmokeTests\bin\Release\net48\HarborHomeSmoke.exe
 PASS actual HTML title
 PASS selected engine delivered
 PASS logo loaded locally
@@ -34,4 +34,4 @@ PASS home theme choice requests app mode change
 PASS private theme change leaves app mode untouched
 PASS home loaded without external network requests
 ALL PASSED: 28 WebView2 browser checks. Captures are from an isolated test host, not the installed Harbor window.
-Results and actual WebView2 captures: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.6\HomeSmokeTests\TestResults\20261112-195001
+Results and actual WebView2 captures: C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.3.7\HomeSmokeTests\TestResults\20261112-205805

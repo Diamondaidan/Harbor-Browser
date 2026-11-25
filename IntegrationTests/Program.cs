@@ -146,6 +146,7 @@ internal static partial class Program
                 var bitmap=new RenderTargetBitmap((int)main.WindowFrame.ActualWidth,83,96,96,PixelFormats.Pbgra32);bitmap.Render(main.WindowFrame);
                 var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));
                 using(var file=File.Create(Path.Combine(args[0],"compact-header.png")))encoder.Save(file);
+                await EverydayChecks(main,tab,store,core,args[0],args[1]);
                 Console.WriteLine("ALL PASSED: "+checks+" isolated app/media integration checks.");
                 exit=0;
             }
@@ -153,6 +154,7 @@ internal static partial class Program
             finally
             {
                 timeout.Stop();
+                typeof(MainWindow).GetField("_confirmedCloseWithActiveDownloads",BindingFlags.Instance|BindingFlags.NonPublic).SetValue(main,true);
                 // Close only the isolated test app and its test browser controls.
                 try{main.Close();}catch{}
                 app.Shutdown(exit);
