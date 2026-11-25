@@ -72,6 +72,7 @@ namespace HarborBrowser.Views
                 ClearCacheOnExit = ClearCacheOnExitBox.IsChecked == true,
                 OnlineSuggestionsEnabled = OnlineSuggestionsBox.IsChecked == true,
                 BookmarkFolders = _appearanceDraft.Copy().BookmarkFolders,
+                BookmarkBarOrder = _appearanceDraft.Copy().BookmarkBarOrder,
                 AppearancePresets = _appearanceDraft.Copy().AppearancePresets,
                 HomeShortcuts = _appearanceDraft.Copy().HomeShortcuts,
                 UseCustomHomeShortcuts = UseBookmarkShortcutsBox.IsChecked == false,

@@ -29,7 +29,7 @@ namespace HarborBrowser.Services
             url=(url??string.Empty).Trim();
             if(url.Contains(":")&&!url.StartsWith("https://",StringComparison.OrdinalIgnoreCase)&&!url.StartsWith("http://",StringComparison.OrdinalIgnoreCase))return false;
             if(!SearchEngineService.TryNormalizeHomePage(url,out url)||!Uri.TryCreate(url,UriKind.Absolute,out uri)||uri.UserInfo.Length>0||HomePageService.IsHomeUrl(url))return false;
-            try{result=new Bookmark{Title=string.IsNullOrWhiteSpace(title)?uri.Host:title.Trim().Substring(0,Math.Min(500,title.Trim().Length)),Url=uri.AbsoluteUri,Folder=Folder(folder)};return true;}catch(ArgumentException){return false;}
+            try{result=new Bookmark{Id=Guid.NewGuid().ToString("N"),Title=string.IsNullOrWhiteSpace(title)?uri.Host:title.Trim().Substring(0,Math.Min(500,title.Trim().Length)),Url=uri.AbsoluteUri,Folder=Folder(folder)};return true;}catch(ArgumentException){return false;}
         }
         public static List<string> Folders(IEnumerable<Bookmark> bookmarks,IEnumerable<string> folders)
         {
@@ -76,6 +76,7 @@ namespace HarborBrowser.Services
             foreach(var entry in (existing??Enumerable.Empty<Bookmark>()).Concat(imported??Enumerable.Empty<Bookmark>()))
             {
                 Bookmark valid;if(entry==null||!TryBookmark(entry.Title,entry.Url,entry.Folder,out valid))continue;
+                if(!string.IsNullOrEmpty(entry.Id))valid.Id=entry.Id;
                 if(keys.Add((valid.Folder??string.Empty).ToUpperInvariant()+"\n"+valid.Url))result.Add(valid);
                 if(result.Count>MaximumBookmarks)throw new ArgumentException("The library supports up to 10,000 bookmarks.");
             }

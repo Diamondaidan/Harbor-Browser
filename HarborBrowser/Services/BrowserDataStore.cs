@@ -10,7 +10,7 @@ namespace HarborBrowser.Services
 {
     public sealed class BrowserDataStore
     {
-        private const int CurrentDataSchemaVersion = 7;
+        private const int CurrentDataSchemaVersion = 8;
         private const int MaximumAutomaticBackups = 5;
 
         public string RootFolder { get; private set; }
@@ -128,11 +128,11 @@ namespace HarborBrowser.Services
 
             if (storedVersion < CurrentDataSchemaVersion)
             {
-                // Schema 7 adds site permission rules and crash-recovery metadata.
+                // Schema 8 adds stable bookmark identities and bookmark bar ordering.
                 // Existing bookmarks, history, settings, and tab data remain readable.
                 // Snapshot the profile before migration.
                 if (!backupAlreadyCreated)
-                    CreateBackupSnapshot("before-schema-7");
+                    CreateBackupSnapshot("before-schema-8");
                 WriteTextAtomically(versionPath, CurrentDataSchemaVersion.ToString());
             }
         }
@@ -146,6 +146,7 @@ namespace HarborBrowser.Services
                 "history.json", "history.json.bak",
                 "session.json", "session.json.bak",
                 "permissions.json", "permissions.json.bak", "session-recovery.json", "session-recovery.json.bak",
+                "modules.json", "modules.json.bak",
                 "data-version.txt", "data-version.txt.bak"
             };
 
@@ -191,7 +192,7 @@ namespace HarborBrowser.Services
             }
         }
 
-        private static void WriteTextAtomically(string path, string contents)
+        internal static void WriteTextAtomically(string path, string contents)
         {
             string tempPath = path + ".tmp";
             File.WriteAllText(tempPath, contents, new UTF8Encoding(false));

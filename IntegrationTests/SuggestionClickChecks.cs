@@ -44,9 +44,13 @@ internal static partial class Program
             await Wait(()=>navigations.Count>0);Check("clicking suggestion text without preselection navigates",navigations.Count==1&&navigations[0]=="https://click.test.invalid/bookmark");
             foreach(string part in new[]{"title","url","source","surface"})
             {
+                // Give each independently tested sub-element a distinct request.
+                // Repeated identical cancelled requests may be coalesced by WebView2.
+                history[0].Url="https://click.test.invalid/history?part="+part;
+                string expected=history[0].Url;
                 await PrepareClicks(main,"clicksentinel");main.AddressSuggestionList.SelectedIndex=0;target=SuggestionPart(main,1,part);int before=navigations.Count;
-                SuggestionMouse(target,true);SuggestionMouse(target,false);await Wait(()=>navigations.Count>before);
-                Check("clicked "+part+" opens its own row rather than keyboard selection",navigations.Count==before+1&&navigations.Last()=="https://click.test.invalid/history");
+                SuggestionMouse(target,true);SuggestionMouse(target,false);await Wait(()=>navigations.Count>before);await Task.Delay(250);
+                Check("clicked "+part+" opens its own row rather than keyboard selection",navigations.Count==before+1&&navigations.Last()==expected);
             }
             await PrepareClicks(main,"clicksentinel");main.AddressSuggestionList.SelectedIndex=0;int count=navigations.Count;
             SuggestionMouse(main.AddressSuggestionList,true);SuggestionMouse(main.AddressSuggestionList,false);await Task.Delay(80);Check("list background does not activate a selected suggestion",navigations.Count==count);

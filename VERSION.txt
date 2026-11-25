@@ -1,8 +1,7 @@
-Harbor Browser 0.4.1 — Hotfix 1
-Installer upgrade target: Existing Harbor Browser installations sharing AppId {8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}
+Harbor Browser 0.4.2
+File version: 0.4.2.0
+Assembly version: 0.4.2.0
 Installer AppId: {8D9A0F4C-2E3B-4F64-9C12-8B3F1C0E74A1}
-Profile location: %LOCALAPPDATA%\HarborBrowser
-Profile schema: 7 (unchanged from 0.4.0)
-
-File version: 0.4.1.1
-Fix: suggestion row clicks without keyboard preselection.
+Profile: %LOCALAPPDATA%\HarborBrowser
+Profile schema: 8
+Includes: 0.4.1 Hotfix 1, tab menu/icons/sizing fixes, bookmark-bar reordering, local site-module foundation.

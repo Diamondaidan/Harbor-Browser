@@ -1,16 +1,16 @@
-# Build and install Harbor Browser 0.4.1 Hotfix 1
+# Build and install Harbor Browser 0.4.2
 
 1. Install Visual Studio 2022 Build Tools or Community with the .NET desktop build tools workload and the .NET Framework 4.8 Developer Pack.
 2. Install Inno Setup 7.
 3. Run `MAKE-SETUP.bat` from this folder.
-4. The installer is created at `dist\HarborBrowserSetup-0.4.1-hotfix1.exe`.
+4. The installer is created at `dist\HarborBrowserSetup-0.4.2.exe`.
 
 Previously downloaded, verified prerequisite installers can be copied into `Installer\redist` to avoid downloading them again:
 
 - `ndp48-x86-x64-allos-enu.exe`
 - `MicrosoftEdgeWebView2RuntimeInstallerX64.exe`
 
-Close Harbor and install 0.4.1 directly over the existing installation. The stable installer AppId and previous-directory settings enable an in-place upgrade; the installer makes a profile snapshot before replacing application files. Profile schema remains 7, as in 0.4.0. Older profiles are upgraded with a snapshot before migration. Newer-schema save protection remains enabled.
+Close Harbor and install 0.4.2 directly over the existing installation. The stable installer AppId and previous-directory settings enable an in-place upgrade; the installer makes a profile snapshot before replacing application files. Profile schema 8 adds stable bookmark identities and saved bookmark-bar order. Older profiles are upgraded with a snapshot before migration. Newer-schema save protection remains enabled.
 
 The built installer embeds the .NET Framework 4.8 and WebView2 x64 packages, installs missing prerequisites, and requires administrator approval. The source archive excludes those large prerequisite executables; the build script downloads and verifies them when needed. The packaged application and installer are not code-signed.
 

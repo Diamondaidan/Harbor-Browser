@@ -1,0 +1,1 @@
+{"manifest_version":3,"name":"Beacon demonstration","version":"1.0.0","description":"Adds a small Beacon badge to example.com.","permissions":["storage"],"content_scripts":[{"matches":["https://example.com/*"],"js":["beacon.js"],"css":["beacon.css"],"run_at":"document_idle"}]}

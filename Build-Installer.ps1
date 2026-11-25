@@ -1,8 +1,8 @@
 [CmdletBinding()]
 param(
-    [string]$Version = '0.4.1',
-    [ValidateRange(0,65535)][int]$BuildRevision = 1,
-    [string]$ReleaseSuffix = '-hotfix1',
+    [string]$Version = '0.4.2',
+    [ValidateRange(0,65535)][int]$BuildRevision = 0,
+    [string]$ReleaseSuffix = '',
     [switch]$SkipPrerequisiteDownloads,
     [switch]$SkipCompile
 )

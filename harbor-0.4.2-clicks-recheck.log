@@ -1,0 +1,13 @@
+PASS fresh popup has no keyboard selection
+PASS clicking suggestion text without preselection navigates
+PASS clicked title opens its own row rather than keyboard selection
+PASS clicked url opens its own row rather than keyboard selection
+FAIL System.TimeoutException: Timed out waiting for app state.
+   at Program.<Wait>d__26.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\IntegrationTests\Program.cs:line 24
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at Program.<SuggestionClickChecks>d__42.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\IntegrationTests\SuggestionClickChecks.cs:line 49
+--- End of stack trace from previous location where exception was thrown ---
+   at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+   at System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   at Program.<>c__DisplayClass30_0.<<Main>b__3>d.MoveNext() in C:\Users\sirai\.codex\.chatgpt-projects\g-p-6af557a5179881919319ac0b2640f739\HarborBrowser-0.4.2\IntegrationTests\Program.cs:line 61

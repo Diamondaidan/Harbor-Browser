@@ -1,41 +1,44 @@
-# Harbor Browser 0.4.1 Hotfix 1 verification
+# Harbor Browser 0.4.2 verification
 
-Verified November 13, 2026. File build: 0.4.1.1; application version remains 0.4.1 and assembly version remains 0.4.1.0. Installer identity and profile schema 7 are unchanged. No installation or upgrade was performed. Original 0.4.1 artifacts, the installed browser, personal profile and synced sources were not modified.
-
-## Problem and fix
-
-Suggestion rows intentionally keep keyboard focus in the address box. The old mouse-up handler used SelectedItem, but a non-focusable row does not receive the normal WPF focus-driven mouse selection. A fresh mouse click therefore had no selected item, or could use a different row previously selected with the keyboard.
-
-The hotfix resolves the actual row from the input's original source, selects it explicitly on press while preserving address focus, and opens it only if release is over that same row. Pressing a row cancels pending online replies so it cannot be replaced mid-click. Blank-list and outside-release input do not activate a prior selection.
-
-The earlier test manually preselected an item and raised an event on the list itself, missing the user's actual case. It now raises routed mouse input on the row's displayed contents without preselection.
+Verified November 13, 2026 on the available Windows 10 build 19045 desktop with WebView2 157.0.4341.46 and .NET Framework 4.8. App/assembly/installer file version: 0.4.2.0. Profile schema: 8. Tests used isolated profiles and local fixtures. The personal Harbor installation/profile, synced sources and previous release artifacts were not changed. No installer was executed against the installed browser.
 
 ## Executed checks
 
 | Check | Result |
 | --- | --- |
-| Original 0.4.1 executable with corrected row-routing regression | Reproduced: fresh suggestion click never navigated (expected failing baseline) |
-| Focused suggestion-click regression | 17 passed |
-| Regression/service/settings/layout suite | 322 passed |
-| Full actual-app/media/download/privacy/recovery suite | 281 passed |
-| Staged Home-page browser suite | 38 passed |
-| Total successful automated checks | 658 |
-| Release build | Passed, zero warnings and zero errors |
-| Inno Setup compile | Passed; setup/app file versions 0.4.1.1 |
-| Bundled .NET Framework 4.8 / WebView2 x64 prerequisites | Sizes and Microsoft signatures verified |
-| Tested, compiled and staged app executable | SHA-256 identical |
-| Compiled and staged Home assets | SHA-256 identical |
+| Regression/services/settings/layout suite | 345 passed |
+| Full running-app/media/download/privacy/recovery suite | 308 passed |
+| Focused 0.4.2 feature suite, including restart persistence | 32 passed; repeats 27 feature checks from the full suite and adds 5 theme/persistence checks |
+| Suggestion-click hotfix suite | 17 passed after correcting repeated-cancelled-navigation test timing |
+| Installer-staged Home page in actual WebView2 | 38 passed |
+| Release build | Passed; zero errors; NuGet NU1900 warnings because the online vulnerability feed was unreachable |
+| Inno Setup compile | Passed; installer file version 0.4.2.0, product 0.4.2 |
+| Bundled .NET Framework 4.8 / WebView2 x64 prerequisites | Microsoft signatures and minimum sizes verified; 115.7 MB / 205.0 MB |
+| Tested integration executable / compiled app / installer-staged app | SHA-256 identical |
 
-Focused coverage includes a fresh unselected row; title, URL, source label and padding; a different keyboard-selected row; blank-list/outside release; arrows/Enter; provider-search behavior; internal-page-looking online text remaining a search; delayed replies during press/release; private bookmark clicks without normal history; and Home suggestions in both themes using actual DevTools browser pointer input.
+There are 713 successful assertions across these suites after excluding the 27 repeated feature assertions in the focused suite. These are check counts, not 713 separate user workflows. Initial repeated-click failures are retained in diagnostic logs and are not counted as successful coverage.
 
-Address-bar regression input is routed through WPF elements, with native popup auto-capture disabled only in that offscreen test to avoid the physical cursor's unrelated desktop position. Production popup behavior is unchanged. A separate native Windows mouse check was attempted in a temporary isolated window; screenshot capture timed out and the desktop input guard interrupted text entry before any mouse click. The test process was closed. Physical mouse/trackpad behavior with normal popup capture remains a user-system check; it is not counted as verified here.
+## New behavior exercised
 
-No live personal queries were sent. Search tests used injected replies; navigation to external providers was captured and cancelled. Home pointer tests used the local mapped Home page. Performance measurements were not repeated for this input-only patch: PERFORMANCE.md, Measurements and Base-0.4.1 retain the earlier release's evidence.
+- Menu commands: one Pin/Unpin command, an intact New tab command, and pin/unpin changes affecting only the correct item.
+- Tabs: actual WPF items use equal normal widths, shrink to share space, preserve compact pinned widths, and keep the + button within the title bar. Service tests cover the 54-pixel minimum and pinned-space reservation. Existing tab order/reorder/session checks passed.
+- Images: a local PNG, dynamically changed SVG and ICO favicon all decoded to visible WPF tab images through WebView2. Returning Home restored the embedded Beacon image. Asynchronous results are guarded by view/navigation/revision so stale icons cannot replace a new page's icon.
+- Bookmarks: old bookmarks receive unique stable identities; edits/merges preserve them; stale/duplicate saved order entries are ignored; bookmarks and folders can be interleaved. Real bar Move left and reorder actions updated the displayed buttons and saved settings. Saving appearance settings preserved the order. Drag/drop handlers and insertion/edge-scroll logic are implemented; physical press-drag-release and edge scrolling were not exercised by these routed/control tests.
+- Modules: a real Manifest V3 extension installed into an isolated normal WebView2 profile, injected only into its declared test site, used an isolated script world, and left the page/browser usable after a deliberate exception. Unrelated sites, trusted Home and a private profile received no injected marker. Enable, disable, remove, automatic reload, managed-copy cleanup and preservation of the native PDF/clipboard components passed. Disabled state persisted through closing/reopening a separate test Harbor app and could then be enabled/removed. Both themes used Harbor colors/icon and were visually inspected. Invalid capabilities, frame/main-world injection, file/traversal access and a newer minimum Harbor version were refused.
 
-## Installation and remaining limits
+## Regression scope and test limits
 
-Close Harbor and run dist/HarborBrowserSetup-0.4.1-hotfix1.exe over the existing installation. Prerequisites are bundled. The original installer/source remain separate. Source archives exclude generated binaries, test profiles, runner binaries and prerequisite executables. Hashes are distributed in HarborBrowser-0.4.1-hotfix1-SHA256.txt.
+The full app suite includes local streamed downloads with pause/resume/cancel and byte/ZIP checks, filenames/extensions, tab movement, small-screen controls, video fullscreen/PiP, settings, optional online suggestions with injected replies, private cookies/storage/permissions/download cleanup, actual permission timeout, engine recovery and resource monitor behavior. Home browser tests used installer-staged assets without external network requests. Long performance benchmarks were not repeated; PERFORMANCE.md and Measurements contain historical 0.4.1 measurements.
 
-Fresh installation, installed upgrade/uninstall, physical input/display/hardware checks and independent security auditing remain outside this verification. The app and installer are not code-signed.
+The first suggestion-click runs timed out while repeatedly navigating to the same cancelled fixture URL. Diagnostic routing showed that the intended row was pressed and the popup closed, but a later expected NavigationStarting event did not arrive. The fixture now uses a separate destination for each sub-element and lets each cancelled navigation settle; all 17 checks passed. Repeated-cancelled-request coalescing/timing is the inferred cause, not a confirmed WebView2 defect. Production click handlers were not changed for this test adjustment. Address clicks are WPF routed input with native popup auto-capture disabled only in the offscreen host; Home suggestion checks use actual browser DevTools pointer events. These do not establish physical mouse/trackpad behavior with normal popup capture.
 
-The [WPF ListBoxItem implementation](https://github.com/dotnet/wpf/blob/main/src/Microsoft.DotNet.Wpf/src/PresentationFramework/System/Windows/Controls/ListBoxItem.cs) supports the focus/selection diagnosis. See Base-0.4.1/VERIFICATION.md for earlier feature coverage and performance limits.
+The source package contains build/test logs and representative previews. Full generated test profiles and binaries remain in the working folder and are excluded from the source ZIP. Source/payload Home assets are hash checked during packaging. Installer prerequisites are embedded; the source ZIP excludes those large redistributable executables and the build script downloads/verifies them when needed.
+
+## Checks requiring the target Windows system
+
+- Fresh installation, missing-prerequisite installation, upgrade from the installed Harbor, and uninstall on the other laptop. Installer compilation and static packaging checks do not prove these flows.
+- Physical bookmark dragging, insertion feedback/edge scrolling, tab dragging/overflow scrolling, repeated suggestion clicks with normal popup capture and mouse/trackpad input.
+- The user's 1366 x 768 display at their actual Windows scale, monitor transitions, native taskbar access, real video/GPU/audio behavior and broad website compatibility.
+- Wider extension APIs/store compatibility, malicious-code auditing, signing and real-site/hardware performance measurements remain future work. Site-module permissions are limited to the implemented interface described in SITE-MODULES.md; they are not a completed security audit.
+
+Close Harbor before running dist/HarborBrowserSetup-0.4.2.exe. This installer preserves the existing AppId and makes profile-file snapshots before replacing application files; the app snapshots migration to schema 8. Harbor and its installer are unsigned. See SETUP-README.md for build/install requirements and the release SHA-256 file for artifact hashes.

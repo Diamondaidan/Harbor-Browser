@@ -3,13 +3,13 @@
 ; signed offline .NET Framework 4.8 and WebView2 Evergreen installers.
 
 #ifndef AppVersion
-  #define AppVersion "0.4.1"
+  #define AppVersion "0.4.2"
 #endif
 #ifndef BuildRevision
-  #define BuildRevision 1
+  #define BuildRevision 0
 #endif
 #ifndef ReleaseSuffix
-  #define ReleaseSuffix "-hotfix1"
+  #define ReleaseSuffix ""
 #endif
 
 #define AppName "Harbor Browser"
@@ -165,6 +165,8 @@ begin
       not CopyProfileFile(DataDir, BackupDir, 'permissions.json.bak') or
       not CopyProfileFile(DataDir, BackupDir, 'session-recovery.json') or
       not CopyProfileFile(DataDir, BackupDir, 'session-recovery.json.bak') or
+      not CopyProfileFile(DataDir, BackupDir, 'modules.json') or
+      not CopyProfileFile(DataDir, BackupDir, 'modules.json.bak') or
      not CopyProfileFile(DataDir, BackupDir, 'data-version.txt') or
      not CopyProfileFile(DataDir, BackupDir, 'data-version.txt.bak') then
   begin

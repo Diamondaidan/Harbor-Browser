@@ -66,7 +66,7 @@ namespace HarborBrowser
             if(_environmentTask==null)
             {
                 string folder=System.IO.Path.Combine(_store.RootFolder,"WebView2");System.IO.Directory.CreateDirectory(folder);
-                var options=new CoreWebView2EnvironmentOptions{EnableTrackingPrevention=true};
+                var options=new CoreWebView2EnvironmentOptions{EnableTrackingPrevention=true,AreBrowserExtensionsEnabled=true};
                 if(!string.IsNullOrEmpty(TestBrowserArguments))options.AdditionalBrowserArguments=TestBrowserArguments;
                 _environmentTask=CoreWebView2Environment.CreateAsync(null,folder,options);
             }

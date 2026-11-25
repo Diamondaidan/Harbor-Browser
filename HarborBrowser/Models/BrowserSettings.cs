@@ -22,6 +22,7 @@ namespace HarborBrowser.Models
         public bool ClearCacheOnExit { get; set; }
         public bool OnlineSuggestionsEnabled {get;set;}
         public List<string> BookmarkFolders {get;set;}
+        public List<string> BookmarkBarOrder {get;set;}=new List<string>();
         public List<AppearancePreset> AppearancePresets {get;set;}
         public bool UseCustomHomeShortcuts {get;set;}
         public List<Bookmark> HomeShortcuts {get;set;}
@@ -69,6 +70,7 @@ namespace HarborBrowser.Models
                 ClearCacheOnExit = ClearCacheOnExit,
                 OnlineSuggestionsEnabled=OnlineSuggestionsEnabled,
                 BookmarkFolders=(BookmarkFolders??new List<string>()).ToList(),
+                BookmarkBarOrder=(BookmarkBarOrder??new List<string>()).ToList(),
                 AppearancePresets=(AppearancePresets??new List<AppearancePreset>()).Where(p=>p!=null&&!string.IsNullOrWhiteSpace(p.Name)).Take(20).Select(p=>p.Copy()).ToList(),
                 UseCustomHomeShortcuts=UseCustomHomeShortcuts,
                 HomeShortcuts=(HomeShortcuts??new List<Bookmark>()).Where(b=>b!=null).Select(b=>b.Copy()).ToList(),

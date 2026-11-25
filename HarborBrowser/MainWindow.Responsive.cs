@@ -12,6 +12,7 @@ namespace HarborBrowser
         {
             SizeChanged+=(s,e)=>UpdateResponsiveLayout();
             Loaded+=(s,e)=>UpdateResponsiveLayout();
+            BrowserTabs.SizeChanged+=(s,e)=>UpdateTabWidths();
             WindowFitService.Attach(this,_monitorProvider,()=>_presentation==null||!_presentation.IsFullScreen);
         }
         internal void UpdateResponsiveLayout()
@@ -25,7 +26,7 @@ namespace HarborBrowser
             GoButton.Visibility=engine?Visibility.Visible:Visibility.Collapsed;GoColumn.Width=new GridLength(engine?46:0);
             HomeButton.Visibility=secondary?Visibility.Visible:Visibility.Collapsed;HomeColumn.Width=new GridLength(secondary?34:0);
             BookmarkToggleButton.Visibility=secondary?Visibility.Visible:Visibility.Collapsed;BookmarkColumn.Width=new GridLength(secondary?35:0);
-            foreach(TabItem item in BrowserTabs.Items){var tab=item.Tag as Views.BrowserTab;if(tab!=null&&tab.HeaderText!=null)tab.HeaderText.MaxWidth=ResponsiveLayout.TabTitleWidth(width);}
+            UpdateTabWidths();
         }
         private void AddressBox_PreviewMouseLeftButtonDown(object sender,MouseButtonEventArgs e)
         {

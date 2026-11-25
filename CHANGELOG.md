@@ -1,3 +1,14 @@
+## 0.4.2
+
+- Fix the duplicate Pin command by tracking the actual menu item instead of a numeric menu position.
+- Load favicons through WebView2 GetFaviconAsync, with navigation/view guards, buffered decoding, Home Beacon and clean fallback handling.
+- Give normal tabs equal widths and shrink them as space fills; keep compact pinned tabs, icon-only overflow and an always-visible + button.
+- Add bookmark-bar drag ordering, insertion feedback, edge scrolling and Move left/right commands for bookmarks and folders.
+- Persist stable bookmark identities and bar order, preserve them through editing/settings, and migrate to profile schema 8 with snapshots.
+- Add reviewed local Manifest V3 site modules, native isolated execution/site scope, Home exclusion, normal-profile-only installation, API/minimum-version gates and enable/disable/remove controls.
+- Preserve engine PDF/clipboard components, isolate module script failures, and include an opt-in Beacon demonstration module.
+- Keep the 0.4.1 Hotfix 1 suggestion-click behavior and existing browsing/privacy/performance controls.
+
 ## 0.4.1 Hotfix 1 — build 0.4.1.1
 
 - Resolve address-bar mouse clicks from the pressed/released row, including title, URL, source and padding.

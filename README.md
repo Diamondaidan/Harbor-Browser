@@ -1,12 +1,17 @@
-# Harbor Browser 0.4.1 — Hotfix 1
+# Harbor Browser 0.4.2
 
-## Suggestion-click fix
+This release includes the 0.4.1 suggestion-click hotfix and adds these changes:
 
-This is 0.4.1 Hotfix 1, file build 0.4.1.1. Close Harbor and run the hotfix installer over the existing installation. Profile schema and installer identity stay unchanged.
+- Each tab menu has one Pin/Unpin command; New tab retains its own command.
+- Site icons use WebView2's downloaded image and decoder, including PNG, SVG and ICO. The Beacon appears on Harbor Home; sites without an icon keep a fallback.
+- Normal tabs share one width (up to 190 pixels) and shrink together as the strip fills. Pinned tabs stay compact. At 54 pixels, icon tabs use horizontal scrolling to remain usable; the + button remains reachable. Right-click or Ctrl+W closes a crowded icon-only tab.
+- Drag bookmarks or folders left/right on the bookmarks bar. The insertion line shows the destination. Right-click > Move left / Move right offers the same ordering without dragging. Order is saved independently of the bookmark library's folders.
+- Cog > Tools > Site modules adds the first extension foundation, with access review, managed local copies, minimum-version checks, enable/disable/removal and isolated page scripts. See SITE-MODULES.md and Examples/BeaconSiteModule.
 
-Address-bar suggestions now use the row pressed and released rather than requiring keyboard selection first. Clicking the title, URL, source label or row padding opens that row. Pending online replies are cancelled on press so the list cannot change underneath a click. Releasing outside the pressed row does not navigate. Keyboard navigation and provider-search behavior remain available.
+Close Harbor and run `dist/HarborBrowserSetup-0.4.2.exe`. The installer includes .NET Framework 4.8 and WebView2 x64 prerequisites. Your previous releases remain separate. Profile schema 8 adds stable bookmark IDs/order and keeps migration snapshots; older Harbor versions protect newer-schema data by opening it read-only. Neither Harbor nor its installer is code-signed.
 
-The original 0.4.1 installer/source remain separate. See HOTFIX-VERIFICATION.md for this patch's tests; PERFORMANCE.md and Measurements retain the earlier 0.4.1 measurements and were not rerun for this click-only change.
+See VERIFICATION.md for this release's executed checks and remaining laptop checks. PERFORMANCE.md, Measurements and Base-0.4.1 contain historical 0.4.1 measurements, not new 0.4.2 benchmarks. Base-0.4.1-hotfix1 retains the previous hotfix report.
+
 ## Performance and resource monitor
 
 Open Cog > Tools > Resource monitor. The Tabs view shows each tab's sleep state and the reason it stays awake. Select a row to switch to that tab, sleep it, wake it, or keep it awake for this session. The Processes view shows Harbor/WebView2 working set, private memory and CPU samples. Row selection and scroll position survive refreshes.
@@ -71,7 +76,7 @@ Requests are delayed briefly while typing, cancelled when superseded, and stale 
 
 ## Install and data
 
-Close Harbor and run dist/HarborBrowserSetup-0.4.1-hotfix1.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
+Close Harbor and run dist/HarborBrowserSetup-0.4.2.exe over the existing installation. The installer identity and profile location remain the same. It bundles the offline .NET Framework 4.8 and WebView2 x64 prerequisite packages.
 
 Profile schema stays at 7, unchanged from 0.4.0. Older profiles are migrated with a snapshot before changes. Harbor snapshots the existing profile before migration. Earlier builds protect newer-schema data by disabling saves.
 

@@ -123,6 +123,7 @@ namespace HarborBrowser
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             if (!BeginSessionRun()) { Close(); return; }
+            if (BookmarkBarService.EnsureIds(_bookmarks) && _sessionWritesAllowed) SaveBookmarks();
             if (_homeDefaultsUpdated && _sessionWritesAllowed) SaveSettings();
             SearchEngineBox.ItemsSource = SearchEngineService.Engines;
             SearchEngineBox.SelectedValue = _settings.SearchEngineId;
@@ -287,9 +288,19 @@ namespace HarborBrowser
             tab.CloseButton.Click += CloseTabButton_Click;
             tab.HeaderContainer.Children.Add(tab.CloseButton);
 
+            tab.HeaderLayout = new Grid { VerticalAlignment = VerticalAlignment.Center };
+            tab.HeaderLayout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            tab.HeaderLayout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            tab.HeaderLayout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            var iconHost = new Grid { Width = 20, Height = 20, VerticalAlignment = VerticalAlignment.Center };
+            tab.HeaderContainer.Children.Clear();
+            iconHost.Children.Add(tab.HeaderIcon); iconHost.Children.Add(tab.FallbackIcon);
+            tab.HeaderLayout.Children.Add(iconHost);
+            Grid.SetColumn(tab.HeaderText, 1); tab.HeaderLayout.Children.Add(tab.HeaderText);
+            Grid.SetColumn(tab.CloseButton, 2); tab.HeaderLayout.Children.Add(tab.CloseButton);
             tab.Item = new TabItem
             {
-                Header = tab.HeaderContainer,
+                Header = tab.HeaderLayout,
                 Tag = tab,
                 ToolTip = "New tab",
                 Padding = new Thickness(7, 3, 7, 3),
@@ -304,6 +315,7 @@ namespace HarborBrowser
 
             tab.Item.ContextMenu = BuildTabContextMenu(tab);
             UpdateTabHeader(tab);
+            ResetTabFavicon(tab);
             tab.Item.PreviewMouseLeftButtonDown += Tab_PreviewMouseDown;
             tab.Item.PreviewMouseMove += Tab_PreviewMouseMove;
             int insertIndex = TabOrderService.NewTabIndex(BrowserTabs.Items.Cast<TabItem>().Select(i => ((BrowserTab)i.Tag).IsPinned).ToList(), tab.IsPinned);
@@ -322,6 +334,7 @@ namespace HarborBrowser
             var pin = new MenuItem { Header = tab.IsPinned ? "Unpin tab" : "Pin tab", Tag = tab };
             pin.Click += TogglePinTab_Click;
             menu.Items.Add(pin);
+            tab.PinCommand = pin;
             var group = new MenuItem { Header = "Move to group" };
             foreach (string name in _tabGroups.OrderBy(g => g, StringComparer.CurrentCultureIgnoreCase))
             {
@@ -407,6 +420,7 @@ namespace HarborBrowser
                 if (!current()) return;
                 CoreWebView2 core = view.CoreWebView2;
                 await InitializePermissionProfile(core.Profile);
+                await InitializeModules(core.Profile);
                 if (!current()) return;
                 core.PermissionRequested += (s, args) => { if (current()) CorePermissionRequested(tab, args); else { args.Handled = true; args.State = CoreWebView2PermissionState.Deny; args.SavesInProfile = false; } };
                 await InitializeVideoFeatures(tab, core);
@@ -443,6 +457,7 @@ namespace HarborBrowser
                 {
                     if (!current()) return;
                     tab.NavigationGeneration++;
+                    ResetTabFavicon(tab, args.Uri);
                     ResetTabSleepOnNavigation(tab);
                     bool wasFailed = tab.FailureMessage != null;
                     tab.FailureMessage = null;
@@ -495,6 +510,7 @@ namespace HarborBrowser
                         RecordHistory(tab, tab.View.Source.AbsoluteUri, core.DocumentTitle);
                         SaveSession();
                     }
+                    UpdateTabFavicon(tab);
                     SendHomePageState(tab);
                 };
 
@@ -835,7 +851,7 @@ namespace HarborBrowser
             tab.Item.Opacity = tab.IsSuspended ? 0.65 : 1.0;
             tab.HeaderText.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
             tab.CloseButton.Visibility = tab.IsPinned ? Visibility.Collapsed : Visibility.Visible;
-            tab.Item.Width = tab.IsPinned ? 43 : double.NaN;
+            if (double.IsNaN(tab.Item.Width)) tab.Item.Width = tab.IsPinned ? TabStripLayout.PinnedWidth : TabStripLayout.RegularWidth;
             tab.HeaderText.MaxWidth = ResponsiveLayout.TabTitleWidth(ActualWidth > 0 ? ActualWidth : Width);
             string url = tab.View != null && tab.View.Source != null ? tab.View.Source.AbsoluteUri : title;
             string description = tab.IsPrivate ? "Private tab" : "Normal tab";
@@ -844,34 +860,8 @@ namespace HarborBrowser
             if (tab.IsSuspended) description += " • Sleeping";
             if (tab.KeepAwake) description += " • Kept awake for this session";
             tab.Item.ToolTip = description + " • " + url;
-            if (tab.Item.ContextMenu != null && tab.Item.ContextMenu.Items.Count > 1)
-            {
-                MenuItem pinItem = tab.Item.ContextMenu.Items[1] as MenuItem;
-                if (pinItem != null) pinItem.Header = tab.IsPinned ? "Unpin tab" : "Pin tab";
-            }
-        }
-
-        private void UpdateTabFavicon(BrowserTab tab)
-        {
-            if (tab == null || tab.HeaderIcon == null || tab.View == null || tab.View.CoreWebView2 == null) return;
-            try
-            {
-                string favicon = tab.View.CoreWebView2.FaviconUri;
-                if (string.IsNullOrWhiteSpace(favicon)) return;
-                Uri uri;
-                if (!Uri.TryCreate(favicon, UriKind.Absolute, out uri)) return;
-                var bitmap = new BitmapImage();
-                bitmap.BeginInit();
-                bitmap.UriSource = uri;
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.DecodePixelWidth = 32;
-                bitmap.EndInit();
-                bitmap.Freeze();
-                tab.HeaderIcon.Source = bitmap;
-                tab.HeaderIcon.Visibility = Visibility.Visible;
-                tab.FallbackIcon.Visibility = Visibility.Collapsed;
-            }
-            catch (Exception ex) { Debug.WriteLine("Could not load tab favicon: " + ex.Message); }
+            if (tab.PinCommand != null) tab.PinCommand.Header = tab.IsPinned ? "Unpin tab" : "Pin tab";
+            UpdateTabWidths();
         }
 
         private void AddressBox_KeyDown(object sender, KeyEventArgs e)
@@ -1115,38 +1105,6 @@ namespace HarborBrowser
             return menu;
         }
 
-        private void RefreshBookmarksBar()
-        {
-            BookmarksBarPanel.Children.Clear();
-            foreach (Bookmark bookmark in _bookmarks.Where(b => string.IsNullOrEmpty(b.Folder)))
-            {
-                var button = new Button
-                {
-                    Content = string.IsNullOrWhiteSpace(bookmark.Title) ? bookmark.Url : bookmark.Title,
-                    Tag = bookmark,
-                    Padding = new Thickness(7, 2, 7, 2), Margin = new Thickness(2, 1, 2, 1),
-                    MaxWidth = 190, ToolTip = bookmark.Url, Background = Brushes.Transparent,
-                    BorderThickness = new Thickness(0), ContextMenu = BuildBookmarkContextMenu(bookmark)
-                };
-                button.Click += BookmarkBarButton_Click;
-                BookmarksBarPanel.Children.Add(button);
-            }
-            foreach (string folder in BookmarkLibraryService.Folders(_bookmarks, _settings.BookmarkFolders).Where(p => !p.Contains("/")))
-            {
-                var button = new Button { Content = folder + " ▾", MaxWidth = 190, ToolTip = folder, Margin = new Thickness(2, 1, 2, 1), Padding = new Thickness(7, 2, 7, 2), Background = Brushes.Transparent, BorderThickness = new Thickness(0) };
-                button.Click += (s, e) => { var menu = new ContextMenu { PlacementTarget = button, Placement = PlacementMode.Bottom }; FillBookmarkFolder(menu, folder); if (menu.Items.Count == 0) AddGearCommand(menu, "Empty folder", null, false); menu.IsOpen = true; };
-                BookmarksBarPanel.Children.Add(button);
-            }
-        }
-
-        private void BookmarkBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            Button button = sender as Button;
-            Bookmark bookmark = button == null ? null : button.Tag as Bookmark;
-            if (bookmark != null) NavigateCurrent(bookmark.Url);
-        }
-
-
         private void SendHomePageState(BrowserTab tab)
         {
             if (tab == null || !tab.Initialized || tab.View.CoreWebView2 == null ||
@@ -1305,6 +1263,7 @@ namespace HarborBrowser
             else if (selected == null && firstVisible != null)
                 BrowserTabs.SelectedItem = firstVisible;
             if (BrowserContentHost != null) ShowTabContent();
+            UpdateTabWidths();
 
 
             if (visible == 0 && _activeGroupFilter != "*")
@@ -1759,6 +1718,7 @@ namespace HarborBrowser
             menu.Items.Add(vpn);
 
             MenuItem tools = CreateGearSubmenu("Tools");
+            AddGearCommand(tools, "Site modules…", Modules_Click);
             AddGearCommand(tools, "Site permissions…", SitePermissions_Click);
             AddGearCommand(tools, "Clear browsing data… (Ctrl+Shift+Delete)", ClearBrowsingData_Click);
             AddGearCommand(tools, "Restore recovery snapshot", RestoreRecovery_Click, _sessionRecovery != null && _sessionRecovery.Snapshot != null && _sessionRecovery.Snapshot.Session != null);
@@ -1989,7 +1949,7 @@ namespace HarborBrowser
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "Harbor Browser 0.4.1 — Hotfix 1\nSuggestion click fix (build 0.4.1.1).\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
+                "Harbor Browser 0.4.2\nA compact, modular browser shell for Windows.\n\nRendering engine: Microsoft Edge WebView2\nSearch engines: DuckDuckGo, Google, Bing, Brave Search, Startpage\n\nVPN: connects to VPN profiles configured in Windows. Harbor does not provide VPN servers or a VPN subscription.",
                 "About Harbor Browser", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -2003,7 +1963,7 @@ namespace HarborBrowser
 
         private void SaveBookmarks()
         {
-            try { _store.SaveBookmarks(_bookmarks); RefreshHomePages(); }
+            try { BookmarkBarService.EnsureIds(_bookmarks); _store.SaveBookmarks(_bookmarks); RefreshHomePages(); }
             catch (Exception ex) { SetStatus("Could not save bookmarks: " + ex.Message); }
         }
 

@@ -67,7 +67,7 @@
         </StatusBarItem>
         <Separator />
         <StatusBarItem HorizontalAlignment="Right">
-          <TextBlock Text="Harbor 0.4.1  •  WebView2" Foreground="{DynamicResource HarborMuted}" />
+          <TextBlock Text="Harbor 0.4.2  •  WebView2" Foreground="{DynamicResource HarborMuted}" />
         </StatusBarItem>
       </StatusBar>
       <Border x:Name="DownloadNotificationBar" DockPanel.Dock="Bottom" Visibility="Collapsed" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,1,0,0" Padding="12,5">
@@ -101,12 +101,12 @@
             <TabControl x:Name="BrowserTabs" Height="34" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" BorderThickness="0,0,0,1" AllowDrop="True" DragOver="BrowserTabs_DragOver" Drop="BrowserTabs_Drop" DragLeave="BrowserTabs_DragLeave" SelectionChanged="BrowserTabs_SelectionChanged" Grid.Column="1" Margin="1,2,0,2" WindowChrome.IsHitTestVisibleInChrome="True" PreviewMouseLeftButtonDown="TitleTabStrip_MouseDown" PreviewMouseWheel="TitleTabStrip_MouseWheel" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
               <TabControl.Template>
                 <ControlTemplate TargetType="{x:Type TabControl}">
-                  <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Background="{DynamicResource HarborPanel}" Focusable="False">
-                    <StackPanel Orientation="Horizontal" Background="{DynamicResource HarborPanel}">
+                  <DockPanel Background="{DynamicResource HarborPanel}">
+                    <Button DockPanel.Dock="Right" Content="＋" Width="29" Height="27" Margin="4,2,7,3" Padding="0" FontSize="16" ToolTip="New tab (Ctrl+T)" Click="NewTab_Click" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" />
+                    <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Focusable="False">
                       <TabPanel IsItemsHost="True" KeyboardNavigation.TabIndex="1" Margin="5,2,0,0" Background="Transparent" />
-                      <Button Content="＋" Width="29" Height="27" Margin="4,2,7,3" Padding="0" FontSize="16" ToolTip="New tab (Ctrl+T)" Click="NewTab_Click" Background="{DynamicResource HarborPanel}" BorderBrush="{DynamicResource HarborLine}" />
-                    </StackPanel>
-                  </ScrollViewer>
+                    </ScrollViewer>
+                  </DockPanel>
                 </ControlTemplate>
               </TabControl.Template>
             </TabControl>

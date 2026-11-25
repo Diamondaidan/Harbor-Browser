@@ -59,6 +59,8 @@ internal static partial class Program
                 }
                 if(args.Length>2&&args[2]=="--suggestion-clicks")
                 {await SuggestionClickChecks(main);Console.WriteLine("ALL PASSED: "+checks+" focused suggestion-click checks.");exit=0;return;}
+                if(args.Length>2&&args[2]=="--release042")
+                {await Release042Checks(main,store,args[0]);Console.WriteLine("ALL PASSED: "+checks+" focused 0.4.2 checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--privacy-edge")
                 {await PrivacyEdgeChecks(main,args[0],args[1]);Console.WriteLine("ALL PASSED: "+checks+" focused privacy edge checks.");exit=0;return;}
                 core.SetVirtualHostNameToFolderMapping("media.test.invalid",args[1],CoreWebView2HostResourceAccessKind.DenyCors);
@@ -165,6 +167,7 @@ internal static partial class Program
                 using(var file=File.Create(Path.Combine(args[0],"compact-header.png")))encoder.Save(file);
                 await EverydayChecks(main,tab,store,core,args[0],args[1]);
                 await CustomizationChecks(main,store,args[0]);
+                await Release042Checks(main,store,args[0]);
                 await PerformanceChecks(main,args[0],args[1]);
                 await PrivacyChecks(main,store,args[0],args[1]);
                 await PrivacyEdgeChecks(main,args[0],args[1]);

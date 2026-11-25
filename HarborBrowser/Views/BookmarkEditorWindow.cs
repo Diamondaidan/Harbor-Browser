@@ -24,7 +24,7 @@ namespace HarborBrowser.Views
             if(!shortcut){form.Children.Add(new TextBlock{Text="Folder (use / for subfolders)",Margin=new Thickness(0,10,0,0)});form.Children.Add(FolderBox);}
             FolderBox.Items.Add(string.Empty);foreach(string folder in folders)FolderBox.Items.Add(folder);
             TitleBox.Text=bookmark==null?string.Empty:bookmark.Title;UrlBox.Text=bookmark==null?string.Empty:bookmark.Url;FolderBox.Text=bookmark==null?string.Empty:bookmark.Folder;
-            save.Click+=(s,e)=>{Bookmark result;if(!BookmarkLibraryService.TryBookmark(TitleBox.Text,UrlBox.Text,shortcut?string.Empty:FolderBox.Text,out result)){MessageBox.Show(this,"Enter a valid HTTP or HTTPS address and folder name.",Title,MessageBoxButton.OK,MessageBoxImage.Information);return;}Result=result;DialogResult=true;};
+            save.Click+=(s,e)=>{Bookmark result;if(!BookmarkLibraryService.TryBookmark(TitleBox.Text,UrlBox.Text,shortcut?string.Empty:FolderBox.Text,out result)){MessageBox.Show(this,"Enter a valid HTTP or HTTPS address and folder name.",Title,MessageBoxButton.OK,MessageBoxImage.Information);return;}if(bookmark!=null)result.Id=bookmark.Id;Result=result;DialogResult=true;};
             Loaded+=(s,e)=>{TitleBox.Focus();TitleBox.SelectAll();};
         }
     }

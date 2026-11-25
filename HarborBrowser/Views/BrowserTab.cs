@@ -24,6 +24,9 @@ namespace HarborBrowser.Views
         public Image HeaderIcon { get; set; }
         public TextBlock FallbackIcon { get; set; }
         public StackPanel HeaderContainer { get; set; }
+        public MenuItem PinCommand {get;set;}
+        public int FaviconRevision {get;set;}
+        public System.Windows.Controls.Grid HeaderLayout {get;set;}
         public Button CloseButton { get; set; }
         public string PendingUrl { get; set; }
         public string LastRecordedUrl { get; set; }
