@@ -58,6 +58,8 @@ internal static partial class Program
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
                 var tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
                 var core=tab.View.CoreWebView2;await Task.Delay(400);
+                if(args.Length>2&&args[2]=="--environment061")
+                {await Environment061Checks(main,args[0]);Console.WriteLine("ALL PASSED: "+checks+" network/wake event and protection recovery checks. Synthetic events; no Windows network or power changes.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--updates060")
                 {await Updates060Checks(main,store);Console.WriteLine("ALL PASSED: "+checks+" native update-menu and routing-gate checks.");exit=0;return;}
                 if(args.Length>2&&args[2]=="--release057")

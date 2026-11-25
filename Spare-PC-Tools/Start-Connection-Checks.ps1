@@ -13,11 +13,11 @@ try{
  $server=Join-Path $results 'server.json'
  $watch=[Diagnostics.Stopwatch]::StartNew()
  while(!(Test-Path -LiteralPath $server)){
-  if($process.HasExited -or $watch.Elapsed.TotalSeconds -gt 15){throw 'The local check could not start. Install the beta prerequisites first.'}
+  if($process.HasExited -or $watch.Elapsed.TotalSeconds -gt 15){throw 'The local check could not start. Install Harbor prerequisites first.'}
   Start-Sleep -Milliseconds 100
  }
  $address=(Get-Content -LiteralPath $server -Raw | ConvertFrom-Json).url
- Write-Output 'Paste this local address into Harbor Browser Beta, then choose Run checks:'
+ Write-Output 'Paste this local address into Harbor Browser, then choose Run checks:'
  Write-Output $address
  Write-Output 'The checks contact ipify and a WebSocket echo service. Results omit public addresses and account data.'
  Write-Output ('Connection results: '+(Join-Path $results 'results.json'))

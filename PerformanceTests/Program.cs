@@ -69,6 +69,7 @@ internal static class Benchmark
         var app=new Application{ShutdownMode=ShutdownMode.OnExplicitShutdown};app.Resources.MergedDictionaries.Add(new ResourceDictionary{Source=new Uri("pack://application:,,,/HarborBrowser;component/Themes/Controls.xaml")});
         var store=new BrowserDataStore(Path.Combine(output,"Profile"),Path.Combine(output,"Downloads"));store.SaveSettings(new BrowserSettings{SuspendInactiveTabs=false,HarborHomeIntroduced=true,OnlineSuggestionsEnabled=false,RestorePreviousSession=false});
         var layout=new MonitorLayout(new PixelRect(-20000,0,-18720,720),new PixelRect(-20000,0,-18720,680),3);
+        var startup=Stopwatch.StartNew();long startupReadyMilliseconds=0;
         var main=new MainWindow(store,h=>layout){WindowStartupLocation=WindowStartupLocation.Manual,Left=-20000,Top=0,Width=1000,Height=600,ShowInTaskbar=false,ShowActivated=false};
         var timeout=new DispatcherTimer{Interval=TimeSpan.FromMinutes(3)};timeout.Tick+=(s,e)=>{Console.WriteLine("FAIL benchmark timeout");app.Shutdown(1);};
         main.Loaded+=async(s,e)=>
@@ -77,6 +78,7 @@ internal static class Benchmark
             try
             {
                 await Wait(()=>main.BrowserTabs.Items.Count>0&&((BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag).Initialized);
+                startup.Stop();startupReadyMilliseconds=startup.ElapsedMilliseconds;
                 for(int i=0;i<count;i++)
                 {
                     BrowserTab tab;if(i==0)tab=(BrowserTab)((TabItem)main.BrowserTabs.Items[0]).Tag;
@@ -113,7 +115,7 @@ internal static class Benchmark
                 settings.SuspendInactiveTabs=false;Activity(main);await Task.Delay(steady?5000:300);records.AddRange(await Measure(main,tabs,"Woken",protectedTab,download));
                 if(tabs.Any(t=>t.View.CoreWebView2.IsSuspended))throw new Exception("A tab failed to wake");
                 var environment=(CoreWebView2Environment)Field(main,"_environment");
-                File.WriteAllText(Path.Combine(output,"measurements.json"),Json.Serialize(new{Version=actual,Scene=scene,Tabs=count,Trial=trial,MeasurementMode=steady?"Steady":"Short",ProcessBits=IntPtr.Size*8,LogicalProcessors=Environment.ProcessorCount,Runtime=environment.BrowserVersionString,Samples=records}));
+                File.WriteAllText(Path.Combine(output,"measurements.json"),Json.Serialize(new{Version=actual,Scene=scene,Tabs=count,Trial=trial,MeasurementMode=steady?"Steady":"Short",StartupReadyMilliseconds=startupReadyMilliseconds,ProcessBits=IntPtr.Size*8,LogicalProcessors=Environment.ProcessorCount,Runtime=environment.BrowserVersionString,Samples=records}));
                 File.WriteAllLines(Path.Combine(output,"measurements.csv"),new[]{"version,scene,tabs,trial,phase,sleeping,processes,app_working_mb,app_private_mb,web_working_mb,web_private_mb,cpu_percent,protected_awake,download_bytes"}.Concat(records.Select(f=>string.Join(",",new[]{actual,scene,count.ToString(),trial.ToString(),f.Phase,f.Sleeping.ToString(),f.Processes.ToString(),f.AppWorkingMB.ToString("F3",CultureInfo.InvariantCulture),f.AppPrivateMB.ToString("F3",CultureInfo.InvariantCulture),f.WebWorkingMB.ToString("F3",CultureInfo.InvariantCulture),f.WebPrivateMB.ToString("F3",CultureInfo.InvariantCulture),f.CpuPercent.ToString("F3",CultureInfo.InvariantCulture),f.ProtectedTabAwake.ToString(),f.DownloadBytes.ToString()}))));
                 Console.WriteLine("PASS benchmark "+actual+" "+scene+" tabs="+count+" trial="+trial+" sleeping="+records.First(f=>f.Phase=="Sleeping").Sleeping);exit=0;
             }

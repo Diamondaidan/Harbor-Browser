@@ -6,11 +6,15 @@
     <LangVersion>7.3</LangVersion>
     <Nullable>disable</Nullable>
     <AssemblyName>HarborBrowser</AssemblyName>
+    <Product>Harbor Browser</Product>
+    <Company>Harbor Browser Project</Company>
+    <Copyright>Copyright (C) 2026 Harbor Browser contributors</Copyright>
     <HarborVersion>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)..\VERSION.txt').Trim())</HarborVersion>
     <Version>$(HarborVersion)</Version>
     <AssemblyVersion>$(HarborVersion).0</AssemblyVersion>
     <FileVersion>$(HarborVersion).0</FileVersion>
     <InformationalVersion>$(HarborVersion)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>HarborBrowser.ico</ApplicationIcon>
     <RootNamespace>HarborBrowser</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>

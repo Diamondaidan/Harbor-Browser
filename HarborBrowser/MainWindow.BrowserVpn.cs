@@ -84,10 +84,20 @@ namespace HarborBrowser
         private void QueueTorEnvironmentChange(bool available,string reason)
         {
             if(_torWindowClosed||Dispatcher.HasShutdownStarted)return;
+            // Windows can deliver these callbacks on another thread. Close the
+            // thread-safe request gate now, before waiting for a busy UI queue.
+            var protection=ProtonProtection;
+            long? invalidatedEpoch=protection!=null&&protection.Enabled
+                ? (long?)protection.Invalidate(available ? "The network changed. Browsing is paused until Proton is verified again." : "The network is unavailable or suspended. Browsing is paused.",available)
+                : null;
             try{Dispatcher.BeginInvoke(new Action(()=>{
                 if(_torWindowClosed||_shuttingDown)return;_torDebounce.Stop();
-                if (ProtonProtection != null && ProtonProtection.Enabled)
-                    InvalidateProtonProtection(available ? "The network changed. Browsing is paused until Proton is verified again." : "The network is unavailable. Browsing is paused.", available);
+                if(invalidatedEpoch.HasValue&&protection.Enabled&&protection.Epoch==invalidatedEpoch.Value)
+                {
+                    _protonProbeCancellation?.Cancel();
+                    _protonNextCheckUtc=DateTime.MinValue;
+                    _protonRouteRefreshRequested=available;
+                }
                 _browserVpn.NotifyConnectionChange(available,reason);
                 if(available&&_browserVpn.Enabled)_torDebounce.Start();
             }));}catch(InvalidOperationException){}

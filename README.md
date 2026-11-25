@@ -1,12 +1,14 @@
 # Harbor Browser
 
+This branch develops **0.6.1**. It closes the Proton request gate immediately on network/wake events and prevents clock changes from extending old route evidence. It is a development candidate, separate from the frozen 0.6.0 draft. See [DEVELOPMENT-0.6.1.md](DEVELOPMENT-0.6.1.md) for verification scope and remaining work.
+
 Harbor is a Windows browser built with WPF, .NET Framework 4.8 and Microsoft WebView2. It is developed with ChatGPT under the maintainer's guidance.
 
 Features include movable tabs, bookmarks, history, downloads, appearance controls, private tabs, video tools and optional Proton browser protection. Version 0.6.0 adds verified update downloads and backup recovery.
 
 ## Release status
 
-The source is public. Windows installers remain **draft releases until Windows signing is ready**. There is no public installer release or working public update feed yet. The existing local 0.6.0 packages are unsigned; a cryptographically signed Harbor update record is separate from Windows executable signing.
+The source is public. Windows installer and portable packages will remain **unsigned by the owner's choice**. There is currently no published installer release or public update feed; existing releases stay draft until final release validation and review. Windows may display an unknown-publisher/SmartScreen warning or block installation. Harbor's cryptographically signed update records and package checksums remain required; they are separate from Windows publisher signing.
 
 The installer targets Windows 10 build 19041 or later on x64, including compatible Windows 11 systems. It includes verified Microsoft .NET 4.8 and WebView2 prerequisites. This does not constitute testing on every supported computer.
 
@@ -22,7 +24,7 @@ Harbor-authored code and artwork in this repository are available under **GNU GP
 
 ## Code signing policy
 
-See [CODE-SIGNING-POLICY.md](CODE-SIGNING-POLICY.md). A free SignPath Foundation application is being prepared. No signing service approval, certificate or sponsorship is claimed.
+See [CODE-SIGNING-POLICY.md](CODE-SIGNING-POLICY.md). SignPath signing is unavailable for Harbor at present, and no signing service approval, certificate or sponsorship is claimed. [WINDOWS-SIGNING-OPTIONS.md](WINDOWS-SIGNING-OPTIONS.md) records the researched alternatives, including a possible future Microsoft Store package.
 
 ## Privacy
 

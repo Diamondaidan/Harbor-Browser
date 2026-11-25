@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 
 namespace HarborBrowser.Services
 {
@@ -13,7 +14,10 @@ namespace HarborBrowser.Services
         private ProtonProtectionPhase _state;
         private string _reason;
         private DateTime? _verifiedUntil, _lastVerified;
+        private long _verifiedTimestamp;
+        private double _leaseSeconds;
         internal Func<DateTime> UtcNow = () => DateTime.UtcNow;
+        internal Func<long> MonotonicTimestamp = Stopwatch.GetTimestamp;
         internal event EventHandler Changed;
 
         internal ProtonProtectionState(bool enabled)
@@ -60,6 +64,7 @@ namespace HarborBrowser.Services
             {
                 if (!_enabled || epoch != _epoch) return false;
                 _lastVerified = UtcNow(); _verifiedUntil = _lastVerified.Value.Add(lease);
+                _verifiedTimestamp=MonotonicTimestamp();_leaseSeconds=lease.TotalSeconds;
                 _state = ProtonProtectionPhase.Protected;
                 _reason = "Proton's browser route was verified. Hosted requests also check proxy ownership.";
             }
@@ -95,11 +100,17 @@ namespace HarborBrowser.Services
             bool changed = false;
             lock (_gate)
             {
-                if (_enabled && _state == ProtonProtectionPhase.Protected && (!_verifiedUntil.HasValue || UtcNow() >= _verifiedUntil.Value))
+                if (_enabled && _state == ProtonProtectionPhase.Protected)
                 {
-                    ++_epoch; _verifiedUntil = null; _state = ProtonProtectionPhase.Disconnected;
-                    _reason = "The route check expired. Browsing is paused until Proton is verified again.";
-                    changed = true;
+                    var now=UtcNow();
+                    double elapsed=(MonotonicTimestamp()-_verifiedTimestamp)/(double)Stopwatch.Frequency;
+                    bool clockMovedBack=_lastVerified.HasValue&&now<_lastVerified.Value;
+                    if(!_verifiedUntil.HasValue||now>=_verifiedUntil.Value||clockMovedBack||elapsed<0||elapsed>=_leaseSeconds)
+                    {
+                        ++_epoch; _verifiedUntil = null; _state = ProtonProtectionPhase.Disconnected;
+                        _reason = clockMovedBack ? "The computer clock changed. Browsing is paused until Proton is verified again." : "The route check expired. Browsing is paused until Proton is verified again.";
+                        changed = true;
+                    }
                 }
             }
             if (changed) RaiseChanged();

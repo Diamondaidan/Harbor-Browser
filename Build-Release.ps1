@@ -3,7 +3,7 @@ param([switch]$SkipBuild,[ValidatePattern('^(-[A-Za-z0-9]+)?$')][string]$BuildSu
 $ErrorActionPreference='Stop'
 $releaseRoot=$PSScriptRoot
 $version=(Get-Content -LiteralPath (Join-Path $releaseRoot 'VERSION.txt') -Raw).Trim()
-if($version -ne '0.6.0'){throw 'Unexpected release version.'}
+if($version -ne '0.6.1'){throw 'Unexpected release version.'}
 if(!$SkipBuild){
   $vswhere=Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio\Installer\vswhere.exe'
   $builder=& $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -find 'MSBuild\**\Bin\MSBuild.exe' | Select-Object -First 1
@@ -13,7 +13,7 @@ if(!$SkipBuild){
 }
 $compiled=Join-Path $releaseRoot 'HarborBrowser\bin\Release\net48'
 $app=Join-Path $compiled 'HarborBrowser.exe'
-if(!(Test-Path -LiteralPath $app) -or (Get-Item -LiteralPath $app).VersionInfo.FileVersion.Trim() -ne '0.6.0.0'){throw 'The expected trial executable is missing.'}
+if(!(Test-Path -LiteralPath $app) -or (Get-Item -LiteralPath $app).VersionInfo.FileVersion.Trim() -ne '0.6.1.0'){throw 'The expected trial executable is missing.'}
 $verificationPath=Join-Path $releaseRoot 'RELEASE-VERIFICATION.json'
 if(!(Test-Path -LiteralPath $verificationPath)){throw 'The release has no completed verification record. Do not package an unverified protection build.'}
 $verification=Get-Content -LiteralPath $verificationPath -Raw | ConvertFrom-Json
@@ -21,7 +21,7 @@ if($verification.ReadyToPackage -ne $true -or $verification.AppSHA256 -ne (Get-F
 $provider=Join-Path $compiled 'Assets\BrowserVpn\Proton'
 if(!(Test-Path -LiteralPath (Join-Path $provider 'manifest.json'))){throw 'Build the official Proton assets first; see ThirdParty/PROTON-BUILD.md.'}
 $dist=Join-Path $releaseRoot 'dist'
-$stage=Join-Path $dist ('Harbor-0.6.0'+$BuildSuffix)
+$stage=Join-Path $dist ('Harbor-0.6.1'+$BuildSuffix)
 if(![IO.Path]::GetFullPath($stage).StartsWith([IO.Path]::GetFullPath($releaseRoot)+'\dist\',[StringComparison]::OrdinalIgnoreCase)){throw 'Portable stage escaped the release.'}
 if(Test-Path -LiteralPath $stage){throw 'Portable stage already exists. Preserve it while testing; use a fresh stage for a later build.'}
 New-Item -ItemType Directory -Path $stage -Force | Out-Null
@@ -30,7 +30,7 @@ if($LASTEXITCODE -ge 8){throw 'Portable staging failed.'}
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'RELEASE-NOTES.md') -Destination (Join-Path $stage 'READ-ME-FIRST.md')
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'RELEASE-VERIFICATION.md') -Destination $stage
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'RELEASE-VERIFICATION.json') -Destination $stage
-foreach($report in @('SETUP-README.md','LIVE-VERIFICATION.md','UPDATING.md','INSTALLER-VERIFICATION.md')){
+foreach($report in @('SETUP-README.md','LIVE-VERIFICATION.md','UPDATING.md','INSTALLER-VERIFICATION.md','LICENSE','LICENSE-NOTICE.md','PRIVACY.md','CODE-SIGNING-POLICY.md','WINDOWS-SIGNING-OPTIONS.md')){
   if(Test-Path -LiteralPath (Join-Path $releaseRoot $report)){Copy-Item -LiteralPath (Join-Path $releaseRoot $report) -Destination $stage}
 }
 $licensing=Join-Path $stage 'Licensing'
@@ -50,7 +50,7 @@ $payloadFiles=@(Get-ChildItem -LiteralPath $stage -File -Recurse | ForEach-Objec
   [pscustomobject]@{Path=$_.FullName.Substring($stage.Length+1).Replace('\','/');Bytes=$_.Length;SHA256=(Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash}
 })
 [pscustomobject]@{Channel='HarborStable';Version=$version;AppSHA256=$verification.AppSHA256;Files=$payloadFiles} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $stage 'package-manifest.json') -Encoding utf8
-$zip=Join-Path $dist ('HarborBrowser-0.6.0'+$BuildSuffix+'-portable.zip')
+$zip=Join-Path $dist ('HarborBrowser-0.6.1'+$BuildSuffix+'-portable.zip')
 if(Test-Path -LiteralPath $zip){throw 'Portable archive already exists; refusing to overwrite an unverified prior artifact.'}
 Compress-Archive -LiteralPath $stage -DestinationPath $zip -CompressionLevel Optimal
 Get-FileHash -LiteralPath $app,$zip -Algorithm SHA256
