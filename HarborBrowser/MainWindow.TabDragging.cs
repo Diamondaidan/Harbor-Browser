@@ -102,7 +102,7 @@ namespace HarborBrowser
             _reorderingTabs=true;
             try { BrowserTabs.Items.Remove(tab.Item);BrowserTabs.Items.Insert(index,tab.Item);BrowserTabs.SelectedItem=selected; }
             finally { _reorderingTabs=false; }
-            ApplyTabGroupFilter();tab.Item.BringIntoView();SaveSession();SetStatus("Tab moved");
+            ApplyTabGroupFilter();BringTitleTabIntoView(tab);SaveSession();SetStatus("Tab moved");
         }
         private void MoveTabRelative(BrowserTab tab,int direction)
         {

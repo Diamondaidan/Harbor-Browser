@@ -1,5 +1,8 @@
 # Harbor Browser 0.6.1 development notes
 
+- Match Harbor-owned dialog title bars to the browser's light/dark palette, including live theme changes on Windows 10.
+- Use a compact Proton window with the extension given most of the space; place secondary actions in a collapsed options panel and scale the provider controls on small windows.
+- Keep the new-tab button directly after the last tab, with the button still accessible when the tab strip overflows.
 - Invalidate Proton route evidence as soon as a network/address/suspend/resume callback arrives, even while the interface is busy.
 - Cancel obsolete route checks and schedule a fresh check after a transition; keep paused pages and downloads from resuming automatically.
 - Use monotonic elapsed time and UTC bounds for route evidence. Moving the system clock backward cannot prolong an old Protected claim.

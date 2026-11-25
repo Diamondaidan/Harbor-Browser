@@ -4,7 +4,7 @@ Extract the whole kit into a writable folder. This regular release uses the exis
 
 1. Run Check-PC.cmd for read-only package and platform checks. Save the Results folder.
 2. On the spare PC, run HarborBrowserSetup-0.6.1-release.exe. This installer is intentionally unsigned; Windows may warn or block it. Report a security block rather than disabling Windows protections. Handle any administrator prompt yourself. Check offline setup and, if required, the requested restart. No developer tools are needed.
-3. Open Harbor Browser. Check tabs, bookmarks, history, downloads, settings, dark/light mode and resource monitor using test data.
+3. Open Harbor Browser. Check tabs, bookmarks, history, downloads, settings, dark/light mode and resource monitor using test data. Check History/Bookmarks/Settings title bars in both modes; move/resize those windows. Confirm the plus button follows the last tab and stays accessible in a crowded strip. Resize Proton's compact window and check its controls, footer and Options panel, including after signing in.
 4. Enable optional Proton, sign in yourself and connect. Wait for Protected. Run Connection-Checks.cmd and paste its displayed local address into Harbor. Unavailable IPv6 results are inconclusive.
 5. Close/reopen Harbor. Check retained sign-in, Connect if needed, wait for Protected, then Reload the paused test tab.
 6. Disconnect Proton. Confirm Disconnected / Browsing paused and blocked Reload. Reconnect and verify before explicitly reloading.

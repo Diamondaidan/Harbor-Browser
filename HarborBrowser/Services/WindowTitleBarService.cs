@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Input;
 
 namespace HarborBrowser.Services
 {
@@ -19,14 +20,27 @@ namespace HarborBrowser.Services
         {
             if(_initialized)return;
             _initialized=true;
+            CommandManager.RegisterClassCommandBinding(typeof(Window),new CommandBinding(SystemCommands.CloseWindowCommand,(s,e)=>SystemCommands.CloseWindow((Window)(e.Parameter??s))));
+            CommandManager.RegisterClassCommandBinding(typeof(Window),new CommandBinding(SystemCommands.MinimizeWindowCommand,(s,e)=>SystemCommands.MinimizeWindow((Window)(e.Parameter??s))));
+            CommandManager.RegisterClassCommandBinding(typeof(Window),new CommandBinding(SystemCommands.MaximizeWindowCommand,(s,e)=>SystemCommands.MaximizeWindow((Window)(e.Parameter??s))));
+            CommandManager.RegisterClassCommandBinding(typeof(Window),new CommandBinding(SystemCommands.RestoreWindowCommand,(s,e)=>SystemCommands.RestoreWindow((Window)(e.Parameter??s))));
             EventManager.RegisterClassHandler(typeof(Window),FrameworkElement.LoadedEvent,new RoutedEventHandler(Loaded));
         }
         private static void Loaded(object sender,RoutedEventArgs args)
         {
             var window=sender as Window;if(window==null||window.WindowStyle==WindowStyle.None)return;
+            // An implicit Window style is not automatically inherited by every
+            // derived dialog class. Give those dialogs the shared caption too.
+            Prepare(window);
+            window.ApplyTemplate();
             Hook hook;
             if(!Hooks.TryGetValue(window,out hook)){hook=new Hook(window);Hooks.Add(window,hook);}
             Apply(window);
+        }
+        internal static void Prepare(Window window)
+        {
+            if(window!=null&&window.WindowStyle!=WindowStyle.None&&window.Style==null)
+                window.SetResourceReference(FrameworkElement.StyleProperty,typeof(Window));
         }
         public static void Apply(Window window)
         {

@@ -1,9 +1,9 @@
 # Harbor Browser 0.6.1 application verification
 
-Passed **1284 assertions across 16 suites** against matching app/helper copies.
+Passed **1330 assertions across 17 suites** against matching app/helper copies.
 
-App SHA-256: 87155D68CFD41C49B927518A2635D11AA4BB06299763612CFF5E1285BE31E136
-Update launcher SHA-256: BD0A5F9C0266534600A6893E3C386146E755C84B16184035E7F5035F583456AD
+App SHA-256: DB64E68769CF9DBBE48C3BBF3FBDB5A0A2152E1176AE7E7EEE0322668BB3EDD0
+Update launcher SHA-256: 79EEB61EA18234A170085475C2011DFEF8AF542361B60031E43D303719E16ABC
 
 | Suite | Assertions | Passed |
 | --- | ---: | --- |
@@ -23,11 +23,12 @@ Update launcher SHA-256: BD0A5F9C0266534600A6893E3C386146E755C84B16184035E7F5035
 | updates | 120 | True |
 | updates-ui | 8 | True |
 | environment061 | 67 | True |
+| ui061 | 46 | True |
 
-The new 67-check suite covers injected UTC/elapsed clocks and synthetic network lost/returned, address change, suspend and resume callbacks. It holds the interface queue busy, verifies immediate request denial and stale-proof rejection, checks obsolete-work cancellation and cooldown reset, counts blocked requests at a local server, then requires explicit Reload after fresh evidence. No Windows network, power or clock setting was changed.
+All results are current for this executable. They cover local WebView2 browsing, downloads and filename handling, media, bookmarks, tab organization, settings, private profiles, synthetic account handoff, request protection, recovery and the updater. No real account sign-in or live protected-route claim is included.
 
-The prior 15 suites were run against this candidate or reused only from the same matching executable after successful builds. They include real WebView2 local browsing, downloads, media, private profiles, account-handoff fixtures, request gates and updater/native helper fixtures. No account sign-in or live protected-route claim is included.
+The new 46-assertion UI suite checks app-rendered captions and live light/dark changes, including History; closing cancellation; compact genuine signed-out Proton controls and footer fit at three window sizes; collapsed Options with a visible privacy notice; and a trailing plus button with spare room and overflow. Dark/light captions, the provider renderer and tab-strip captures were visually inspected. See UI-0.6.1-VERIFICATION.md.
 
-The full suite passed 10 simulated size/scaling cases, including 1366 x 768 at 100/125/150/175/200 percent, plus light/dark menu/dialog checks. Header renders at 100 and 200 percent were visually inspected. These are offscreen WPF layout checks, not physical-monitor certification.
+The full suite includes ten simulated size/scaling cases, including 1366 x 768 at 100/125/150/175/200 percent. These are offscreen WPF checks rather than physical-monitor certification. The environment suite injects network, wake and clock events; it does not change Windows networking, time or power settings.
 
-Installer fixtures and performance measurements are reported separately. See DEVELOPMENT-0.6.1.md and LIVE-VERIFICATION.md for remaining physical, provider and public update checks.
+Installer/package results are separate. The performance report identifies the preceding executable and was not rerun for these UI changes. Physical caption/mouse/DPI tests, signed-in Proton controls/reconnection, actual clean/offline prerequisite/reboot tests and hosted update/rollback remain manual validation items.
